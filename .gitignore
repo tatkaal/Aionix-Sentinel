@@ -1,0 +1,31 @@
+# dependencies
+node_modules/
+
+# build output
+dist/
+dist-extension/
+dist-extension-test/
+*.zip
+*.tsbuildinfo
+
+# large runtime assets fetched by `npm run setup` (see docs/datasets.md, scripts/fetch-models.mjs)
+assets/models/
+assets/ort/
+.cache/
+
+# datasets whose licence does not permit redistribution are fetched at setup time
+data/datasets/.raw/
+data/datasets/ai4privacy.jsonl
+
+# test artefacts
+test-results/
+playwright-report/
+coverage/
+
+# editor / OS
+.vscode/*
+!.vscode/extensions.json
+.idea/
+.DS_Store
+Thumbs.db
+*.log
