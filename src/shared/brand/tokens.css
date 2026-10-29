@@ -1,0 +1,73 @@
+@import 'tailwindcss';
+@import '@fontsource-variable/plus-jakarta-sans';
+@import '@fontsource-variable/dm-sans';
+@import '@fontsource-variable/jetbrains-mono';
+
+/* Aonix brand tokens — 60% canvas / 30% surfaces / 10% accents. Mirrored in tokens.ts. */
+@theme {
+  --color-obsidian: #090A10;
+  --color-graphite: #11131F;
+  --color-graphite-2: #181B2C;
+  --color-alabaster: #F8FAFC;
+  --color-muted: #A1A9BC;
+  --color-subtle: #6E768C;
+  --color-violet: #5921c3;
+  --color-violet-hover: #6b2ce0;
+  --color-luminous: #9553fb;
+  --color-crimson: #EF4444;
+  --color-amber: #F59E0B;
+  --color-emerald: #10B981;
+  --color-hairline: rgba(255, 255, 255, 0.08);
+  --color-hairline-brand: rgba(149, 83, 251, 0.14);
+
+  --font-display: 'Plus Jakarta Sans Variable', 'Plus Jakarta Sans', ui-sans-serif, system-ui, sans-serif;
+  --font-sans: 'DM Sans Variable', 'DM Sans', ui-sans-serif, system-ui, sans-serif;
+  --font-mono: 'JetBrains Mono Variable', 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
+}
+
+@layer base {
+  html {
+    color-scheme: dark;
+    background: var(--color-obsidian);
+    color: var(--color-alabaster);
+  }
+
+  body {
+    background: var(--color-obsidian);
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4 {
+    font-family: var(--font-display);
+    text-wrap: balance;
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--color-luminous);
+    outline-offset: 2px;
+  }
+
+  /* Metrics, hashes, latency, memory and code always align on tabular figures. */
+  code,
+  kbd,
+  pre,
+  samp,
+  .font-mono {
+    font-variant-numeric: tabular-nums;
+  }
+
+  ::selection {
+    background: rgba(149, 83, 251, 0.35);
+  }
+}
+
+@utility metric {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.01em;
+}
