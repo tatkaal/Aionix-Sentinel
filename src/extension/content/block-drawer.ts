@@ -3,6 +3,8 @@
 import { aionixLogoMarkup } from '../../shared/brand/logo-paths';
 import { BRAND, FONT_STACK } from '../../shared/brand/tokens';
 
+declare const __AIONIX_TEST_BUILD__: boolean | undefined;
+
 export interface DrawerItem {
   id: string;
   categoryLabel: string;
@@ -92,7 +94,9 @@ export class BlockDrawer {
     this.handlers = handlers;
     if (!this.host || !this.host.isConnected) {
       this.host = document.createElement('aionix-sentinel-drawer');
-      this.root = this.host.attachShadow({ mode: 'closed' });
+      // Closed in production so page scripts cannot read findings; open only in the e2e test build.
+      const testBuild = typeof __AIONIX_TEST_BUILD__ !== 'undefined' && __AIONIX_TEST_BUILD__;
+      this.root = this.host.attachShadow({ mode: testBuild ? 'open' : 'closed' });
       (document.body ?? document.documentElement).appendChild(this.host);
       document.addEventListener('keydown', this.keyHandler, true);
     }

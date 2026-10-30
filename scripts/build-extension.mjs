@@ -80,6 +80,7 @@ const manifest = JSON.parse(readFileSync(resolve(extSrc, 'manifest.json'), 'utf8
 if (isTest) {
   const local = 'http://localhost:4173/*';
   for (const cs of manifest.content_scripts) cs.matches.push(local);
+  for (const war of manifest.web_accessible_resources) war.matches.push(local);
   manifest.host_permissions.push(local);
   manifest.name += ' (test build)';
 }

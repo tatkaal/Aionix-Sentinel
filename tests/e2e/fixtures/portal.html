@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Portal fixture</title>
+    <style>
+      body { font: 15px system-ui, sans-serif; background: #111; color: #eee; padding: 24px; }
+      .composer { border: 1px solid #444; border-radius: 12px; padding: 12px; max-width: 720px; }
+      .editor { min-height: 60px; outline: none; white-space: pre-wrap; }
+      .chips { display: flex; gap: 8px; margin-bottom: 8px; }
+      .chip { border: 1px solid #666; border-radius: 8px; padding: 4px 8px; font-size: 12px; }
+      #log { margin-top: 16px; font-size: 13px; }
+    </style>
+  </head>
+  <body>
+    <!-- Structural replica of each portal's composer (selectors from src/extension/content/adapters). -->
+    <div id="mount"></div>
+    <div id="log"></div>
+    <button id="direct-api" type="button">Send via API directly</button>
+    <script>
+      const portal = location.pathname.split('/')[1];
+      const mount = document.getElementById('mount');
+      const layouts = {
+        claude: `<fieldset class="composer"><div class="chips" data-testid="file-thumbnail-list"></div>
+          <div class="ProseMirror editor" contenteditable="true" role="textbox"></div>
+          <button type="button" aria-label="Send message">Send</button></fieldset>`,
+        chatgpt: `<form class="composer"><div class="chips" data-testid="composer-attachments"></div>
+          <div id="prompt-textarea" class="ProseMirror editor" contenteditable="true"></div>
+          <button type="button" data-testid="send-button" id="composer-submit-button">Send</button></form>`,
+        gemini: `<div class="composer"><div class="chips file-preview-container"></div>
+          <rich-textarea><div class="ql-editor editor" contenteditable="true" role="textbox"></div></rich-textarea>
+          <button type="button" class="send-button" aria-label="Send message">Send</button></div>`,
+      };
+      const endpoints = {
+        claude: '/api/organizations/org/chat_conversations/conv/completion',
+        chatgpt: '/backend-api/conversation',
+        gemini: '/_/BardChatUi/data/assistant.lamda.BardFrontendService/StreamGenerate',
+      };
+      mount.innerHTML = layouts[portal];
+      const editor = mount.querySelector('[contenteditable]');
+      const chips = mount.querySelector('.chips');
+      const sendBtn = mount.querySelector('button');
+      const log = (msg) => { const p = document.createElement('p'); p.className = 'sent'; p.textContent = msg; document.getElementById('log').append(p); };
+      const pastes = [];
+
+      const body = (text) =>
+        portal === 'claude' ? JSON.stringify({ prompt: text, attachments: pastes.map((c) => ({ extracted_content: c })) })
+        : portal === 'chatgpt' ? JSON.stringify({ messages: [{ content: { parts: [text, ...pastes] } }] })
+        : 'f.req=' + encodeURIComponent(JSON.stringify([null, JSON.stringify([[text]])]));
+
+      async function send() {
+        const text = editor.innerText.trim();
+        if (!text && !pastes.length) return;
+        try {
+          await fetch(endpoints[portal], { method: 'POST', body: body(text) });
+          log(`SENT:${text}`);
+        } catch (e) {
+          log(`FETCH-ERROR:${e.message}`);
+        }
+        editor.textContent = '';
+        chips.innerHTML = '';
+        pastes.length = 0;
+      }
+      sendBtn.addEventListener('click', send);
+      editor.addEventListener('keydown', (e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); send(); } });
+      editor.addEventListener('paste', (e) => {
+        const text = e.clipboardData.getData('text/plain');
+        e.preventDefault();
+        if (text.length >= 1200) {
+          pastes.push(text);
+          const chip = document.createElement('div');
+          chip.className = 'chip';
+          chip.setAttribute('data-testid', 'file-thumbnail');
+          chip.innerHTML = 'pasted-content.txt <button type="button" aria-label="Remove file">×</button>';
+          chip.querySelector('button').addEventListener('click', () => { pastes.splice(pastes.indexOf(text), 1); chip.remove(); });
+          chips.append(chip);
+        } else document.execCommand('insertText', false, text);
+      });
+      document.getElementById('direct-api').addEventListener('click', async () => {
+        try {
+          await fetch(endpoints[portal], { method: 'POST', body: body('use key AKIAQ3EGTRBX4M7PZK2N for the deploy') });
+          log('DIRECT-SENT');
+        } catch (e) {
+          log(`DIRECT-BLOCKED:${e.message}`);
+        }
+      });
+    </script>
+  </body>
+</html>
