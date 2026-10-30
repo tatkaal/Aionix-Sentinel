@@ -1,16 +1,20 @@
 // npm run bench        → runs every dataset through the full cascade (Tier 1 + 3A + Tier 2 Path A
 //                        + 3B) and writes bench-results/path-a.json
 // npm run bench:gate   → same, then exits non-zero if any release-gate threshold is missed.
+// npm run bench -- --path-b → Tier 2 on Path B instead: the shipped tagger (assets/engine/pathb) on
+//                        onnxruntime-node, strictly routed → bench-results/path-b.json
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { cpus } from 'node:os';
 import { resolve } from 'node:path';
 import { applyAdjudications, runBenchmark, type RunSummary } from '../src/engine/bench/harness';
 import { DATASETS, type Adjudication, type BenchSample, type DatasetId } from '../src/engine/bench/types';
 import { createNodeEngine } from './lib/node-engine';
+import { createNodeTagger } from './lib/node-tagger';
 
 const root = resolve(import.meta.dirname, '..');
 const gate = process.argv.includes('--gate');
 const verbose = process.argv.includes('--verbose');
+const route = process.argv.includes('--path-b') ? 'B' : 'A';
 
 function load(file: string): BenchSample[] | null {
   const p = resolve(root, 'data/datasets', file);
@@ -20,7 +24,8 @@ function load(file: string): BenchSample[] | null {
 }
 
 const adjudications = JSON.parse(readFileSync(resolve(root, 'data/datasets/enron-adjudications.json'), 'utf8')) as Record<string, Adjudication>;
-const { scan, host } = await createNodeEngine(root);
+const taggerDir = resolve(root, 'assets/engine/pathb');
+const { scan, host } = await createNodeEngine(root, route === 'B' ? { pathB: { device: 'cpu', create: async () => (await createNodeTagger(taggerDir)).ner } } : {});
 
 // Warm-up so JIT / session initialisation does not distort latency percentiles.
 for (const t of ['warm up', 'Patient Ana Lee has asthma.', 'card 4532-0151-1283-0366']) await scan({ text: t });
@@ -34,7 +39,7 @@ for (const ds of DATASETS) {
     continue;
   }
   if (ds.id.startsWith('enron')) samples = applyAdjudications(samples, adjudications);
-  const { summary } = await runBenchmark(ds.id as DatasetId, 'A', samples, scan);
+  const { summary } = await runBenchmark(ds.id as DatasetId, route, samples, scan);
   summaries.push(summary);
   const m = summary.metrics;
   console.log(
@@ -48,15 +53,18 @@ mkdirSync(resolve(root, 'bench-results'), { recursive: true });
 const report = {
   generatedAt: new Date().toISOString(),
   runtime: { kind: 'node', node: process.version, cpu: cpus()[0]?.model ?? 'unknown', cores: cpus().length },
-  route: 'A',
-  engine: { fstEntries: status.fstEntries, fstBytes: status.fstBytes, edmVectors: status.edmVectors, edmFields: status.edmFields, pathB: status.pathBReason },
+  route,
+  engine: { fstEntries: status.fstEntries, fstBytes: status.fstBytes, edmVectors: status.edmVectors, edmFields: status.edmFields, pathB: status.pathBReason, pathBModel: status.pathBModel },
   summaries,
 };
-writeFileSync(resolve(root, 'bench-results/path-a.json'), JSON.stringify(report, null, 2) + '\n');
-console.log('wrote bench-results/path-a.json');
+const outFile = `bench-results/path-${route.toLowerCase()}.json`;
+writeFileSync(resolve(root, outFile), JSON.stringify(report, null, 2) + '\n');
+console.log(`wrote ${outFile}`);
 
 if (gate) {
-  const thresholds = JSON.parse(readFileSync(resolve(root, 'bench-gate.json'), 'utf8')) as Record<string, { minF2?: number; maxFpr?: number; minAccuracy?: number }>;
+  type Gate = { minF2?: number; maxFpr?: number; minAccuracy?: number };
+  const all = JSON.parse(readFileSync(resolve(root, 'bench-gate.json'), 'utf8')) as Record<string, Gate> & { pathB: Record<string, Gate> };
+  const thresholds: Record<string, Gate> = route === 'B' ? all.pathB : all;
   let failed = false;
   for (const s of summaries) {
     const t = thresholds[s.dataset];

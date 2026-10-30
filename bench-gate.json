@@ -1,9 +1,41 @@
 {
-  "$comment": "Regression guard for CI: thresholds sit just below the measured Path A results so changes cannot silently degrade detection. Blueprint targets (F2 >= 0.97, FPR < 0.05%) are reported separately as targets in the Workbench; they are not yet met on held-out data.",
-  "edge": { "minAccuracy": 1 },
-  "enron": { "maxFpr": 0.01 },
-  "presidio": { "minF2": 0.98 },
-  "ai4privacy": { "minF2": 0.8 },
-  "enron-holdout": { "maxFpr": 0.03 },
-  "ai4privacy-holdout": { "minF2": 0.6 }
+  "$comment": "Regression guard for CI: thresholds sit just below the measured results so changes cannot silently degrade detection. Top-level keys gate Path A (npm run bench:gate); \"pathB\" gates the shipped tagger (npm run bench:gate -- --path-b). Blueprint targets (F2 >= 0.97, FPR < 0.05%) are reported separately as targets in the Workbench; they are not yet met on held-out data.",
+  "edge": {
+    "minAccuracy": 1
+  },
+  "enron": {
+    "maxFpr": 0.01
+  },
+  "presidio": {
+    "minF2": 0.98
+  },
+  "ai4privacy": {
+    "minF2": 0.8
+  },
+  "enron-holdout": {
+    "maxFpr": 0.03
+  },
+  "ai4privacy-holdout": {
+    "minF2": 0.6
+  },
+  "pathB": {
+    "edge": {
+      "minAccuracy": 1
+    },
+    "enron": {
+      "maxFpr": 0.01
+    },
+    "presidio": {
+      "minF2": 0.98
+    },
+    "ai4privacy": {
+      "minF2": 0.84
+    },
+    "enron-holdout": {
+      "maxFpr": 0.03
+    },
+    "ai4privacy-holdout": {
+      "minF2": 0.72
+    }
+  }
 }

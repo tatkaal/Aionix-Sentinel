@@ -23,6 +23,8 @@ jobs:
       - run: npm test
       # Full cascade (Tier 1 + 3A + Tier 2 Path A + 3B) on every dataset; fails below bench-gate.json
       - run: npm run bench:gate
+      # Same cascade with Tier 2 on Path B (the shipped tagger in assets/engine/pathb, onnxruntime-node)
+      - run: npm run bench:gate -- --path-b
       - uses: actions/upload-artifact@v4
         if: always()
         with:
