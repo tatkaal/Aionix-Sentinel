@@ -142,7 +142,8 @@ export function SandboxView() {
 
   const route = engine.status?.route ?? null;
   const t = last?.result.timings;
-  const mem = engine.status?.memoryMB ?? null;
+  const mem = engine.agentMemoryMB ?? engine.status?.memoryMB ?? null;
+  const memMethod = engine.agentMemoryMB != null ? 'page + engine worker · measureUserAgentSpecificMemory' : engine.status?.memoryMethod;
 
   return (
     <>
@@ -179,7 +180,7 @@ export function SandboxView() {
           label="Engine memory"
           value={mem != null ? mem.toFixed(1) : '—'}
           unit="/ 150 MB"
-          hint={engine.status?.memoryMethod}
+          hint={memMethod}
           tone={mem != null && mem > 105 ? 'amber' : undefined}
         />
       </Panel>

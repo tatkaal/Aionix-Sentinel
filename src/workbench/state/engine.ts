@@ -36,6 +36,10 @@ function call<T>(msg: DistributiveOmit<WorkerRequest, 'id'>): Promise<T> {
 interface EngineState {
   tier3a: VaultDetector | null;
   asyncScanner: AsyncScanner | null;
+  /** Benchmarks: Path B is measured as is — no fallback to Path A past the latency budget. */
+  strictScanner: AsyncScanner | null;
+  /** measureUserAgentSpecificMemory() on the page: Workbench page + engine worker together. */
+  agentMemoryMB: number | null;
   status: EngineStatus | null;
   routeMode: RouteMode;
   initialised: boolean;
@@ -50,10 +54,23 @@ interface EngineState {
   addVaultDocument(doc: EdmSourceDoc): Promise<void>;
 }
 
+async function measureAgent(set: (p: Partial<EngineState>) => void) {
+  const perf = performance as Performance & { measureUserAgentSpecificMemory?: () => Promise<{ bytes: number }> };
+  if (!globalThis.crossOriginIsolated || !perf.measureUserAgentSpecificMemory) return;
+  try {
+    const r = await perf.measureUserAgentSpecificMemory();
+    set({ agentMemoryMB: r.bytes / 1048576 });
+  } catch {
+    /* unsupported in this browser */
+  }
+}
+
 /** Workbench engine host: Tier 1/3A on the main thread, Tier 2/3B in a dedicated worker. */
 export const useEngine = create<EngineState>((set, get) => ({
   tier3a: null,
   asyncScanner: null,
+  strictScanner: null,
+  agentMemoryMB: null,
   status: null,
   routeMode: 'auto',
   initialised: false,
@@ -69,6 +86,7 @@ export const useEngine = create<EngineState>((set, get) => ({
     }
     set({
       asyncScanner: { scanAsync: (input) => call<AsyncScanResult>({ type: 'scan', input }) },
+      strictScanner: { scanAsync: (input) => call<AsyncScanResult>({ type: 'scan', input, strict: true }) },
     });
     try {
       set({ status: await call<EngineStatus>({ type: 'init' }) });
@@ -76,6 +94,8 @@ export const useEngine = create<EngineState>((set, get) => ({
       set({ error: (err as Error).message });
     }
     setInterval(() => void get().refresh(), 3000);
+    void measureAgent(set);
+    setInterval(() => void measureAgent(set), 15_000);
   },
   async refresh() {
     try {
