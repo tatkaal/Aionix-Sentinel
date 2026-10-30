@@ -1,0 +1,34 @@
+[
+  {
+    "id": "alpha-liquidity-router",
+    "title": "Alpha Liquidity Router (proprietary code)",
+    "file": "alpha-liquidity-router.ts",
+    "kind": "code",
+    "category": 10,
+    "owner": "Systematic Execution desk"
+  },
+  {
+    "id": "project-chronos",
+    "title": "Project Chronos Q3 M&A board memo",
+    "file": "project-chronos-memo.md",
+    "kind": "prose",
+    "category": 10,
+    "owner": "Corporate Development"
+  },
+  {
+    "id": "hnw-crm",
+    "title": "High-net-worth customer CRM export",
+    "file": "hnw-crm-export.csv",
+    "kind": "table",
+    "category": 8,
+    "owner": "Private Wealth"
+  },
+  {
+    "id": "oncology-registry",
+    "title": "Oncology clinical trial patient registry",
+    "file": "oncology-trial-registry.csv",
+    "kind": "table",
+    "category": 9,
+    "owner": "Clinical Research"
+  }
+]

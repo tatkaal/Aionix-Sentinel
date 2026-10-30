@@ -1,0 +1,31 @@
+patient_id,full_name,mrn,date_of_birth,icd10_code,diagnosis,regimen_and_dose,cycle,trial_arm,site,enrolled
+ONC-2200,Rafael Fairbanks,60095252,1971-04-02,C50.919,"Malignant neoplasm of breast, unspecified","Trastuzumab 6 mg/kg IV q3w + docetaxel 75 mg/m2",1,B (standard of care),Royal Parkside Cancer Centre,2026-04-12
+ONC-2207,Yuki Haddad,20740476,1958-10-27,C34.90,"Malignant neoplasm of bronchus and lung","Pembrolizumab 200 mg IV q3w",2,B (standard of care),Harbourview Private Hospital,2026-02-08
+ONC-2214,Lachlan Nakamura,46509402,1984-02-10,C18.9,"Malignant neoplasm of colon","FOLFOX: oxaliplatin 85 mg/m2 + leucovorin + 5-FU q2w",1,A (investigational),Royal Parkside Cancer Centre,2026-05-01
+ONC-2221,Leila Lockwood,39570079,1959-11-22,C64.9,"Malignant neoplasm of kidney","Cabozantinib 60 mg PO daily",1,A (investigational),Royal Parkside Cancer Centre,2026-08-06
+ONC-2228,Kofi Okonkwo,70263326,1957-03-11,C91.10,"Chronic lymphocytic leukemia","Ibrutinib 420 mg PO daily",7,B (standard of care),Northgate Oncology Institute,2026-03-13
+ONC-2235,Genevieve Thornbury,87643931,1972-05-07,C83.30,"Diffuse large B-cell lymphoma","R-CHOP q3w (rituximab 375 mg/m2)",1,A (investigational),Royal Parkside Cancer Centre,2026-07-10
+ONC-2242,Fergus Stanhope,56013724,1972-12-13,C25.9,"Malignant neoplasm of pancreas","Gemcitabine 1000 mg/m2 + nab-paclitaxel 125 mg/m2",4,A (investigational),Northgate Oncology Institute,2026-01-25
+ONC-2249,Penelope Ashworth,99237575,1959-11-10,C43.9,"Malignant melanoma of skin","Nivolumab 480 mg IV q4w",7,A (investigational),Harbourview Private Hospital,2026-07-01
+ONC-2256,Rupert Castellanos,94720770,1977-12-09,C50.919,"Malignant neoplasm of breast, unspecified","Trastuzumab 6 mg/kg IV q3w + docetaxel 75 mg/m2",4,A (investigational),Northgate Oncology Institute,2026-09-15
+ONC-2263,Saoirse Siddiqui,53894285,1982-11-22,C34.90,"Malignant neoplasm of bronchus and lung","Pembrolizumab 200 mg IV q3w",4,A (investigational),Harbourview Private Hospital,2026-01-18
+ONC-2270,Ignatius Engstrom,23747608,1946-04-16,C18.9,"Malignant neoplasm of colon","FOLFOX: oxaliplatin 85 mg/m2 + leucovorin + 5-FU q2w",5,B (standard of care),Royal Parkside Cancer Centre,2026-02-20
+ONC-2277,Rosalind Lindqvist,89777671,1969-10-10,C64.9,"Malignant neoplasm of kidney","Cabozantinib 60 mg PO daily",7,A (investigational),Northgate Oncology Institute,2026-05-18
+ONC-2284,Marcus MacAllister,67493707,1962-01-04,C91.10,"Chronic lymphocytic leukemia","Ibrutinib 420 mg PO daily",3,A (investigational),Royal Parkside Cancer Centre,2026-01-26
+ONC-2291,Ingrid Ellsworth,36180677,1964-08-19,C83.30,"Diffuse large B-cell lymphoma","R-CHOP q3w (rituximab 375 mg/m2)",2,B (standard of care),Harbourview Private Hospital,2026-08-19
+ONC-2298,Callum Ferreira,73249652,1947-01-16,C25.9,"Malignant neoplasm of pancreas","Gemcitabine 1000 mg/m2 + nab-paclitaxel 125 mg/m2",2,B (standard of care),Northgate Oncology Institute,2026-05-03
+ONC-2305,Amara Takahashi,76888490,1985-02-18,C43.9,"Malignant melanoma of skin","Nivolumab 480 mg IV q4w",2,B (standard of care),Northgate Oncology Institute,2026-09-23
+ONC-2312,Tomasz Raghunathan,53126315,1956-03-07,C50.919,"Malignant neoplasm of breast, unspecified","Trastuzumab 6 mg/kg IV q3w + docetaxel 75 mg/m2",4,A (investigational),Royal Parkside Cancer Centre,2026-05-06
+ONC-2319,Odette Verhoeven,75029483,1952-04-21,C34.90,"Malignant neoplasm of bronchus and lung","Pembrolizumab 200 mg IV q3w",6,B (standard of care),Harbourview Private Hospital,2026-01-24
+ONC-2326,Arjun Delacroix,48370512,1963-12-19,C18.9,"Malignant neoplasm of colon","FOLFOX: oxaliplatin 85 mg/m2 + leucovorin + 5-FU q2w",7,B (standard of care),Royal Parkside Cancer Centre,2026-05-16
+ONC-2333,Noor Whitmore,11964621,1979-03-22,C64.9,"Malignant neoplasm of kidney","Cabozantinib 60 mg PO daily",1,B (standard of care),Harbourview Private Hospital,2026-09-27
+ONC-2340,Jiro Dunmore,19777424,1959-07-24,C91.10,"Chronic lymphocytic leukemia","Ibrutinib 420 mg PO daily",5,B (standard of care),Northgate Oncology Institute,2026-03-17
+ONC-2347,Zara Halvorsen,93665790,1982-09-18,C83.30,"Diffuse large B-cell lymphoma","R-CHOP q3w (rituximab 375 mg/m2)",5,A (investigational),Harbourview Private Hospital,2026-04-09
+ONC-2354,Declan Montoya,61156377,1965-09-16,C25.9,"Malignant neoplasm of pancreas","Gemcitabine 1000 mg/m2 + nab-paclitaxel 125 mg/m2",6,A (investigational),Harbourview Private Hospital,2026-01-02
+ONC-2361,Freya Villeneuve,50459729,1960-09-17,C43.9,"Malignant melanoma of skin","Nivolumab 480 mg IV q4w",4,A (investigational),Harbourview Private Hospital,2026-06-03
+ONC-2368,Mateo Gallagher,10084739,1946-02-25,C50.919,"Malignant neoplasm of breast, unspecified","Trastuzumab 6 mg/kg IV q3w + docetaxel 75 mg/m2",8,B (standard of care),Royal Parkside Cancer Centre,2026-09-01
+ONC-2375,Eleanor Ainsworth,22977183,1981-09-19,C34.90,"Malignant neoplasm of bronchus and lung","Pembrolizumab 200 mg IV q3w",8,B (standard of care),Harbourview Private Hospital,2026-08-27
+ONC-2382,Theodore Pemberton,79208351,1976-11-04,C18.9,"Malignant neoplasm of colon","FOLFOX: oxaliplatin 85 mg/m2 + leucovorin + 5-FU q2w",5,A (investigational),Northgate Oncology Institute,2026-02-22
+ONC-2389,Sienna Beaumont,85116432,1946-04-21,C64.9,"Malignant neoplasm of kidney","Cabozantinib 60 mg PO daily",4,B (standard of care),Royal Parkside Cancer Centre,2026-01-24
+ONC-2396,Desmond Brannigan,69995135,1959-02-10,C91.10,"Chronic lymphocytic leukemia","Ibrutinib 420 mg PO daily",3,A (investigational),Northgate Oncology Institute,2026-08-13
+ONC-2403,Beatrix Venkataraman,98971425,1971-02-06,C83.30,"Diffuse large B-cell lymphoma","R-CHOP q3w (rituximab 375 mg/m2)",6,A (investigational),Harbourview Private Hospital,2026-08-27

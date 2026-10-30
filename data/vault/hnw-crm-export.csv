@@ -1,0 +1,41 @@
+customer_id,full_name,email,account_number,bsb,portfolio_aum_aud,cash_balance_aud,margin_loan_aud,risk_profile,relationship_manager,last_review
+HNW-10400,Eleanor Ashworth,eleanor.ashworth@clientmail.example,637260938,062-000,40012840,198699.76,0,Conservative,L. Moreau,2026-03-23
+HNW-10413,Marcus Okonkwo,marcus.okonkwo@clientmail.example,691676532,012-003,42620950,768766.27,232120,Balanced,S. Okafor,2026-04-17
+HNW-10426,Priyanka Haddad,priyanka.haddad@clientmail.example,965681027,062-000,48801000,174726.39,0,High Growth,S. Okafor,2026-07-04
+HNW-10439,Theodore Calloway,theodore.calloway@clientmail.example,728638043,062-000,5467070,251439.02,0,Conservative,R. Anand,2026-03-13
+HNW-10452,Ingrid Rahimi,ingrid.rahimi@clientmail.example,816041659,033-002,42090070,344784.45,0,Growth,S. Okafor,2026-07-25
+HNW-10465,Rafael Achterberg,rafael.achterberg@clientmail.example,384115886,062-000,22415120,503671.97,0,Balanced,S. Okafor,2026-05-08
+HNW-10478,Sienna Venkataraman,sienna.venkataraman@clientmail.example,205521428,083-125,16038500,271869.35,307526,Growth,R. Anand,2026-06-09
+HNW-10491,Callum Pemberton,callum.pemberton@clientmail.example,947207044,033-002,31204120,349317.81,0,Balanced,S. Okafor,2026-03-19
+HNW-10504,Yuki Villeneuve,yuki.villeneuve@clientmail.example,836220239,012-003,17342080,381506.90,0,Conservative,S. Okafor,2026-02-13
+HNW-10517,Desmond Dunmore,desmond.dunmore@clientmail.example,425342511,012-003,11936560,437760.14,0,Conservative,L. Moreau,2026-06-24
+HNW-10530,Amara Verhoeven,amara.verhoeven@clientmail.example,815563368,062-000,34249530,73522.68,129245,Growth,S. Okafor,2026-02-09
+HNW-10543,Lachlan Ferreira,lachlan.ferreira@clientmail.example,361407553,033-002,33655680,428093.76,84091,Balanced,J. Whitcombe,2026-03-13
+HNW-10556,Beatrix Lindqvist,beatrix.lindqvist@clientmail.example,762921582,033-002,41386200,299032.51,0,Conservative,S. Okafor,2026-07-26
+HNW-10569,Tomasz Castellanos,tomasz.castellanos@clientmail.example,411719464,062-000,43647500,120573.99,0,Growth,S. Okafor,2026-09-25
+HNW-10582,Leila Thornbury,leila.thornbury@clientmail.example,915444110,033-002,37163720,160627.20,425085,Conservative,J. Whitcombe,2026-02-08
+HNW-10595,Hamish Nakamura,hamish.nakamura@clientmail.example,148893880,012-003,21837320,180571.78,0,Growth,S. Okafor,2026-09-18
+HNW-10608,Odette Kilbride,odette.kilbride@clientmail.example,663330625,033-002,47152420,538389.09,63322,Balanced,L. Moreau,2026-09-02
+HNW-10621,Kofi Petrovic,kofi.petrovic@clientmail.example,995257665,062-000,45125470,771314.59,261966,Growth,S. Okafor,2026-04-10
+HNW-10634,Matilda Hargreaves,matilda.hargreaves@clientmail.example,234145748,062-000,36711650,411003.90,0,Balanced,R. Anand,2026-08-01
+HNW-10647,Arjun Kowalczyk,arjun.kowalczyk@clientmail.example,131077817,083-125,5461650,8596.99,0,High Growth,J. Whitcombe,2026-06-19
+HNW-10660,Genevieve Beaumont,genevieve.beaumont@clientmail.example,960950361,083-125,49798530,729131.27,0,Conservative,L. Moreau,2026-09-03
+HNW-10673,Sebastian Gallagher,sebastian.gallagher@clientmail.example,781521334,012-003,23726780,413645.34,0,Conservative,J. Whitcombe,2026-03-24
+HNW-10686,Noor Halvorsen,noor.halvorsen@clientmail.example,388283610,012-003,47365700,835836.20,112842,High Growth,J. Whitcombe,2026-01-02
+HNW-10699,Fergus Delacroix,fergus.delacroix@clientmail.example,313819037,083-125,19453190,622366.69,0,Growth,S. Okafor,2026-01-02
+HNW-10712,Isadora Takahashi,isadora.takahashi@clientmail.example,143580692,062-000,8628880,868185.70,0,Balanced,L. Moreau,2026-05-17
+HNW-10725,Jiro MacAllister,jiro.macallister@clientmail.example,791289376,062-000,43996820,782200.71,284029,High Growth,L. Moreau,2026-03-13
+HNW-10738,Penelope Siddiqui,penelope.siddiqui@clientmail.example,535933529,083-125,12645680,600352.11,0,Balanced,R. Anand,2026-08-19
+HNW-10751,Ewan Stanhope,ewan.stanhope@clientmail.example,429747557,012-003,36212240,573916.13,0,Balanced,R. Anand,2026-05-12
+HNW-10764,Zara Lockwood,zara.lockwood@clientmail.example,114813303,083-125,30886800,145517.99,0,Growth,S. Okafor,2026-07-16
+HNW-10777,Rupert Fairbanks,rupert.fairbanks@clientmail.example,882559691,062-000,3043200,585660.60,0,Balanced,J. Whitcombe,2026-03-17
+HNW-10790,Anouk Abernathy,anouk.abernathy@clientmail.example,511975931,083-125,33167700,288208.94,0,High Growth,J. Whitcombe,2026-07-03
+HNW-10803,Declan Mensah,declan.mensah@clientmail.example,415480699,033-002,26479300,373791.36,5568,Conservative,R. Anand,2026-08-09
+HNW-10816,Saoirse Valcourt,saoirse.valcourt@clientmail.example,986033200,062-000,43523170,669259.21,0,High Growth,J. Whitcombe,2026-06-16
+HNW-10829,Emil Brannigan,emil.brannigan@clientmail.example,155013501,083-125,10553490,746926.79,0,Conservative,J. Whitcombe,2026-08-19
+HNW-10842,Freya Ainsworth,freya.ainsworth@clientmail.example,300829005,033-002,12992380,753558.82,0,Conservative,R. Anand,2026-02-23
+HNW-10855,Ignatius Montoya,ignatius.montoya@clientmail.example,763006233,062-000,7597550,244030.97,0,High Growth,J. Whitcombe,2026-09-05
+HNW-10868,Lucinda Whitmore,lucinda.whitmore@clientmail.example,157353165,083-125,37502040,400665.59,0,Growth,J. Whitcombe,2026-04-03
+HNW-10881,Mateo Raghunathan,mateo.raghunathan@clientmail.example,619400843,012-003,29952930,242031.38,16305,Conservative,J. Whitcombe,2026-01-01
+HNW-10894,Rosalind Ellsworth,rosalind.ellsworth@clientmail.example,916271059,083-125,39898730,741354.74,508894,Balanced,R. Anand,2026-07-17
+HNW-10907,Viktor Engstrom,viktor.engstrom@clientmail.example,430360924,062-000,13071900,310882.94,0,Conservative,J. Whitcombe,2026-05-18

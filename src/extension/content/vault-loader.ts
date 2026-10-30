@@ -1,6 +1,13 @@
-import type { SyncDetector } from '../../engine/pipeline';
+import { createVaultDetector, type VaultDetector } from '../../engine/tier3/minhash-detector';
+import { decodeVault } from '../../engine/tier3/vault-format';
 
-/** Loads the corporate vault index for Tier 3 Path A (implemented with the Tier 3 engine). */
-export async function loadVaultDetector(_url: string): Promise<SyncDetector | null> {
-  return null;
+/** Loads corporate-vault.bin (Bloom + MinHash only — no document text) for Tier 3 Path A. */
+export async function loadVaultDetector(url: string): Promise<VaultDetector | null> {
+  try {
+    const res = await fetch(url);
+    if (!res.ok) return null;
+    return createVaultDetector(decodeVault(await res.arrayBuffer()));
+  } catch {
+    return null;
+  }
 }
