@@ -46,6 +46,9 @@ export interface HostDeps {
 
 const now = () => performance.now();
 
+/** Tier 2 budget for Path B inside the 1,000 ms send SLA (Tier 1/3A/3B and messaging use the rest). */
+export const PATH_B_BUDGET_MS = 650;
+
 export class EngineHost {
   private mode: RouteMode = 'auto';
   private fst: Fst | null = null;
@@ -155,16 +158,35 @@ export class EngineHost {
     return { scanner: this.pathA!, route: 'A', ...(degraded ? { degraded } : {}) };
   }
 
-  async scanAsync(input: ScanInput): Promise<AsyncScanResult> {
+  async scanAsync(input: ScanInput, opts: { strictRoute?: boolean } = {}): Promise<AsyncScanResult> {
     await this.init();
-    const { scanner, route, degraded } = this.activeRoute();
+    const active = this.activeRoute();
+    const { scanner } = active;
+    let route = active.route;
+    let degraded = active.degraded;
     const units: { text: string; source: FindingSource }[] = [
       { text: input.text, source: { kind: 'composer' } },
       ...(input.attachments ?? []).map((a) => ({ text: a.text, source: { kind: 'attachment', attachmentId: a.id } as FindingSource })),
     ];
     const findings: Finding[] = [];
     let t = now();
-    for (const u of units) findings.push(...(await scanner.scan(u.text, u.source)));
+    for (const u of units) {
+      // Path B on modest GPUs can exceed the send SLA. Past the budget, Path A (CPU, fast) decides
+      // this prompt; the Path B inference keeps running and is discarded. Benchmarks pass `strict`.
+      const remaining = PATH_B_BUDGET_MS - (now() - t);
+      if (route === 'B' && !opts.strictRoute) {
+        const raced = remaining > 0 ? await Promise.race([scanner.scan(u.text, u.source), new Promise<'late'>((r) => setTimeout(() => r('late'), remaining))]) : 'late';
+        if (raced !== 'late') {
+          findings.push(...raced);
+          continue;
+        }
+        route = 'A';
+        degraded = `Path B exceeded the ${PATH_B_BUDGET_MS} ms Tier 2 budget — Path A decided this prompt`;
+        findings.push(...(await this.pathA!.scan(u.text, u.source)));
+        continue;
+      }
+      findings.push(...(await (route === 'B' ? scanner : this.pathA!).scan(u.text, u.source)));
+    }
     const tier2 = now() - t;
     t = now();
     for (const u of units) findings.push(...(await this.edm!.scan(u.text, u.source)));

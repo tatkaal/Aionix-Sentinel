@@ -8,7 +8,7 @@ import type { ScanInput } from '../../engine/types';
 
 export type WorkerRequest =
   | { id: number; type: 'init' }
-  | { id: number; type: 'scan'; input: ScanInput }
+  | { id: number; type: 'scan'; input: ScanInput; strict?: boolean }
   | { id: number; type: 'tier2'; text: string; route: 'A' | 'B' }
   | { id: number; type: 'status' }
   | { id: number; type: 'set-route'; mode: RouteMode }
@@ -40,7 +40,7 @@ async function handle(msg: WorkerRequest): Promise<unknown> {
       await host.init();
       return host.status();
     case 'scan':
-      return host.scanAsync(msg.input);
+      return host.scanAsync(msg.input, { strictRoute: msg.strict === true });
     case 'tier2':
       return host.scanTier2(msg.text, msg.route);
     case 'status':

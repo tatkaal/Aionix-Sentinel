@@ -70,7 +70,7 @@ export const useBench = create<BenchState>((set, get) => ({
       }
       await engine.applyRoute(route === 'B' ? 'force-b' : 'force-a');
       const samples = await loadDataset(dataset);
-      const { tier3a, asyncScanner } = useEngine.getState();
+      const { tier3a, strictScanner: asyncScanner } = useEngine.getState();
       if (!asyncScanner) throw new Error('Engine worker not ready');
       let offRoute = 0;
       const scan = async (input: Parameters<typeof scanSync>[0]): Promise<ScanResult> => {
