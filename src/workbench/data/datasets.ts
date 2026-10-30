@@ -16,6 +16,21 @@ export interface NodeBaseline {
   summaries: RunSummary[];
 }
 
+const recordedFile = import.meta.glob('/bench-results/browser-runs.json', { import: 'default' }) as Record<string, () => Promise<RecordedBrowserRuns>>;
+
+/** Browser runs committed to the repo (bench-results/browser-runs.json) — shown when not re-run locally. */
+export interface RecordedBrowserRuns {
+  recordedAt: string;
+  userAgent: string;
+  hardware: { pathA: string; pathB: string };
+  runs: Record<string, { summary: RunSummary; hardware: string; offRoute: number }>;
+}
+
+export async function loadRecordedRuns(): Promise<RecordedBrowserRuns | null> {
+  const loader = recordedFile['/bench-results/browser-runs.json'];
+  return loader ? loader() : null;
+}
+
 export function datasetAvailable(id: DatasetId): boolean {
   const ds = DATASETS.find((d) => d.id === id)!;
   return `/data/datasets/${ds.file}` in files;

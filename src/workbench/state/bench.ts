@@ -3,7 +3,7 @@ import { runBenchmark, type RunSummary } from '../../engine/bench/harness';
 import type { DatasetId } from '../../engine/bench/types';
 import { mergeAsync, scanSync } from '../../engine/pipeline';
 import type { ScanResult } from '../../engine/types';
-import { loadBaseline, loadDataset, type NodeBaseline } from '../data/datasets';
+import { loadBaseline, loadDataset, loadRecordedRuns, type NodeBaseline, type RecordedBrowserRuns } from '../data/datasets';
 import { useEngine } from './engine';
 
 export type Route = 'A' | 'B';
@@ -38,6 +38,8 @@ interface BenchState {
   running: { dataset: DatasetId; route: Route; done: number; total: number } | null;
   error: string | null;
   baseline: NodeBaseline | null;
+  /** Committed browser runs (bench-results/browser-runs.json), used when a run is not in this browser. */
+  recorded: RecordedBrowserRuns | null;
   loadBaseline(): Promise<void>;
   run(dataset: DatasetId, route: Route): Promise<void>;
   runMany(datasets: DatasetId[], route: Route): Promise<void>;
@@ -51,9 +53,11 @@ export const useBench = create<BenchState>((set, get) => ({
   running: null,
   error: null,
   baseline: null,
+  recorded: null,
   async loadBaseline() {
     if (get().baseline) return;
-    set({ baseline: await loadBaseline() });
+    const [baseline, recorded] = await Promise.all([loadBaseline(), loadRecordedRuns()]);
+    set({ baseline, recorded });
   },
   async run(dataset, route) {
     if (get().running) return;
@@ -104,3 +108,12 @@ export const useBench = create<BenchState>((set, get) => ({
     set({ runs: {} });
   },
 }));
+
+/** A run from this browser if present, else the committed recording; labelled with its provenance. */
+export function resolveRun(dataset: DatasetId, route: Route): { summary: RunSummary; source: 'local' | 'recorded'; hardware: string } | null {
+  const { runs, recorded } = useBench.getState();
+  const local = runs[runKey(dataset, route)];
+  if (local) return { summary: local.summary, source: 'local', hardware: local.hardware };
+  const rec = recorded?.runs[runKey(dataset, route)];
+  return rec ? { summary: rec.summary, source: 'recorded', hardware: rec.hardware } : null;
+}

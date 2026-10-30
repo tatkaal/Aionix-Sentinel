@@ -5,7 +5,7 @@ import { AionixLogo } from '../../../shared/brand/AionixLogo';
 import { SERIES } from '../../components/charts';
 import { Button, cx, formatMs, formatPct } from '../../components/ui';
 import { downloadBlob } from '../../lib/download';
-import { runKey, useBench } from '../../state/bench';
+import { resolveRun, useBench } from '../../state/bench';
 import { useEngine } from '../../state/engine';
 import { TARGETS } from '../benchmarks/BenchmarksView';
 
@@ -16,16 +16,25 @@ interface Row {
   label: string;
   split: string;
   a: RunSummary | null;
-  aSource: 'browser' | 'CI' | null;
+  aSource: 'browser' | 'recorded' | 'CI' | null;
   b: RunSummary | null;
 }
 
 function useRows(): Row[] {
-  const { runs, baseline } = useBench();
+  const { baseline } = useBench(); // subscribe: re-render when runs / recordings change
+  useBench((st) => st.runs);
+  useBench((st) => st.recorded);
   return DATASETS.map((d) => {
-    const browserA = runs[runKey(d.id, 'A')]?.summary ?? null;
+    const ra = resolveRun(d.id, 'A');
     const ciA = baseline?.summaries.find((s) => s.dataset === d.id) ?? null;
-    return { id: d.id, label: d.label, split: d.split, a: browserA ?? ciA, aSource: browserA ? 'browser' : ciA ? 'CI' : null, b: runs[runKey(d.id, 'B')]?.summary ?? null };
+    return {
+      id: d.id,
+      label: d.label,
+      split: d.split,
+      a: ra?.summary ?? ciA,
+      aSource: ra ? (ra.source === 'local' ? 'browser' : 'recorded') : ciA ? 'CI' : null,
+      b: resolveRun(d.id, 'B')?.summary ?? null,
+    };
   });
 }
 
@@ -162,7 +171,7 @@ export function PresentationView() {
     <Slide key="engine" n={3} kicker="How the 3-tier engine works" title="Synchronous math first, models only when needed">
       <FlowDiagram />
       <p className="mt-[2%]">
-        Measured p50 per tier (latest dataset run): Tier 1 <span className="metric text-alabaster">{formatMs(tierP50?.tier1)} ms</span> · Tier 3A{' '}
+        Measured p50 per tier on the AI4Privacy run (Tier 2 exits early when no person is named, so its median is tiny; with a person and a sensitive term it runs the MiniLM validator): Tier 1 <span className="metric text-alabaster">{formatMs(tierP50?.tier1)} ms</span> · Tier 3A{' '}
         <span className="metric text-alabaster">{formatMs(tierP50?.tier3a)} ms</span> · Tier 2 <span className="metric text-alabaster">{formatMs(tierP50?.tier2)} ms</span> · Tier 3B{' '}
         <span className="metric text-alabaster">{formatMs(tierP50?.tier3b)} ms</span>.
       </p>
@@ -233,6 +242,7 @@ export function PresentationView() {
             <th className="text-right font-medium">F2 · A</th>
             <th className="text-right font-medium">F2 · B</th>
             <th className="text-right font-medium">FPR · A</th>
+            <th className="text-right font-medium">FPR · B</th>
             <th className="text-right font-medium">p95 · A</th>
           </tr>
         </thead>
@@ -247,21 +257,22 @@ export function PresentationView() {
               <td className="metric text-right text-alabaster">{f3(r.a?.metrics.f2)}</td>
               <td className="metric text-right text-alabaster">{f3(r.b?.metrics.f2)}</td>
               <td className="metric text-right">{formatPct(r.a?.metrics.fpr, 2)}</td>
+              <td className="metric text-right">{formatPct(r.b?.metrics.fpr, 2)}</td>
               <td className="metric text-right">{formatMs(r.a?.latency.p95)} ms</td>
             </tr>
           ))}
         </tbody>
       </table>
       <p className="mt-[1.5%] text-[0.85em] text-subtle">
-        Targets from the blueprint: F2 ≥ {TARGETS.f2}, FPR &lt; {(TARGETS.fpr * 100).toFixed(2)}%. Path A figures are from{' '}
-        {rows.some((r) => r.aSource === 'browser') ? 'browser runs (CI baseline where not run)' : 'the Node CI baseline'}; Path B columns fill in once the WebGPU model has been loaded and run.
+        Targets from the blueprint: F2 ≥ {TARGETS.f2}, FPR &lt; {(TARGETS.fpr * 100).toFixed(2)}%. Path A figures come from {rows.some((r) => r.aSource === 'browser') ? 'runs in this browser' : rows.some((r) => r.aSource === 'recorded') ? 'the recorded Workbench run' : 'the Node CI baseline'}. Path B ran in strict mode on {useBench.getState().recorded?.hardware.pathB ?? 'WebGPU'}: it raises held-out AI4Privacy recall, but at a far higher false-alarm rate.
       </p>
     </Slide>,
     <Slide key="future" n={8} kicker="Future scope" title="Keeping pace with the portals and the enterprise">
-      <div className="grid grid-cols-2 gap-[3%]">
+      <div className="grid grid-cols-3 gap-[2.5%] text-[0.92em]">
         {[
           ['12-hour live DOM canary bots', 'Playwright drives authenticated test tenants of Claude, ChatGPT and Gemini every 12 hours and alerts when a composer selector, send button, chip container or endpoint drifts.'],
           ['MDM dictionary sync', 'Push vault fingerprints, EDM row hashes, lexicon additions and gate thresholds through Chrome managed storage, so policy updates without republishing the extension.'],
+          ['Path B precision fix', 'Treat privacy-filter account_number spans as financial values only, not as person identifiers. Two unrelated numbers currently form a “customer record” — the largest source of Path B false alarms. Then re-benchmark both paths on held-out data.'],
           ['Larger held-out evaluation', 'Grow labelled held-out sets (especially unlabelled national IDs and passwords) and calibrate the validator margin per category on them.'],
           ['Clinical NER contingency', 'A distilled MobileBERT clinical NER (Q4F16, < 50 MB) if Path A recall on colloquial medical prompts proves insufficient.'],
         ].map(([t, d]) => (

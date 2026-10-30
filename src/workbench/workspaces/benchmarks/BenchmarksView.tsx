@@ -7,7 +7,7 @@ import { Badge, Button, EmptyState, Panel, Stat, WorkspaceHeader, cx, formatMs, 
 import { datasetAvailable } from '../../data/datasets';
 import { downloadBlob } from '../../lib/download';
 import { RELEASE_GATE_YAML } from '../../lib/release-gate';
-import { runKey, useBench, type Route } from '../../state/bench';
+import { resolveRun, runKey, useBench, type Route } from '../../state/bench';
 import { useEngine } from '../../state/engine';
 
 /** Blueprint targets — displayed as targets only, never as results. */
@@ -110,7 +110,7 @@ function PathStatus() {
 }
 
 function summaryOf(dataset: DatasetId, route: Route): RunSummary | null {
-  return useBench.getState().runs[runKey(dataset, route)]?.summary ?? null;
+  return resolveRun(dataset, route)?.summary ?? null;
 }
 
 export function BenchmarksView() {
@@ -124,8 +124,10 @@ export function BenchmarksView() {
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   const pathBReady = engine.status?.pathBState === 'ready';
-  const a = bench.runs[runKey(selected, 'A')]?.summary ?? null;
-  const b = bench.runs[runKey(selected, 'B')]?.summary ?? null;
+  const ra = resolveRun(selected, 'A');
+  const rb = resolveRun(selected, 'B');
+  const a = ra?.summary ?? null;
+  const b = rb?.summary ?? null;
   const ci = bench.baseline?.summaries.find((s) => s.dataset === selected) ?? null;
   const ds = DATASETS.find((d) => d.id === selected)!;
   const available = DATASETS.filter((d) => datasetAvailable(d.id)).map((d) => d.id);
@@ -282,7 +284,7 @@ export function BenchmarksView() {
                   <div key={label as string} className="min-w-0">
                     {sum ? (
                       <>
-                        <ConfusionMatrix {...sum.metrics} caption={`${label} · n=${sum.observations}`} />
+                        <ConfusionMatrix {...sum.metrics} caption={`${label} · n=${sum.observations}${(label === 'Path A' ? ra : rb)?.source === 'recorded' ? ' · recorded run' : ''}`} />
                         <dl className="mt-3 grid grid-cols-3 gap-2">
                           <Stat label="p50" value={formatMs(sum.latency.p50)} unit="ms" />
                           <Stat label="p95" value={formatMs(sum.latency.p95)} unit="ms" />
