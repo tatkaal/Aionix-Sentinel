@@ -39,10 +39,11 @@ export function cardNetwork(d: string): string | null {
   if (((n2 >= 51 && n2 <= 55) || (n4 >= 2221 && n4 <= 2720)) && L === 16) return 'Mastercard';
   if ((n2 === 34 || n2 === 37) && L === 15) return 'Amex';
   if ((n4 === 6011 || n2 === 65 || (n3 >= 644 && n3 <= 649) || (n6 >= 622126 && n6 <= 622925)) && L >= 16) return 'Discover';
-  if (n4 >= 3528 && n4 <= 3589 && L >= 16) return 'JCB';
+  if (n2 === 35 && L >= 16) return 'JCB';
+  if ((n4 === 1800 || n4 === 2131) && L === 15) return 'JCB'; // legacy 15-digit JCB ranges
   if (((n3 >= 300 && n3 <= 305) || n2 === 36 || n2 === 38) && L >= 14) return 'Diners';
   if (n2 === 62 && L >= 16) return 'UnionPay';
-  if ((n2 === 50 || (n2 >= 56 && n2 <= 69)) && L >= 12) return 'Maestro';
+  if ((n2 === 50 || (n2 >= 56 && n2 <= 69) || n4 === 604 /* 0604 */) && L >= 12) return 'Maestro';
   return null;
 }
 
@@ -152,6 +153,14 @@ export function abaRoutingValid(digits: string): boolean {
   let sum = 0;
   for (let i = 0; i < 9; i++) sum += (digits.charCodeAt(i) - 48) * w[i]!;
   return sum % 10 === 0 && sum > 0;
+}
+
+/** EAN-13 check digit (Swiss AHV/AVS numbers use it). */
+export function ean13Valid(digits: string): boolean {
+  if (!/^\d{13}$/.test(digits)) return false;
+  let sum = 0;
+  for (let i = 0; i < 12; i++) sum += (digits.charCodeAt(i) - 48) * (i % 2 ? 3 : 1);
+  return (10 - (sum % 10)) % 10 === digits.charCodeAt(12) - 48;
 }
 
 /** US SSN structural rules (area ≠ 000/666/9xx, group ≠ 00, serial ≠ 0000). */

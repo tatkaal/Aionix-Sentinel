@@ -47,9 +47,15 @@ export async function graphFindings(
   let validations = 0;
   for (const edge of edges) {
     if (seenPerson.has(edge.person.start)) continue;
-    // A financial *record* needs an actual value (amount or account), not just vocabulary such as
-    // "portfolio review" or "balance sheet" near a colleague's name.
-    if (edge.domain === 'financial' && !edge.sensitive.some((s) => s.kind === 'money' || s.kind === 'account')) continue;
+    // A customer financial *record* ties the person to an account, or to an amount *and* a financial
+    // attribute (balance, holdings, loan, salary …). Vocabulary alone ("portfolio review") or an
+    // amount alone (a hotel rate next to a rooming list) is not a record.
+    if (edge.domain === 'financial') {
+      const hasAccount = edge.sensitive.some((s) => s.kind === 'account');
+      const hasAmount = edge.sensitive.some((s) => s.kind === 'money');
+      const hasAttribute = edge.sensitive.some((s) => s.kind === 'financial-term');
+      if (!hasAccount && !(hasAmount && hasAttribute)) continue;
+    }
     let contextNote = 'graph only';
     let confidence = 0.8;
     if (validator && validations < MAX_VALIDATIONS) {

@@ -55,7 +55,21 @@ function scanLabelled(text: string, out: Candidate[]) {
 }
 
 const TOKEN_RE = /[^\s"'`<>()[\]{},;]{10,64}/g;
-const SKIP_TOKEN = /:\/\/|^[/~.\\]|^[A-Za-z]:\\|^[^@\s]+@[^@\s]+\.[A-Za-z]{2,}$|=>|&&|\|\||[=!]==?|\+=|::|^\d+([.,/-]\d+)*$/;
+const STRONG_SYMBOL = /[!@#$%^&*?~=+]/;
+/** Shapes that carry 4 character classes but are not secrets: e-mail-ish, encoded, files, paths. */
+const NOT_A_PASSWORD = new RegExp(
+  [
+    String.raw`@[\w-]+\.[a-z]{2,}`, // e-mail-ish
+    String.raw`(?:\+[0-9A-F]{2}){2,}|%[0-9A-F]{2}|^IMCEA`, // URL / Exchange encoding
+    String.raw`\\|\.(?:[a-z]{2,4}|[A-Z]{2,4})$`, // paths, file names
+    String.raw`^-{2,}|NextPart`, // MIME boundaries
+    String.raw`^(?:[A-Z][a-z]+){2,}$`, // CamelCase words / product names
+    String.raw`^[A-Z][a-z]+[._][A-Z][a-z]+\d*$`, // name-based usernames (First_Last71)
+    String.raw`^[A-Za-zÀ-ÿ]+(?:-[A-Za-zÀ-ÿ]+)+$`, // hyphenated words
+    String.raw`^(?:[13LM][a-km-zA-HJ-NP-Z1-9]{25,34}|bc1[a-z0-9]{25,90}|0x[a-fA-F0-9]{40})$`, // crypto addresses
+  ].join('|'),
+);
+const SKIP_TOKEN =/:\/\/|^[/~.\\]|^[A-Za-z]:\\|^[^@\s]+@[^@\s]+\.[A-Za-z]{2,}$|=>|&&|\|\||[=!]==?|\+=|::|^\d+([.,/-]\d+)*$/;
 
 function scanEntropy(text: string, out: Candidate[]) {
   TOKEN_RE.lastIndex = 0;
@@ -69,9 +83,12 @@ function scanEntropy(text: string, out: Candidate[]) {
       token = token.slice(offset);
     }
     const L = token.length;
-    if (L < 10 || SKIP_TOKEN.test(token)) continue;
+    if (L < 10 || SKIP_TOKEN.test(token) || NOT_A_PASSWORD.test(token)) continue;
     const classes = charClasses(token);
     if (classes.count < 4) continue;
+    // The symbol class must come from password punctuation, not from separators such as . - _ \ /
+    // that make file names, paths and identifiers look "four-class".
+    if (!STRONG_SYMBOL.test(token)) continue;
     const h = shannonEntropy(token);
     if (h < entropyThresholdFor(L)) continue;
     const start = m.index + offset;
@@ -88,7 +105,61 @@ function scanEntropy(text: string, out: Candidate[]) {
   }
 }
 
+// Credential cues (multilingual): password words incl. plurals, login / access verbs, "protected with".
+const CREDENTIAL_CUE =
+  /^(?:pass(?:word|wd|phrase|code)s?|passw[oö]rt(?:er)?|kennw[oö]rt(?:er)?|contrase(?:ñ|n)as?|senhas?|mdp|credentials?|credenziali|identifiants?|login|logon|signin|anmelden|anmeldedaten|zugang(?:sdaten)?|zugreifen|zuzugreifen|connecter|connectez|connexion|accedere|acceder|accéder|access|protected|secured|protégé|geschützt|token|pin)$/i;
+const PHRASE_CUES = /mots? de passe|parola d['’]ordine|log in|sign in|se connecter|password (?:has been |was )?(?:changed|reset|set) to/gi;
+
+/** Random-looking credential: high character diversity and mixed classes, not a word or path. */
+function passwordShaped(t: string): boolean {
+  if (t.length < 8 || t.length > 40 || /^\d+$/.test(t) || NOT_A_PASSWORD.test(t) || /[/:@]/.test(t)) return false;
+  const c = charClasses(t);
+  let switches = 0;
+  for (let i = 1; i < t.length; i++) {
+    const a = t[i - 1]!;
+    const b = t[i]!;
+    if (/[a-z]/.test(a) !== /[a-z]/.test(b) || /[A-Z]/.test(a) !== /[A-Z]/.test(b)) switches++;
+  }
+  const shaped = c.count >= 3 ? switches >= 3 : c.count === 2 && c.upper && c.lower && t.length >= 10 && switches >= 4;
+  return shaped && shannonEntropy(t) >= Math.log2(t.length) - 0.6;
+}
+
+function scanCredentialContext(text: string, out: Candidate[]) {
+  const words: { w: string; start: number; end: number }[] = [];
+  const re = /[^\s"'`<>()[\]{},;]+/g;
+  for (let m = re.exec(text); m; m = re.exec(text)) {
+    const w = m[0].replace(/[.,:!?]+$/, '');
+    words.push({ w, start: m.index, end: m.index + w.length });
+  }
+  const cueIdx = new Set<number>();
+  words.forEach((x, i) => CREDENTIAL_CUE.test(x.w.replace(/^[^\p{L}]+/u, '')) && cueIdx.add(i));
+  PHRASE_CUES.lastIndex = 0;
+  for (let m = PHRASE_CUES.exec(text); m; m = PHRASE_CUES.exec(text)) {
+    const end = m.index + m[0].length;
+    const i = words.findIndex((x) => x.start >= end - 1);
+    if (i > 0) cueIdx.add(i - 1);
+  }
+  const seen = new Set<number>();
+  for (const ci of cueIdx) {
+    for (let j = Math.max(0, ci - 3); j <= Math.min(words.length - 1, ci + 6); j++) {
+      if (j === ci || seen.has(j) || !passwordShaped(words[j]!.w)) continue;
+      seen.add(j);
+      out.push({
+        start: words[j]!.start,
+        end: words[j]!.end,
+        category: 2,
+        type: 'PASSWORD',
+        label: 'Credential near a login / password cue',
+        confidence: 0.85,
+        evidence: `credential cue “${words[ci]!.w}” + random-looking token`,
+        priority: 3,
+      });
+    }
+  }
+}
+
 export function scanSecrets(text: string, out: Candidate[]): void {
   scanLabelled(text, out);
+  scanCredentialContext(text, out);
   scanEntropy(text, out);
 }

@@ -1,6 +1,6 @@
 // Structured-token detectors: API keys (Cat 1), government IDs (Cat 3), IBAN/bank (Cat 5),
 // PAN (Cat 6) and database credentials (Cat 7). Each regex is a single linear pass.
-import { abaRoutingValid, ibanValid } from './checksums';
+import { abaRoutingValid, ean13Valid, ibanValid } from './checksums';
 import { charClasses, shannonEntropy } from './entropy';
 import type { Candidate } from './candidate';
 
@@ -106,10 +106,14 @@ function scanDbCredentials(text: string, out: Candidate[]) {
 }
 
 const PASSPORT = /\bpassport\s*(?:no\.?|number|num|#)?\s*[:#]?\s*([A-Z]{0,2}\d{6,9}|[A-Z]\d{7,8})\b/gi;
-const DRIVER_LICENCE = /\b(?:driver'?s?\s*licen[cs]e|driving\s*licen[cs]e|DL)\s*(?:no\.?|number|num|#)?\s*[:#]?\s*([A-Z0-9][A-Z0-9-]{4,14})\b/gi;
+const DRIVER_LICENCE = /\b(?:driver'?s?\s*licen[cs]e|driving\s*licen[cs]e|DL)\s*(?:no\.?|number|num|#)?\s*(?:is|was|=)?\s*[:#]?\s*([A-Z0-9][A-Z0-9-]{4,14})\b/gi;
+// Labelled social-security / national identity numbers (multilingual) with an ID-shaped value.
+const NATIONAL_ID = /\b(?:SSN|social\s*security(?:\s*(?:no\.?|number))?|national\s*(?:id|insurance)(?:\s*(?:no\.?|number))?|num[eé]ro\s*de\s*s[eé]curit[eé]\s*sociale|sozialversicherungs(?:nummer)?|AHV(?:-?Nr\.?)?|AVS|codice\s*fiscale|n[uú]mero\s*de\s*seguridad\s*social|NIR|BSN|PESEL|personnummer)\s*(?:no\.?|number|nr\.?|#)?\s*(?:is|est|ist|è|es|=)?\s*[:#]?\s*(\d[\d .-]{6,16}\d)\b/gi;
+// Swiss AHV/AVS (13 digits, 756 prefix, EAN-13 check digit).
+const AHV13 = /\b756[. ]?\d{4}[. ]?\d{4}[. ]?\d{2}\b/g;
 const UK_NINO = /\b[A-CEGHJ-PR-TW-Z][A-CEGHJ-NPR-TW-Z]\s?\d{2}\s?\d{2}\s?\d{2}\s?[A-D]\b/g;
 const IN_PAN = /\b[A-Z]{3}[ABCFGHLJPT][A-Z]\d{4}[A-Z]\b/g;
-const IBAN = /\b[A-Z]{2}\d{2}(?: ?[A-Z0-9]){11,30}\b/g;
+const IBAN = /\b[A-Za-z]{2}\d{2}(?: ?[A-Za-z0-9]){11,30}\b/g;
 const BSB = /\bBSB\s*(?:no\.?|number|#)?\s*[:#]?\s*(\d{3}[- ]?\d{3})\b/gi;
 const ACCOUNT_NO = /\b(?:acc(?:oun)?t|a\/c)\s*(?:no\.?|number|num|#)?\s*[:#]?\s*(\d[\d -]{4,14}\d)\b/gi;
 const ROUTING = /\b(?:routing|ABA)\s*(?:no\.?|number|num|#)?\s*[:#]?\s*(\d{9})\b/gi;
@@ -132,6 +136,19 @@ function scanIds(text: string, out: Candidate[]) {
     const s = m.index + m[0].lastIndexOf(v);
     push(out, { start: s, end: s + v.length, category: 3, type: 'DRIVER_LICENCE', label: 'Driver licence number', confidence: 0.88, evidence: 'labelled licence number' });
   }
+  NATIONAL_ID.lastIndex = 0;
+  for (let m = NATIONAL_ID.exec(text); m; m = NATIONAL_ID.exec(text)) {
+    const v = m[1]!;
+    const digits = v.replace(/\D/g, '');
+    if (digits.length < 8 || digits.length > 14) continue;
+    const s = m.index + m[0].lastIndexOf(v);
+    push(out, { start: s, end: s + v.length, category: 3, type: 'NATIONAL_ID', label: 'Social security / national ID number', confidence: 0.9, evidence: 'labelled national identifier', priority: 5 });
+  }
+  AHV13.lastIndex = 0;
+  for (let m = AHV13.exec(text); m; m = AHV13.exec(text)) {
+    if (!ean13Valid(m[0].replace(/\D/g, ''))) continue;
+    push(out, { start: m.index, end: m.index + m[0].length, category: 3, type: 'NATIONAL_ID', label: 'Swiss AHV/AVS number', confidence: 0.96, evidence: 'EAN-13 check digit valid', priority: 6 });
+  }
   UK_NINO.lastIndex = 0;
   for (let m = UK_NINO.exec(text); m; m = UK_NINO.exec(text)) {
     push(out, { start: m.index, end: m.index + m[0].length, category: 3, type: 'UK_NINO', label: 'UK National Insurance number', confidence: 0.9, evidence: 'NINO format' });
@@ -147,7 +164,7 @@ function scanBanking(text: string, out: Candidate[]) {
   for (let m = IBAN.exec(text); m; m = IBAN.exec(text)) {
     let v = m[0];
     // The greedy tail may swallow a following word; trim until the checksum validates.
-    while (v.length >= 15 && !ibanValid(v)) v = v.replace(/ ?[A-Z0-9]$/, '');
+    while (v.length >= 15 && !ibanValid(v)) v = v.replace(/ ?[A-Za-z0-9]$/, '');
     if (v.length >= 15 && ibanValid(v)) {
       push(out, { start: m.index, end: m.index + v.length, category: 5, type: 'IBAN', label: 'IBAN', confidence: 0.97, evidence: 'mod-97 valid', priority: 6 });
     }

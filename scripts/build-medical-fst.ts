@@ -56,6 +56,7 @@ const vocab = new Set(
     .filter((t) => /^[a-z]+$/.test(t)),
 );
 const stop = new Set(lines('medical-stoplist.txt'));
+const synonyms = new Set(lines('medical-synonyms.txt').map(normalizeTerm));
 const KEEP_COMMON_DRUGS = new Set(
   'aspirin insulin morphine codeine penicillin heparin warfarin lithium methadone ketamine cortisone prednisone ibuprofen paracetamol acetaminophen metformin oxycodone fentanyl tramadol diazepam valium xanax prozac zoloft viagra botox'.split(
     ' ',
@@ -92,6 +93,9 @@ for (const line of readFileSync(icdFile, 'utf8').split(/\r?\n/)) {
     const words = norm.split(' ');
     if (words.length > 6 || norm.length < 4) continue;
     if (words.length === 1 && stop.has(norm)) continue;
+    // A single-word heading that is an everyday English word ("changes", "absence") is too generic;
+    // genuinely clinical ones (pneumonia, dementia …) come from the curated synonym list instead.
+    if (words.length === 1 && vocab.has(norm) && !synonyms.has(norm)) continue;
     if (words.every((w) => stop.has(w) || w.length < 3)) continue;
     add(norm, out);
   }

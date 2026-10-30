@@ -15,17 +15,34 @@ function sizesEqual(sizes: number[], pattern: number[]) {
   return sizes.length === pattern.length && sizes.every((s, i) => s === pattern[i]);
 }
 
-function classify(text: string, digits: string, sizes: number[], start: number, end: number): Classified {
-  const L = digits.length;
-  if (L >= 13 && L <= 19) {
-    if (TEST_CARD_ALLOWLIST.has(digits)) return 'consume';
-    const network = cardNetwork(digits);
-    if (network && luhnValid(digits)) {
-      return { start, end, category: 5, type: 'CREDIT_CARD', label: `${network} card number`, confidence: 0.97, evidence: `Luhn valid · ${network}`, priority: 6 };
-    }
-    return null;
+/** Card context (multilingual) — lets a Luhn-valid number outside the IIN table still count. */
+const CARD_CONTEXT = /\b(?:card|credit|debit|cc|visa|mastercard|amex|carte|karte|kreditkarte|tarjeta|carta|cartão|payment|paiement|zahlung|pago|pagamento)\b/i;
+
+function cardCandidate(text: string, digits: string, start: number, end: number): Classified {
+  if (TEST_CARD_ALLOWLIST.has(digits)) return 'consume';
+  if (!luhnValid(digits)) return null;
+  const network = cardNetwork(digits);
+  if (network) {
+    return { start, end, category: 5, type: 'CREDIT_CARD', label: `${network} card number`, confidence: 0.97, evidence: `Luhn valid · ${network}`, priority: 6 };
   }
+  if (labelNear(text, start, end, CARD_CONTEXT, 48, 16)) {
+    return { start, end, category: 5, type: 'CREDIT_CARD', label: 'Payment card number', confidence: 0.9, evidence: 'Luhn valid + card context', priority: 6 };
+  }
+  return null;
+}
+
+const IMEI_LABEL = /\bIMEI\b/i;
+
+function classify(text: string, digits: string, sizes: number[], seps: string[], start: number, end: number): Classified {
+  const L = digits.length;
+  // IMEIs are Luhn-checked too: an NN-NNNNNN-NNNNNN-N layout or an IMEI label means "not a card".
+  if (L === 15 && (sizesEqual(sizes, [2, 6, 6, 1]) || labelNear(text, start, end, IMEI_LABEL))) return 'consume';
+  const dotted = seps.some((x) => x.includes('.'));
+  if (L >= 13 && L <= 19) return cardCandidate(text, digits, start, end);
   if (L === 12) {
+    // 12-digit Maestro cards first (card context or Maestro IIN), then Aadhaar.
+    const card = cardCandidate(text, digits, start, end);
+    if (card && (card === 'consume' || card.evidence.includes('context') || card.label.startsWith('Maestro'))) return card;
     if (aadhaarValid(digits) && (sizesEqual(sizes, [4, 4, 4]) || labelNear(text, start, end, AADHAAR_LABEL))) {
       return { start, end, category: 6, type: 'AADHAAR', label: 'Aadhaar number', confidence: 0.95, evidence: 'Verhoeff D5 valid', priority: 6 };
     }
@@ -39,7 +56,8 @@ function classify(text: string, digits: string, sizes: number[], start: number, 
   }
   if (L === 9) {
     const tfnLabel = labelNear(text, start, end, TFN_LABEL);
-    if (tfnLabel || sizesEqual(sizes, [3, 3, 3])) {
+    // Dotted triples are IP-address fragments, not TFNs written as "123 456 782".
+    if (tfnLabel || (sizesEqual(sizes, [3, 3, 3]) && !dotted)) {
       if (tfnValid(digits)) {
         return { start, end, category: 4, type: 'TFN', label: 'AU Tax File Number', confidence: tfnLabel ? 0.97 : 0.9, evidence: 'Mod-11 valid', priority: 6 };
       }
@@ -66,7 +84,8 @@ export function scanNumbers(text: string, out: Candidate[]): void {
         for (let g = gi; g <= gj; g++) len += gs[g]!.end - gs[g]!.start;
         if (len > 19 || len < 9) continue;
         const sizes = gs.slice(gi, gj + 1).map((g) => g.end - g.start);
-        const result = classify(text, groupDigits(text, gs, gi, gj), sizes, start, end);
+        const seps = gs.slice(gi, gj).map((g, k) => text.slice(g.end, gs[gi + k + 1]!.start));
+        const result = classify(text, groupDigits(text, gs, gi, gj), sizes, seps, start, end);
         if (result) {
           if (result !== 'consume') out.push(result);
           gi = gj + 1;

@@ -83,3 +83,18 @@ metastasis
 remission
 terminal illness
 palliative care
+arthritis
+blindness
+cholera
+dementia
+influenza
+malaria
+obesity
+paralysis
+plague
+pneumonia
+pregnancy
+schizophrenia
+smallpox
+tuberculosis
+vertigo
