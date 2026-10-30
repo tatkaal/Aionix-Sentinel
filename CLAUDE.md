@@ -6,12 +6,12 @@ Aionix Sentinel is a Manifest V3 Chrome extension that inspects prompts on claud
 
 | Command | What it does |
 |---|---|
-| `npm run setup` | Fetches MiniLM INT8 + ORT wasm, builds `medical.fst.bin` and `corporate-vault.bin`, fetches datasets, renders icons (network required) |
+| `npm run setup` | Fetches MiniLM INT8 + ORT wasm, rebuilds `medical.fst.bin` (ICD-10-CM + RxNorm), the vault indexes and the datasets, renders icons (network required). `assets/engine/*` and most datasets are committed, so a fresh clone only *needs* `npm run data:models && npm run data:datasets` |
 | `npm run dev` | Workbench dev server (cross-origin isolated) |
-| `npm run build` | `build:ext` (→ `dist-extension/`) then `build:web` (→ `dist/`, embeds the extension for the ZIP packager) |
+| `npm run build` | `build:ext` (tsx → `dist-extension/`) then `build:web` (→ `dist/`, embeds the extension for the ZIP packager) |
 | `npm run typecheck` / `npm test` | TypeScript 7 strict check / Vitest unit suite |
-| `npm run bench` / `npm run bench:gate` | Node benchmark (Tier 1 + 3A + Path A) → `bench-results/`; `:gate` exits non-zero below thresholds |
-| `npm run build:ext:test && npm run test:e2e` | Playwright loads the test build against local portal fixtures |
+| `npm run bench` / `npm run bench:gate` | Node benchmark, full cascade on Path A → `bench-results/path-a.json`; `:gate` exits non-zero below `bench-gate.json` |
+| `npm run build:ext:test && npm run test:e2e` | Playwright loads the test build (adds `localhost:4173` matches, open shadow root) against `tests/e2e/fixtures/portal.html` |
 
 ## Layout
 
@@ -37,6 +37,11 @@ Aionix Sentinel is a Manifest V3 Chrome extension that inspects prompts on claud
 - Palette (60-30-10): canvas `#090A10`; surfaces `#11131F` / `#181B2C`; text `#F8FAFC`; hairlines `rgba(149,83,251,.14)` / `rgba(255,255,255,.08)`; brand `#5921c3` (hover `#6b2ce0`) + `#9553fb` (active/focus); crimson `#EF4444` = high-risk block, amber `#F59E0B` = contextual/fallback, emerald `#10B981` = clean/gate pass.
 - Type: Plus Jakarta Sans (display 600/700, `text-wrap: balance`), DM Sans (body), JetBrains Mono + `tabular-nums` (metrics, hashes, latency, code).
 - Single-elevation surfaces: no nested cards, no `border-l-4` accent stripes.
+
+## Benchmark honesty
+
+- `dev` splits (`enron`, `presidio`, `ai4privacy`) were used for error analysis; `*-holdout` splits were not. Never tune rules on held-out misclassifications. Only correct wrong ground truth via `data/datasets/enron-adjudications.json` with a reason.
+- Ground truth comes from each dataset's own labels (see `docs/datasets.md`), never from the engine.
 
 ## Engine conventions
 
