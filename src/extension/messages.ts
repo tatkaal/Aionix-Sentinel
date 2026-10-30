@@ -1,20 +1,9 @@
 import type { AsyncScanResult } from '../engine/pipeline';
 import type { ScanRecord } from '../engine/telemetry';
+import type { EngineStatus, RouteMode } from '../engine/host';
 import type { ScanInput } from '../engine/types';
 
-export type RouteMode = 'auto' | 'force-a' | 'force-b';
-
-export interface EngineStatus {
-  route: 'A' | 'B';
-  mode: RouteMode;
-  pathBState: 'unavailable' | 'idle' | 'loading' | 'ready' | 'failed';
-  pathBReason: string;
-  adapterSummary: string;
-  memoryMB: number | null;
-  memoryMethod: string;
-  ceilingMB: number;
-  pathAReady: boolean;
-}
+export type { EngineStatus, RouteMode };
 
 export interface Counters {
   scanned: number;

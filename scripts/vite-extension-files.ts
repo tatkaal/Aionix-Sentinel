@@ -39,6 +39,19 @@ function listFiles(root: string): ExtensionFileEntry[] {
 }
 
 /**
+ * onnxruntime-web references its wasm via `new URL(..., import.meta.url)`, so bundlers copy the
+ * binaries again. We always set `wasmPaths` to the `ort/` folder, so those copies are dead weight.
+ */
+export function dropBundledOrtWasm(): Plugin {
+  return {
+    name: 'aionix-drop-bundled-ort-wasm',
+    generateBundle(_options, bundle) {
+      for (const file of Object.keys(bundle)) if (/ort-wasm[\w.-]*\.wasm$/.test(file)) delete bundle[file];
+    },
+  };
+}
+
+/**
  * Exposes the built MV3 extension (`dist-extension/`) to the Workbench under `/extension/`
  * so the Source workspace can zip it client-side. Dev: served by middleware. Build: copied.
  */

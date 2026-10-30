@@ -1,7 +1,7 @@
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 import tailwindcss from '@tailwindcss/vite';
-import { extensionFilesPlugin } from './scripts/vite-extension-files';
+import { dropBundledOrtWasm, extensionFilesPlugin } from './scripts/vite-extension-files';
 
 // Cross-origin isolation unlocks performance.measureUserAgentSpecificMemory() for the memory governor.
 // `credentialless` keeps CORS fetches to the Hugging Face Hub (Path B weights) working.
@@ -11,11 +11,11 @@ const isolationHeaders = {
 };
 
 export default defineConfig({
-  plugins: [react(), tailwindcss(), extensionFilesPlugin()],
+  plugins: [react(), tailwindcss(), extensionFilesPlugin(), dropBundledOrtWasm()],
+  worker: { format: 'es', plugins: () => [dropBundledOrtWasm()] },
   publicDir: 'assets',
   server: { headers: isolationHeaders },
   preview: { headers: isolationHeaders },
-  worker: { format: 'es' },
   build: {
     outDir: 'dist',
     target: 'es2022',

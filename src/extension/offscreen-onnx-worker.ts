@@ -1,29 +1,40 @@
-// Offscreen document: hosts the asynchronous half of the engine (Tier 2 + Tier 3 Path B).
-// Full hardware-aware routing and the memory governor are wired in the engine step.
-import type { AsyncScanResult } from '../engine/pipeline';
-import type { EngineStatus, OffscreenRequest, RouteMode } from './messages';
+// Offscreen document: hosts the asynchronous half of the engine — Tier 2 (Path A lexicon FST +
+// MiniLM validator, Path B openai/privacy-filter on WebGPU) and Tier 3 Path B (EDM) — plus the
+// memory governor. Every runtime binary is loaded from the extension package (zero remote code);
+// only Path B model weights are fetched from the Hugging Face Hub, as data.
+import { EngineHost } from '../engine/host';
+import { createOrtWebEmbedder } from '../engine/runtime/ort-web-embedder';
+import { probeHardware } from '../engine/tier2/hardware-probe';
+import type { OffscreenRequest } from './messages';
 
-let mode: RouteMode = 'auto';
+const base = chrome.runtime.getURL('');
+
+const host = new EngineHost({
+  loadBinary: async (path) => {
+    const res = await fetch(`${base}${path}`);
+    if (!res.ok) throw new Error(`${path}: HTTP ${res.status}`);
+    return res.arrayBuffer();
+  },
+  createEmbedder: () => createOrtWebEmbedder(base),
+  probeHardware: () => probeHardware(),
+  createNeuralNer: async (dtype, onProgress) => {
+    const { createPrivacyFilterNer } = await import('../engine/runtime/privacy-filter-ner');
+    return createPrivacyFilterNer(base, dtype, (p) => onProgress(p.total ? p.loaded / p.total : 0));
+  },
+  autoLoadPathB: true,
+});
+
+void host.init();
 
 async function handle(msg: OffscreenRequest): Promise<unknown> {
   switch (msg.type) {
     case 'scan-async':
-      return { findings: [], timings: { tier2: 0, tier3b: 0 }, tier2Route: null } satisfies AsyncScanResult;
+      return host.scanAsync(msg.input);
     case 'set-route':
-      mode = msg.mode;
-      return true;
+      await host.setRouteMode(msg.mode);
+      return host.status();
     case 'status':
-      return {
-        route: 'A',
-        mode,
-        pathBState: 'unavailable',
-        pathBReason: 'Engine not initialised',
-        adapterSummary: '—',
-        memoryMB: null,
-        memoryMethod: 'n/a',
-        ceilingMB: 150,
-        pathAReady: false,
-      } satisfies EngineStatus;
+      return host.status();
   }
 }
 

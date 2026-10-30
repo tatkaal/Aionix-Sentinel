@@ -14,8 +14,8 @@
   "scripts": {
     "dev": "vite",
     "build": "npm run build:ext && npm run build:web",
-    "build:ext": "node scripts/build-extension.mjs",
-    "build:ext:test": "node scripts/build-extension.mjs --test",
+    "build:ext": "tsx scripts/build-extension.mjs",
+    "build:ext:test": "tsx scripts/build-extension.mjs --test",
     "build:web": "vite build",
     "preview": "vite preview",
     "typecheck": "tsc --noEmit -p tsconfig.json",

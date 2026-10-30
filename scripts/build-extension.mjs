@@ -5,6 +5,7 @@
 import { build } from 'vite';
 import react from '@vitejs/plugin-react';
 import tailwindcss from '@tailwindcss/vite';
+import { dropBundledOrtWasm } from './vite-extension-files.ts';
 import { cpSync, existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 
@@ -52,7 +53,7 @@ await build({
   ...base,
   root: extSrc,
   base: './',
-  plugins: [react(), tailwindcss()],
+  plugins: [react(), tailwindcss(), dropBundledOrtWasm()],
   build: {
     outDir,
     emptyOutDir: false,
