@@ -1,14 +1,17 @@
 // Offscreen document: hosts the asynchronous half of the engine — Tier 2 (Path A lexicon FST +
-// MiniLM validator, Path B openai/privacy-filter on WebGPU) and Tier 3 Path B (EDM) — plus the
-// memory governor. Every runtime binary is loaded from the extension package (zero remote code);
-// only Path B model weights are fetched from the Hugging Face Hub, as data.
+// MiniLM validator, Path B compact multilingual token classifier on the CPU) and Tier 3 Path B
+// (EDM) — plus the memory governor. Every binary, model weights included, is loaded from the
+// extension package: nothing is fetched from the network.
 import { EngineHost } from '../engine/host';
 import { createOrtWebEmbedder } from '../engine/runtime/ort-web-embedder';
+import { createOrtWebTagger } from '../engine/runtime/ort-web-tagger';
+import { DEFAULT_NEURAL_POLICY } from '../engine/tier2/neural-path';
 import { probeHardware } from '../engine/tier2/hardware-probe';
 import type { OffscreenRequest } from './messages';
 
 const base = chrome.runtime.getURL('');
-const EVICTION_KEY = 'aionix.pathB.evicted';
+// Versioned per Path B model: an eviction of the earlier privacy-filter must not block the tagger.
+const EVICTION_KEY = 'aionix.pathB.evicted.v2';
 
 const host = new EngineHost({
   loadBinary: async (path) => {
@@ -18,10 +21,7 @@ const host = new EngineHost({
   },
   createEmbedder: () => createOrtWebEmbedder(base),
   probeHardware: () => probeHardware(),
-  createNeuralNer: async (dtype, onProgress) => {
-    const { createPrivacyFilterNer } = await import('../engine/runtime/privacy-filter-ner');
-    return createPrivacyFilterNer(base, dtype, onProgress);
-  },
+  pathB: { device: 'cpu', create: (_dtype, onProgress) => createOrtWebTagger(base, onProgress), policy: DEFAULT_NEURAL_POLICY },
   autoLoadPathB: true,
   enforceCeiling: true,
   evictionStore: {
@@ -57,7 +57,7 @@ async function handle(msg: OffscreenRequest): Promise<unknown> {
     case 'scan-async':
       return host.scanAsync(msg.input);
     case 'set-route':
-      // An explicit "Force WebGPU" clears a remembered eviction so the ceiling is re-measured.
+      // An explicit "Force Path B" clears a remembered eviction so the ceiling is re-measured.
       if (msg.mode === 'force-b') {
         try {
           localStorage.removeItem(EVICTION_KEY);

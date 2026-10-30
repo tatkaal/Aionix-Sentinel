@@ -52,7 +52,7 @@ function Popup() {
           <div className="min-w-0">
             <div className="text-xs text-muted">Tier 2 route</div>
             <div className="font-display text-sm font-semibold">
-              {engine ? (engine.route === 'B' ? 'Path B · WebGPU neural' : 'Path A · Lexicon FST (CPU)') : 'Starting…'}
+              {engine ? (engine.route === 'B' ? 'Path B · Neural tagger (CPU)' : 'Path A · Lexicon FST (CPU)') : 'Starting…'}
             </div>
           </div>
           {engine && <Badge tone={engine.route === 'B' ? 'brand' : 'amber'}>{engine.route === 'B' ? 'GPU' : 'CPU'}</Badge>}
@@ -77,7 +77,7 @@ function Popup() {
           onChange={(mode) => void send({ target: 'background', type: 'set-route', mode }).then(refresh)}
           options={[
             { value: 'auto', label: 'Auto-detect' },
-            { value: 'force-b', label: 'Force WebGPU' },
+            { value: 'force-b', label: 'Force Path B' },
             { value: 'force-a', label: 'Force Lexicon' },
           ]}
         />

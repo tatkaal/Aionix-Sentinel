@@ -27,10 +27,7 @@
   "host_permissions": [
     "https://claude.ai/*",
     "https://chatgpt.com/*",
-    "https://gemini.google.com/*",
-    "https://huggingface.co/*",
-    "https://*.huggingface.co/*",
-    "https://*.hf.co/*"
+    "https://gemini.google.com/*"
   ],
   "content_scripts": [
     {

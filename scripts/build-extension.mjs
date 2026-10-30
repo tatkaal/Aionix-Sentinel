@@ -93,9 +93,12 @@ const copies = [
   ['assets/ort', 'ort'],
   ['assets/icons', 'icons'],
 ];
+// The asyncify ORT build (27 MB) served Transformers.js for the WebGPU privacy-filter; Path B now
+// runs on the plain CPU build, so the extension does not ship it.
+const shipped = (p) => !/\.asyncify\./.test(p);
 for (const [from, to] of copies) {
   const src = resolve(root, from);
-  if (existsSync(src)) cpSync(src, resolve(outDir, to), { recursive: true });
+  if (existsSync(src)) cpSync(src, resolve(outDir, to), { recursive: true, filter: shipped });
   else console.warn(`[build-extension] missing ${from} — run "npm run setup" first`);
 }
 

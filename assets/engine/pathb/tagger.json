@@ -1,0 +1,47 @@
+{
+  "modelId": "aionix-pathb-6L (Multilingual-MiniLM, trimmed vocab, INT8)",
+  "model": "model_int8.onnx",
+  "tokenizer": "tokenizer.json",
+  "labels": [
+    "O",
+    "B-person",
+    "I-person",
+    "B-email",
+    "I-email",
+    "B-phone",
+    "I-phone",
+    "B-dob",
+    "I-dob",
+    "B-record-id",
+    "I-record-id",
+    "B-gov-id",
+    "I-gov-id",
+    "B-account",
+    "I-account",
+    "B-card",
+    "I-card",
+    "B-secret",
+    "I-secret",
+    "B-address",
+    "I-address"
+  ],
+  "clsId": 0,
+  "sepId": 2,
+  "maxLength": 512,
+  "provenance": {
+    "base": "microsoft/Multilingual-MiniLM-L12-H384 (MIT)",
+    "layers": 6,
+    "vocab": 30376,
+    "trainingData": [
+      "nvidia/Nemotron-PII (CC BY 4.0)",
+      "gretelai/synthetic_pii_finance_multilingual (Apache-2.0)"
+    ],
+    "selectedOn": "training-corpus validation slice",
+    "valMicroF1": 0.9075,
+    "epoch": 3,
+    "sha256": {
+      "model_int8.onnx": "d569b17af1eed2860c49548326de62fd1d3dd783a7abd6ffe928c0a0f6f828ea",
+      "tokenizer.json": "cd507e378a79a95ba499cee39b32027adb647ef8b08f8ed4249b1244a8b24428"
+    }
+  }
+}
