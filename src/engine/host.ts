@@ -8,6 +8,7 @@ import { Fst } from './tier2/fst-runtime';
 import type { Tier2Scanner } from './tier2/graph-scan';
 import type { HardwareReport } from './tier2/hardware-probe';
 import { createLexiconPath } from './tier2/lexicon-path';
+import { createNeuralPath, type NeuralPolicy } from './tier2/neural-path';
 import { createWebGpuPath, type NeuralNer } from './tier2/webgpu-path';
 import { createEdmDetector, decodeEdm, type EdmDetector, type EdmSourceDoc } from './tier3/edm';
 import type { Finding, FindingSource, ScanInput } from './types';
@@ -38,11 +39,22 @@ export interface EngineStatus {
   loadMs: { pathA: number | null; pathB: number | null };
 }
 
+export interface PathBProvider {
+  /**
+   * 'cpu': a compact token classifier on the shared ONNX Runtime wasm — runs on any hardware.
+   * 'webgpu': openai/privacy-filter — needs the hardware probe to pass.
+   */
+  device: 'cpu' | 'webgpu';
+  create(dtype: 'q4' | 'q4f16', onProgress: (p: { file: string; loaded: number; total: number }) => void): Promise<NeuralNer>;
+  /** Graph policy for 'cpu' taggers (see tier2/neural-path.ts). */
+  policy?: NeuralPolicy;
+}
+
 export interface HostDeps {
   loadBinary(path: string): Promise<ArrayBuffer>;
   createEmbedder(): Promise<{ embedder: Embedder; modelBytes: number }>;
   probeHardware(): Promise<HardwareReport>;
-  createNeuralNer?(dtype: 'q4' | 'q4f16', onProgress: (p: { file: string; loaded: number; total: number }) => void): Promise<NeuralNer>;
+  pathB?: PathBProvider;
   /** Load Path B automatically when the probe passes (extension: yes; Workbench: on request). */
   autoLoadPathB: boolean;
   /** Evict Path B above MEMORY_CEILING_MB (extension: yes; evaluation runtimes report only). */
@@ -99,25 +111,26 @@ export class EngineHost {
     this.loadMs.pathA = now() - t0;
 
     this.hardware = await this.deps.probeHardware();
-    if (!this.deps.createNeuralNer) {
+    const pathB = this.deps.pathB;
+    if (!pathB) {
       this.pathBState = 'unavailable';
       this.pathBReason = 'Neural path not available in this runtime';
-    } else if (!this.hardware.eligible) {
+    } else if (pathB.device === 'webgpu' && !this.hardware.eligible) {
       this.pathBState = 'unavailable';
       this.pathBReason = this.hardware.reason;
     } else {
       this.pathBState = 'idle';
-      this.pathBReason = `Eligible: ${this.hardware.reason}`;
+      this.pathBReason = pathB.device === 'cpu' ? 'Eligible: CPU tagger (any hardware)' : `Eligible: ${this.hardware.reason}`;
       const remembered = this.deps.evictionStore?.get();
       if (remembered) {
         this.pathBState = 'evicted';
-        this.pathBReason = `${remembered} (remembered — choose Force WebGPU to retry)`;
+        this.pathBReason = `${remembered} (remembered — choose Force Path B to retry)`;
       } else if (this.deps.autoLoadPathB) void this.loadPathB();
     }
   }
 
   /**
-   * Loads privacy-filter; any failure (OOM, device lost, download) degrades to Path A. Concurrent
+   * Loads the Path B tagger; any failure (OOM, device lost, missing file) degrades to Path A. Concurrent
    * callers share one in-flight load, and Path B only becomes routable once the memory check passes.
    */
   loadPathB(force = false): Promise<void> {
@@ -130,19 +143,22 @@ export class EngineHost {
   private async doLoadPathB(force: boolean): Promise<void> {
     await this.init();
     if (this.pathBState === 'ready') return;
-    if (!this.deps.createNeuralNer || !this.hardware?.webgpu || (!this.hardware.eligible && !force)) {
+    const provider = this.deps.pathB;
+    const gpu = provider?.device === 'webgpu';
+    if (!provider || !this.hardware || (gpu && (!this.hardware.webgpu || (!this.hardware.eligible && !force)))) {
       this.pathBState = 'unavailable';
-      this.pathBReason = this.hardware?.reason ?? 'WebGPU unavailable';
+      this.pathBReason = provider ? (this.hardware?.reason ?? 'WebGPU unavailable') : 'Neural path not available in this runtime';
       return;
     }
+    const where = gpu ? this.hardware.reason : 'CPU (ONNX Runtime wasm)';
     this.pathBState = 'loading';
-    this.pathBReason = `Downloading ${this.hardware.dtype} weights (cached after first load)`;
+    this.pathBReason = gpu ? `Downloading ${this.hardware.dtype} weights (cached after first load)` : 'Loading the Path B tagger';
     this.pathBProgress = 0;
     const t0 = now();
     const files = new Map<string, { loaded: number; total: number }>();
     let ner: NeuralNer | null = null;
     try {
-      ner = await this.deps.createNeuralNer(this.hardware.dtype, (p) => {
+      ner = await provider.create(this.hardware.dtype, (p) => {
         files.set(p.file, { loaded: p.loaded, total: p.total });
         let loaded = 0;
         let total = 0;
@@ -156,7 +172,7 @@ export class EngineHost {
       // Weight bytes that passed through host memory — the lower bound if no fresh reading arrives.
       this.pathBBytes = [...files.values()].reduce((n, f) => n + f.total, 0);
       this.trackedBytes += this.pathBBytes;
-      this.pathBReason = `${ner.modelId} · ${this.hardware.reason} · verifying host memory`;
+      this.pathBReason = `${ner.modelId} · ${where} · verifying host memory`;
       const verdict = await this.checkCeiling();
       this.pathBProgress = null;
       if (!verdict.keep) {
@@ -169,9 +185,9 @@ export class EngineHost {
         return;
       }
       this.ner = ner;
-      this.pathB = createWebGpuPath(this.fst!, this.validator, ner);
+      this.pathB = gpu ? createWebGpuPath(this.fst!, this.validator, ner) : createNeuralPath(this.fst!, this.validator, ner, provider.policy);
       this.pathBState = 'ready';
-      this.pathBReason = `${ner.modelId} · ${this.hardware.reason} · ${verdict.note}`;
+      this.pathBReason = `${ner.modelId} · ${where} · ${verdict.note}`;
     } catch (err) {
       await ner?.dispose().catch(() => undefined);
       this.pathB = null;

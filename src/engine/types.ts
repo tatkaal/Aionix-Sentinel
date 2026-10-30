@@ -26,14 +26,16 @@ export const CATEGORY_IDS = Object.keys(CATEGORIES).map(Number) as CategoryId[];
 export type EngineTier = 'tier1' | 'tier2' | 'tier3';
 
 /**
- * Detection route: Tier 1 math; Tier 2 Path A lexicon (FST) or Path B WebGPU (privacy-filter);
+ * Detection route: Tier 1 math; Tier 2 Path A lexicon (FST), Path B neural (compact token classifier
+ * on CPU) or Path B WebGPU (privacy-filter, evaluation);
  * Tier 3 Path A MinHash/Bloom or Path B exact data match (Orama + CRM hashes).
  */
-export type EnginePath = 'math' | 'lexicon' | 'webgpu' | 'minhash' | 'edm';
+export type EnginePath = 'math' | 'lexicon' | 'neural' | 'webgpu' | 'minhash' | 'edm';
 
 export const PATH_LABELS: Record<EnginePath, string> = {
   math: 'Tier 1 · Math',
   lexicon: 'Tier 2 · Path A Lexicon',
+  neural: 'Tier 2 · Path B Neural',
   webgpu: 'Tier 2 · Path B WebGPU',
   minhash: 'Tier 3 · Path A MinHash',
   edm: 'Tier 3 · Path B EDM',

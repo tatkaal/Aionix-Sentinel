@@ -7,7 +7,8 @@ import { Fst } from '../../src/engine/tier2/fst-runtime';
 import { createLexiconPath } from '../../src/engine/tier2/lexicon-path';
 import { findPersonNodes, findSensitiveNodes } from '../../src/engine/tier2/nodes';
 import { buildEdges, MAX_TOKEN_DISTANCE } from '../../src/engine/tier2/proximity-graph';
-import { createWebGpuPath, type NeuralNer } from '../../src/engine/tier2/webgpu-path';
+import { accountShaped, createNeuralPath, DEFAULT_NEURAL_POLICY, neuralKind, standsAlone } from '../../src/engine/tier2/neural-path';
+import { createWebGpuPath, type NeuralEntity, type NeuralNer } from '../../src/engine/tier2/webgpu-path';
 import { locateEntities } from '../../src/engine/runtime/privacy-filter-ner';
 import { createNodeEmbedder } from '../../scripts/lib/node-embedder';
 
@@ -112,5 +113,72 @@ describe.skipIf(!haveAssets)('Tier 2 paths (real FST + MiniLM validator)', async
     expect(f.map((x) => [x.category, x.path, text.slice(x.rawStart, x.rawEnd)])).toEqual([[9, 'webgpu', 'harrypotter']]);
     // The lowercase handle is invisible to Path A's capitalised-name heuristic.
     expect(await pathA.scan(text, src)).toEqual([]);
+  });
+
+  const stub = (entities: NeuralEntity[]): NeuralNer => ({ modelId: 'stub', detect: async () => entities, dispose: async () => undefined });
+
+  it('maps source labels to canonical neural kinds', () => {
+    expect(['B-first_name', 'I-last_name', 'medical_record_number', 'B-iban', 'password', 'B-record-id', 'city'].map(neuralKind)).toEqual([
+      'person',
+      'person',
+      'record-id',
+      'account',
+      'secret',
+      'record-id',
+      null,
+    ]);
+  });
+
+  it('Path B (neural) links a neural name to an account number', async () => {
+    const text = 'Reminder for Van: the balance on account 85890964 is overdue.';
+    const ner = stub([
+      { label: 'first_name', start: 13, end: 16, score: 0.94 },
+      { label: 'account_number', start: 41, end: 49, score: 0.97 },
+    ]);
+    const f = await createNeuralPath(fst, null, ner).scan(text, src);
+    expect(f.map((x) => [x.category, x.path, text.slice(x.rawStart, x.rawEnd)])).toEqual([[8, 'neural', 'Van']]);
+  });
+
+  it('two account numbers alone are not a customer record (the privacy-filter mapping says they are)', async () => {
+    const text = 'The transfer from account 12345678 to account 87654321 failed overnight.';
+    const accounts = [
+      { label: 'account_number', start: 26, end: 34, score: 0.95 },
+      { label: 'account_number', start: 46, end: 54, score: 0.95 },
+    ];
+    expect(await createNeuralPath(fst, null, stub(accounts)).scan(text, src)).toEqual([]);
+    // Old mapping: each number is both a person and a financial fact, so each links to the other.
+    expect((await createWebGpuPath(fst, null, stub(accounts)).scan(text, src)).map((x) => x.category)).toEqual([8, 8]);
+  });
+
+  it('only account-shaped spans become financial nodes', () => {
+    expect(['85890964', 'GB29 NWBK 6016 1331 9268 19', 'DE89370400440532013000', 'BSB 062-000 1234 5678'].map(accountShaped)).toEqual([true, true, true, true]);
+    // VINs / alphanumeric references, card-shaped digit runs (Tier 1's Luhn decides), too-short numbers.
+    expect(['0SKX8PEWDENC36759', 'FR09K8XRVHM213224', '1097648733177434', '4821'].map(accountShaped)).toEqual([false, false, false, false]);
+  });
+
+  it('identifiers must stand alone — not inside file names, URLs or e-mail addresses', () => {
+    const t = 'Account 85890964 · see SBD42664FCR.pdf · http://x.com/l.cfm?lk=00623004500083 · ref 4471209@corp.com';
+    const at = (s: string) => [t.indexOf(s), t.indexOf(s) + s.length] as const;
+    expect(standsAlone(t, ...at('85890964'))).toBe(true);
+    expect(standsAlone(t, ...at('SBD42664'))).toBe(false);
+    expect(standsAlone(t, ...at('00623004500083'))).toBe(false);
+    expect(standsAlone(t, ...at('4471209'))).toBe(false);
+  });
+
+  it('adjacent name spans merge, so a public figure stays immune', async () => {
+    const text = 'Taylor Swift reportedly has a net worth of $1.6 billion in holdings.';
+    const ner = stub([
+      { label: 'first_name', start: 0, end: 6, score: 0.98 },
+      { label: 'last_name', start: 7, end: 12, score: 0.87 },
+    ]);
+    expect(await createNeuralPath(fst, null, ner).scan(text, src)).toEqual([]);
+  });
+
+  it('neural secrets and government IDs are findings only when the policy enables them', async () => {
+    const text = 'Le mot de passe temporaire est Xk9pL2qa, merci.';
+    const ner = stub([{ label: 'password', start: 31, end: 39, score: 0.9 }]);
+    expect(await createNeuralPath(fst, null, ner).scan(text, src)).toEqual([]);
+    const f = await createNeuralPath(fst, null, ner, { ...DEFAULT_NEURAL_POLICY, secretFindings: true }).scan(text, src);
+    expect(f.map((x) => [x.category, x.type, text.slice(x.rawStart, x.rawEnd)])).toEqual([[2, 'SECRET', 'Xk9pL2qa']]);
   });
 });

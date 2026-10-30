@@ -37,7 +37,7 @@ function host(nerDelayMs: number) {
       shaderF16: false,
       deviceMemoryGB: 8,
     }),
-    createNeuralNer: async () => slowNer,
+    pathB: { device: 'webgpu', create: async () => slowNer },
     autoLoadPathB: false,
     enforceCeiling: false,
   });
@@ -76,11 +76,14 @@ describe.skipIf(!ready)('engine host routing', () => {
           webgpu: true, eligible: true, reason: 'stub GPU', dtype: 'q4', vendor: 'stub', architecture: '', description: '',
           isFallbackAdapter: false, maxStorageBufferBindingSize: 2 ** 31, maxBufferSize: 2 ** 31, shaderF16: false, deviceMemoryGB: 8,
         }),
-        createNeuralNer: async (_dtype, onProgress) => {
-          loads++;
-          // ~0.9 GB of weights pass through host memory, as with the real q4 privacy-filter.
-          onProgress({ file: 'onnx/model_q4.onnx_data', loaded: 917_000_000, total: 917_000_000 });
-          return { modelId: 'stub', detect: async () => [], dispose: async () => undefined };
+        pathB: {
+          device: 'webgpu',
+          create: async (_dtype, onProgress) => {
+            loads++;
+            // ~0.9 GB of weights pass through host memory, as with the real q4 privacy-filter.
+            onProgress({ file: 'onnx/model_q4.onnx_data', loaded: 917_000_000, total: 917_000_000 });
+            return { modelId: 'stub', detect: async () => [], dispose: async () => undefined };
+          },
         },
         autoLoadPathB: true,
         enforceCeiling: true,
@@ -108,5 +111,30 @@ describe.skipIf(!ready)('engine host routing', () => {
     const r = await h.scanAsync(input);
     expect(r.tier2Route).toBe('B');
     expect(r.degradedReason).toBeUndefined();
+  });
+
+  it('a CPU Path B tagger loads and routes without any WebGPU adapter', async () => {
+    const at = input.text.indexOf('Harriet');
+    const h = new EngineHost({
+      loadBinary: async (p) => {
+        const b = readFileSync(resolve(assets, p));
+        return b.buffer.slice(b.byteOffset, b.byteOffset + b.byteLength) as ArrayBuffer;
+      },
+      createEmbedder: async () => ({ embedder: await createNodeEmbedder(modelDir), modelBytes: 0 }),
+      probeHardware: async () => ({
+        webgpu: false, eligible: false, reason: 'no adapter', dtype: 'q4', vendor: '', architecture: '', description: '',
+        isFallbackAdapter: false, maxStorageBufferBindingSize: 0, maxBufferSize: 0, shaderF16: false, deviceMemoryGB: null,
+      }),
+      pathB: { device: 'cpu', create: async () => ({ modelId: 'stub-tagger', detect: async () => [{ label: 'B-person', start: at, end: at + 17, score: 0.95 }], dispose: async () => undefined }) },
+      autoLoadPathB: true,
+      enforceCeiling: true,
+    });
+    await h.init();
+    await h.loadPathB();
+    const s = await h.status();
+    expect([s.pathBState, s.route, s.pathBModel]).toEqual(['ready', 'B', 'stub-tagger']);
+    const r = await h.scanAsync(input, { strictRoute: true });
+    expect(r.tier2Route).toBe('B');
+    expect(r.findings.some((f) => f.category === 9 && f.path === 'neural')).toBe(true);
   });
 });

@@ -52,6 +52,10 @@ export function createMemoryProbe(trackedBytes: () => number) {
     inflight ??= perf!
       .measureUserAgentSpecificMemory!()
       .then((r) => {
+        // Measured right after an offscreen document is recreated, Chrome can resolve with only the
+        // shared bucket (~6 MB) and no JavaScript attribution for the page — that is not a reading of
+        // this document, and trusting it would keep an oversized model. Use the labelled estimate.
+        if (r.breakdown && !r.breakdown.some((b) => b.types.includes('JavaScript'))) return (last = { ...fallback(), method: `${fallback().method} (browser reading lacked page attribution)` });
         const byType: Record<string, number> = {};
         for (const b of r.breakdown ?? []) {
           const where = (b.attribution ?? []).map((a) => `${a.scope ?? ''}:${(a.url ?? '').split('/').pop()}`).join(',');
