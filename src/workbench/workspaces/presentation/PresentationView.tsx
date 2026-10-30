@@ -16,25 +16,25 @@ interface Row {
   label: string;
   split: string;
   a: RunSummary | null;
-  aSource: 'browser' | 'recorded' | 'CI' | null;
+  aSource: Source;
   b: RunSummary | null;
+  bSource: Source;
 }
 
+type Source = 'browser' | 'recorded' | 'CI' | null;
+const sourceOf = (r: ReturnType<typeof resolveRun>): Source => (r ? ({ local: 'browser', recorded: 'recorded', ci: 'CI' } as const)[r.source] : null);
+const SOURCE_TEXT = { browser: 'runs in this browser', recorded: 'the recorded Workbench run', CI: 'the Node CI run' } as const;
+
 function useRows(): Row[] {
-  const { baseline } = useBench(); // subscribe: re-render when runs / recordings change
+  // Subscribe so the deck re-renders when runs, recordings or CI baselines change.
   useBench((st) => st.runs);
   useBench((st) => st.recorded);
+  useBench((st) => st.baseline);
+  useBench((st) => st.baselineB);
   return DATASETS.map((d) => {
     const ra = resolveRun(d.id, 'A');
-    const ciA = baseline?.summaries.find((s) => s.dataset === d.id) ?? null;
-    return {
-      id: d.id,
-      label: d.label,
-      split: d.split,
-      a: ra?.summary ?? ciA,
-      aSource: ra ? (ra.source === 'local' ? 'browser' : 'recorded') : ciA ? 'CI' : null,
-      b: resolveRun(d.id, 'B')?.summary ?? null,
-    };
+    const rb = resolveRun(d.id, 'B');
+    return { id: d.id, label: d.label, split: d.split, a: ra?.summary ?? null, aSource: sourceOf(ra), b: rb?.summary ?? null, bSource: sourceOf(rb) };
   });
 }
 
@@ -88,7 +88,7 @@ function FlowDiagram() {
       {box(20, 40, 150, 64, 'Send / Enter', 'capture-phase hook')}
       {box(200, 40, 140, 64, 'Tier 1', 'checksums · entropy')}
       {box(370, 40, 120, 64, 'Tier 3 · A', 'MinHash + Bloom')}
-      {box(520, 40, 200, 64, 'Tier 2 · route A or B', 'FST + MiniLM | WebGPU', true)}
+      {box(520, 40, 200, 64, 'Tier 2 · route A or B', 'FST + MiniLM | tagger', true)}
       {box(750, 40, 190, 64, 'Tier 3 · B', 'Orama EDM + row hashes')}
       {arrow(170, 72, 198, 72)}
       {arrow(340, 72, 368, 72)}
@@ -130,7 +130,6 @@ export function PresentationView() {
   const edgeCorrect = edge?.a ? edge.a.metrics.tp + edge.a.metrics.tn : null;
   const heldEnron = rows.find((r) => r.id === 'enron-holdout')?.a;
   const heldAi4p = rows.find((r) => r.id === 'ai4privacy-holdout')?.a;
-  const hw = status?.hardware;
   const tierP50 = useMemo(() => {
     const s = rows.find((r) => r.id === 'ai4privacy')?.a ?? rows.find((r) => r.id === 'presidio')?.a;
     return s?.tierP50 ?? null;
@@ -176,7 +175,7 @@ export function PresentationView() {
         <span className="metric text-alabaster">{formatMs(tierP50?.tier3b)} ms</span>.
       </p>
     </Slide>,
-    <Slide key="tier2" n={4} kicker="Hardware-aware Tier 2" title="Lexicon automata everywhere, WebGPU where the hardware allows">
+    <Slide key="tier2" n={4} kicker="Two Tier 2 paths" title="Lexicon automata and a compact neural tagger, both on the CPU">
       <div className="grid h-full grid-cols-2 gap-[4%]">
         <div>
           <h3 className="mb-1 flex items-center gap-2 font-display font-semibold text-alabaster">
@@ -184,12 +183,12 @@ export function PresentationView() {
           </h3>
           <p>ICD-10-CM and RxNorm compiled into a minimal FST walked without allocation; a 30-token person ↔ condition graph; a MiniLM-L6 INT8 validator separating records from general questions.</p>
           <h3 className="mt-[4%] mb-1 flex items-center gap-2 font-display font-semibold text-alabaster">
-            <span className="inline-block size-3 rounded-sm" style={{ background: SERIES.b }} /> Path B · WebGPU
+            <span className="inline-block size-3 rounded-sm" style={{ background: SERIES.b }} /> Path B · neural tagger
           </h3>
-          <p>openai/privacy-filter (1.5B total / 50M active parameters, 128k context) via Transformers.js. Its person and account spans feed the same graph, and it degrades to Path A on weak hardware, OOM, device loss or memory pressure.</p>
+          <p>A multilingual MiniLM token classifier (vocabulary trimmed to 30k pieces, INT8) trained on permissively licensed synthetic PII. It finds names, record IDs and account numbers in any of its languages; the same graph and validator decide. It replaced openai/privacy-filter, which needed ~1 GB of host memory.</p>
         </div>
         <div className="space-y-[3%]">
-          <Tile label="This machine" value={hw?.webgpu ? hw.vendor || 'WebGPU' : 'No WebGPU'} note={status?.pathBReason} />
+          <Tile label="Path B model" value={status?.pathBModel ? status.pathBModel.split(' (')[0]! : '—'} note={status?.pathBReason} />
           <div className="grid grid-cols-2 gap-[5%]">
             <Tile label="Route in use" value={status ? `Path ${status.route}` : '—'} note={status?.pathBState ? `Path B ${status.pathBState}` : undefined} />
             <Tile label="Engine memory" value={status?.memoryMB != null ? `${status.memoryMB.toFixed(0)} MB` : '—'} note={`ceiling 150 MB · ${status?.memoryMethod ?? ''}`} />
@@ -264,7 +263,7 @@ export function PresentationView() {
         </tbody>
       </table>
       <p className="mt-[1.5%] text-[0.85em] text-subtle">
-        Targets from the blueprint: F2 ≥ {TARGETS.f2}, FPR &lt; {(TARGETS.fpr * 100).toFixed(2)}%. Path A figures come from {rows.some((r) => r.aSource === 'browser') ? 'runs in this browser' : rows.some((r) => r.aSource === 'recorded') ? 'the recorded Workbench run' : 'the Node CI baseline'}. Path B ran in strict mode on {useBench.getState().recorded?.hardware.pathB ?? 'WebGPU'}: it raises held-out AI4Privacy recall, but at a far higher false-alarm rate.
+        Targets from the blueprint: F2 ≥ {TARGETS.f2}, FPR &lt; {(TARGETS.fpr * 100).toFixed(2)}%. Path A figures come from {SOURCE_TEXT[rows.find((r) => r.aSource)?.aSource ?? 'CI']}; Path B figures from {SOURCE_TEXT[rows.find((r) => r.bSource)?.bSource ?? 'CI']}, routed strictly to the tagger.
       </p>
     </Slide>,
     <Slide key="future" n={8} kicker="Future scope" title="Keeping pace with the portals and the enterprise">
@@ -272,9 +271,9 @@ export function PresentationView() {
         {[
           ['12-hour live DOM canary bots', 'Playwright drives authenticated test tenants of Claude, ChatGPT and Gemini every 12 hours and alerts when a composer selector, send button, chip container or endpoint drifts.'],
           ['MDM dictionary sync', 'Push vault fingerprints, EDM row hashes, lexicon additions and gate thresholds through Chrome managed storage, so policy updates without republishing the extension.'],
-          ['Path B precision fix', 'Treat privacy-filter account_number spans as financial values only, not as person identifiers. Two unrelated numbers currently form a “customer record” — the largest source of Path B false alarms. Then re-benchmark both paths on held-out data.'],
+          ['Multilingual training data', 'Path B learned French, German and Italian from ~4k synthetic finance documents per language. More languages and domains (clinical, HR) are the main lever for its held-out recall.'],
           ['Larger held-out evaluation', 'Grow labelled held-out sets (especially unlabelled national IDs and passwords) and calibrate the validator margin per category on them.'],
-          ['Clinical NER contingency', 'A distilled MobileBERT clinical NER (Q4F16, < 50 MB) if Path A recall on colloquial medical prompts proves insufficient.'],
+          ['Shared encoder', 'Serve the validator, the EDM index and the tagger from one multilingual encoder pass, removing the second ONNX session and its memory.'],
         ].map(([t, d]) => (
           <div key={t} className="rounded-lg border border-hairline bg-graphite-2 p-[5%]">
             <h3 className="mb-1 font-display font-semibold text-alabaster">{t}</h3>

@@ -157,8 +157,8 @@ export function SandboxView() {
             value={engine.routeMode}
             onChange={engine.setRouteMode}
             options={[
-              { value: 'auto', label: 'Auto-detect WebGPU' },
-              { value: 'force-b', label: 'Force WebGPU · Path B' },
+              { value: 'auto', label: 'Auto (Path B when loaded)' },
+              { value: 'force-b', label: 'Force Path B · neural' },
               { value: 'force-a', label: 'Force Lexicon · Path A' },
             ]}
           />
@@ -169,7 +169,7 @@ export function SandboxView() {
         <Stat
           label="Tier 2 route"
           value={route ? `Path ${route}` : '—'}
-          hint={engine.status ? (route === 'B' ? 'WebGPU · privacy-filter' : 'CPU · FST lexicon + MiniLM') : 'engine starting'}
+          hint={engine.status ? (route === 'B' ? 'CPU · neural tagger + FST graph' : 'CPU · FST lexicon + MiniLM') : 'engine starting'}
           tone={route === 'B' ? undefined : route === 'A' ? 'amber' : undefined}
         />
         <Stat label="Tier 1 · Math" value={formatMs(t?.tier1)} unit="ms" />

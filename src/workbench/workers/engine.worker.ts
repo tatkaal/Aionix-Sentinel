@@ -1,7 +1,9 @@
 // Workbench mirror of offscreen-onnx-worker.ts: the same EngineHost, loading the same binaries
-// from the Workbench origin. Path B loads on request (it downloads ~0.8–0.9 GB of weights).
+// (Path B tagger included) from the Workbench origin.
 import { EngineHost, type RouteMode } from '../../engine/host';
 import { createOrtWebEmbedder } from '../../engine/runtime/ort-web-embedder';
+import { createOrtWebTagger } from '../../engine/runtime/ort-web-tagger';
+import { DEFAULT_NEURAL_POLICY } from '../../engine/tier2/neural-path';
 import type { EdmSourceDoc } from '../../engine/tier3/edm';
 import { probeHardware } from '../../engine/tier2/hardware-probe';
 import type { ScanInput } from '../../engine/types';
@@ -27,11 +29,8 @@ const host = new EngineHost({
   },
   createEmbedder: () => createOrtWebEmbedder(base),
   probeHardware: () => probeHardware(),
-  createNeuralNer: async (dtype, onProgress) => {
-    const { createPrivacyFilterNer } = await import('../../engine/runtime/privacy-filter-ner');
-    return createPrivacyFilterNer(base, dtype, onProgress);
-  },
-  autoLoadPathB: false,
+  pathB: { device: 'cpu', create: (_dtype, onProgress) => createOrtWebTagger(base, onProgress), policy: DEFAULT_NEURAL_POLICY },
+  autoLoadPathB: true,
   // The Workbench is an evaluation lab: it reports Path B's host footprint but does not evict it.
   enforceCeiling: false,
 });

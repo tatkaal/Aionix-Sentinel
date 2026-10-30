@@ -6,13 +6,13 @@ import { applyAdjudications } from '../../engine/bench/harness';
 import { DATASETS, type Adjudication, type BenchSample, type DatasetId } from '../../engine/bench/types';
 
 const files = import.meta.glob('/data/datasets/*.{json,jsonl}', { query: '?raw', import: 'default' }) as Record<string, () => Promise<string>>;
-const baselineFile = import.meta.glob('/bench-results/path-a.json', { import: 'default' }) as Record<string, () => Promise<NodeBaseline>>;
+const baselineFiles = import.meta.glob('/bench-results/path-{a,b}.json', { import: 'default' }) as Record<string, () => Promise<NodeBaseline>>;
 
 export interface NodeBaseline {
   generatedAt: string;
   runtime: { kind: string; node: string; cpu: string; cores: number };
-  route: 'A';
-  engine: { fstEntries: number; fstBytes: number; edmVectors: number; edmFields: number; pathB: string };
+  route: 'A' | 'B';
+  engine: { fstEntries: number; fstBytes: number; edmVectors: number; edmFields: number; pathB: string; pathBModel?: string | null };
   summaries: RunSummary[];
 }
 
@@ -22,7 +22,7 @@ const recordedFile = import.meta.glob('/bench-results/browser-runs.json', { impo
 export interface RecordedBrowserRuns {
   recordedAt: string;
   userAgent: string;
-  hardware: { pathA: string; pathB: string };
+  hardware: { pathA: string; pathB?: string };
   runs: Record<string, { summary: RunSummary; hardware: string; offRoute: number }>;
 }
 
@@ -49,7 +49,8 @@ export async function loadDataset(id: DatasetId): Promise<BenchSample[]> {
   return samples;
 }
 
-export async function loadBaseline(): Promise<NodeBaseline | null> {
-  const loader = baselineFile['/bench-results/path-a.json'];
+/** The committed Node CI run for a route (bench-results/path-a.json, path-b.json). */
+export async function loadBaseline(route: 'A' | 'B' = 'A'): Promise<NodeBaseline | null> {
+  const loader = baselineFiles[`/bench-results/path-${route.toLowerCase()}.json`];
   return loader ? loader() : null;
 }

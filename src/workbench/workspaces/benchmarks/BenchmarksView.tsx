@@ -24,7 +24,6 @@ function splitBadge(split: string) {
 function PathStatus() {
   const { status, loadPathB, error } = useEngine();
   const [busy, setBusy] = useState(false);
-  const hw = status?.hardware;
   const state = status?.pathBState ?? 'idle';
   const tone = state === 'ready' ? 'emerald' : state === 'loading' ? 'brand' : state === 'unavailable' || state === 'failed' || state === 'evicted' ? 'amber' : 'neutral';
   return (
@@ -59,22 +58,18 @@ function PathStatus() {
         <div className="space-y-3 md:pl-6">
           <div className="flex items-center gap-2">
             <span aria-hidden className="size-2.5 rounded-sm" style={{ background: SERIES.b }} />
-            <h3 className="font-display text-sm font-semibold">Path B · openai/privacy-filter (WebGPU)</h3>
+            <h3 className="font-display text-sm font-semibold">Path B · neural tagger (CPU)</h3>
             <Badge tone={tone}>{state}</Badge>
           </div>
-          <p className="text-[13px] text-muted">{status?.pathBReason ?? 'Probing hardware…'}</p>
+          <p className="text-[13px] text-muted">{status?.pathBReason ?? 'Starting…'}</p>
           <dl className="grid grid-cols-2 gap-3 text-[13px]">
-            <div>
-              <dt className="text-subtle">Adapter</dt>
-              <dd className="truncate">{status?.adapterSummary ?? '—'}</dd>
+            <div className="col-span-2">
+              <dt className="text-subtle">Model</dt>
+              <dd className="truncate">{status?.pathBModel ?? '—'}</dd>
             </div>
             <div>
-              <dt className="text-subtle">Storage binding</dt>
-              <dd className="metric">{hw?.webgpu ? `${(hw.maxStorageBufferBindingSize / 1048576).toFixed(0)} MB` : '—'}</dd>
-            </div>
-            <div>
-              <dt className="text-subtle">Quantisation</dt>
-              <dd className="metric">{hw?.webgpu ? `${hw.dtype}${hw.shaderF16 ? ' (shader-f16)' : ''}` : '—'}</dd>
+              <dt className="text-subtle">Runtime</dt>
+              <dd>ONNX Runtime wasm</dd>
             </div>
             <div>
               <dt className="text-subtle">Load time</dt>
@@ -86,7 +81,7 @@ function PathStatus() {
               <div className="h-full rounded-full" style={{ width: `${status.pathBProgress * 100}%`, background: SERIES.b }} />
             </div>
           )}
-          {(state === 'idle' || state === 'failed' || state === 'evicted') && hw?.webgpu && (
+          {(state === 'idle' || state === 'failed' || state === 'evicted') && (
             <div className="flex flex-wrap items-center gap-3">
               <Button
                 variant="primary"
@@ -97,9 +92,9 @@ function PathStatus() {
                   void loadPathB().finally(() => setBusy(false));
                 }}
               >
-                Load WebGPU model
+                Load Path B
               </Button>
-              <span className="text-xs text-subtle">Downloads ~0.8–0.9 GB of weights once; cached by the browser.</span>
+              <span className="text-xs text-subtle">Packaged with the engine; nothing is downloaded.</span>
             </div>
           )}
           {error && <p className="text-xs text-[#FCA5A5]">{error}</p>}
@@ -266,7 +261,7 @@ export function BenchmarksView() {
 
       {!a && !b && !ci ? (
         <Panel>
-          <EmptyState title="No runs for this dataset yet">Run it on Path A (and Path B once the WebGPU model is loaded).</EmptyState>
+          <EmptyState title="No runs for this dataset yet">Run it on Path A and Path B.</EmptyState>
         </Panel>
       ) : (
         <div className="grid gap-6 xl:grid-cols-2">
@@ -284,7 +279,7 @@ export function BenchmarksView() {
                   <div key={label as string} className="min-w-0">
                     {sum ? (
                       <>
-                        <ConfusionMatrix {...sum.metrics} caption={`${label} · n=${sum.observations}${(label === 'Path A' ? ra : rb)?.source === 'recorded' ? ' · recorded run' : ''}`} />
+                        <ConfusionMatrix {...sum.metrics} caption={`${label} · n=${sum.observations}${{ local: '', recorded: ' · recorded run', ci: ' · CI run (Node)' }[(label === 'Path A' ? ra : rb)?.source ?? 'local']}`} />
                         <dl className="mt-3 grid grid-cols-3 gap-2">
                           <Stat label="p50" value={formatMs(sum.latency.p50)} unit="ms" />
                           <Stat label="p95" value={formatMs(sum.latency.p95)} unit="ms" />
@@ -296,7 +291,7 @@ export function BenchmarksView() {
                         </p>
                       </>
                     ) : (
-                      <p className="py-8 text-center text-xs text-subtle">{label} not run{label === 'Path B' && !pathBReady ? ' — WebGPU model not loaded' : ''}</p>
+                      <p className="py-8 text-center text-xs text-subtle">{label} not run{label === 'Path B' && !pathBReady ? ' — Path B not loaded' : ''}</p>
                     )}
                   </div>
                 );
@@ -345,8 +340,8 @@ export function BenchmarksView() {
       )}
       {bench.baseline && (
         <p className="mt-4 text-xs text-subtle">
-          CI baseline: {bench.baseline.runtime.kind} {bench.baseline.runtime.node} · {bench.baseline.runtime.cpu} · generated {new Date(bench.baseline.generatedAt).toLocaleString()} · Tier 2 Path A
-          only (no WebGPU in Node).
+          CI baseline: {bench.baseline.runtime.kind} {bench.baseline.runtime.node} · {bench.baseline.runtime.cpu} · generated {new Date(bench.baseline.generatedAt).toLocaleString()}
+          {bench.baselineB ? ` · Path B run generated ${new Date(bench.baselineB.generatedAt).toLocaleString()} (${bench.baselineB.engine.pathBModel ?? 'Path B tagger'})` : ''}.
         </p>
       )}
     </>

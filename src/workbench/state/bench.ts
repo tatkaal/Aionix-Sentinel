@@ -15,7 +15,8 @@ export interface BrowserRun {
   offRoute: number;
 }
 
-const KEY = 'aionix.workbench.bench.v1';
+// v2: Path B is the CPU tagger; runs of the earlier privacy-filter Path B are not comparable.
+const KEY = 'aionix.workbench.bench.v2';
 
 function loadRuns(): Record<string, BrowserRun> {
   try {
@@ -38,6 +39,8 @@ interface BenchState {
   running: { dataset: DatasetId; route: Route; done: number; total: number } | null;
   error: string | null;
   baseline: NodeBaseline | null;
+  /** Node CI run of Path B (bench-results/path-b.json). */
+  baselineB: NodeBaseline | null;
   /** Committed browser runs (bench-results/browser-runs.json), used when a run is not in this browser. */
   recorded: RecordedBrowserRuns | null;
   loadBaseline(): Promise<void>;
@@ -53,11 +56,12 @@ export const useBench = create<BenchState>((set, get) => ({
   running: null,
   error: null,
   baseline: null,
+  baselineB: null,
   recorded: null,
   async loadBaseline() {
     if (get().baseline) return;
-    const [baseline, recorded] = await Promise.all([loadBaseline(), loadRecordedRuns()]);
-    set({ baseline, recorded });
+    const [baseline, baselineB, recorded] = await Promise.all([loadBaseline('A'), loadBaseline('B'), loadRecordedRuns()]);
+    set({ baseline, baselineB, recorded });
   },
   async run(dataset, route) {
     if (get().running) return;
@@ -70,7 +74,7 @@ export const useBench = create<BenchState>((set, get) => ({
       const before = useEngine.getState().status;
       // Never trigger the ~0.8–0.9 GB Path B download implicitly from a benchmark run.
       if (route === 'B' && before?.pathBState !== 'ready') {
-        throw new Error(`Path B is ${before?.pathBState ?? 'unavailable'} — ${before?.pathBReason ?? 'load the WebGPU model first'}`);
+        throw new Error(`Path B is ${before?.pathBState ?? 'unavailable'} — ${before?.pathBReason ?? 'Path B tagger not loaded'}`);
       }
       await engine.applyRoute(route === 'B' ? 'force-b' : 'force-a');
       const samples = await loadDataset(dataset);
@@ -86,7 +90,8 @@ export const useBench = create<BenchState>((set, get) => ({
       };
       const { summary } = await runBenchmark(dataset, route, samples, scan, (done, total) => set({ running: { dataset, route, done, total } }));
       const hw = useEngine.getState().status;
-      const hardware = route === 'B' ? (hw?.pathBModel ?? 'WebGPU') + ' · ' + (hw?.adapterSummary ?? '') : `ONNX Runtime wasm (CPU) · ${navigator.hardwareConcurrency} logical cores`;
+      const cpu = `ONNX Runtime wasm (CPU) · ${navigator.hardwareConcurrency} logical cores`;
+      const hardware = route === 'B' ? `${hw?.pathBModel ?? 'Path B tagger'} · ${cpu}` : cpu;
       const runs = { ...get().runs, [runKey(dataset, route)]: { summary, hardware, offRoute } };
       saveRuns(runs);
       set({ runs });
@@ -109,11 +114,14 @@ export const useBench = create<BenchState>((set, get) => ({
   },
 }));
 
-/** A run from this browser if present, else the committed recording; labelled with its provenance. */
-export function resolveRun(dataset: DatasetId, route: Route): { summary: RunSummary; source: 'local' | 'recorded'; hardware: string } | null {
-  const { runs, recorded } = useBench.getState();
+/** A run from this browser, else the committed browser recording, else the Node CI run — labelled. */
+export function resolveRun(dataset: DatasetId, route: Route): { summary: RunSummary; source: 'local' | 'recorded' | 'ci'; hardware: string } | null {
+  const { runs, recorded, baseline, baselineB } = useBench.getState();
   const local = runs[runKey(dataset, route)];
   if (local) return { summary: local.summary, source: 'local', hardware: local.hardware };
   const rec = recorded?.runs[runKey(dataset, route)];
-  return rec ? { summary: rec.summary, source: 'recorded', hardware: rec.hardware } : null;
+  if (rec) return { summary: rec.summary, source: 'recorded', hardware: rec.hardware };
+  const ci = route === 'A' ? baseline : baselineB;
+  const s = ci?.summaries.find((x) => x.dataset === dataset);
+  return s && ci ? { summary: s, source: 'ci', hardware: `Node ${ci.runtime.node} · ${ci.runtime.cpu}` } : null;
 }

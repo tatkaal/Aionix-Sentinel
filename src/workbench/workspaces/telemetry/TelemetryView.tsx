@@ -9,7 +9,7 @@ import { navigate } from '../../router';
 import { useTelemetry } from '../../state/telemetry';
 
 const PORTAL_LABEL: Record<string, string> = { claude: 'Claude', chatgpt: 'ChatGPT', gemini: 'Gemini', sandbox: 'Workbench sandbox' };
-const PATHS: EnginePath[] = ['math', 'lexicon', 'webgpu', 'minhash', 'edm'];
+const PATHS: EnginePath[] = ['math', 'lexicon', 'neural', 'webgpu', 'minhash', 'edm'];
 
 function hourBuckets(records: ScanRecord[]) {
   const now = Date.now();
