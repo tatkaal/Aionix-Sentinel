@@ -8,7 +8,8 @@ export const geminiAdapter: PortalAdapter = {
   sendButtonSelectors: ['button.send-button', 'button[aria-label="Send message"]', 'button[aria-label*="Send" i]'],
   chipContainerSelectors: ['.file-preview-container', 'uploader-file-preview-container', '.input-area-container'],
   chipSelectors: ['uploader-file-preview', '.file-preview', '[data-aionix-chip]'],
-  completionEndpoint: /\/BardFrontendService\/StreamGenerate\b/,
+  // Live path: /_/BardChatUi/data/assistant.lamda.BardFrontendService/StreamGenerate
+  completionEndpoint: /[./]BardFrontendService\/StreamGenerate\b/,
   extractPrompt(body) {
     // Form-encoded `f.req=[null,"<json>"]`; the inner JSON's first element starts with the prompt.
     try {
