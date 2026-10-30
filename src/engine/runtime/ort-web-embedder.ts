@@ -25,6 +25,11 @@ export async function createOrtWebEmbedder(baseUrl: string): Promise<{ embedder:
     }),
     fetch(`${baseUrl}${MINILM_VOCAB_PATH}`).then((r) => r.text()),
   ]);
-  const embedder = await createMiniLmEmbedder(ort as unknown as OrtLike, new Uint8Array(model), vocab, { executionProviders: ['wasm'] });
+  const embedder = await createMiniLmEmbedder(ort as unknown as OrtLike, new Uint8Array(model), vocab, {
+    executionProviders: ['wasm'],
+    // Measured in Chrome: graph optimisation adds ~20 MB of wasm memory for no accuracy change
+    // (embeddings identical, cosine 1.000000 across levels) and ~1 ms of latency.
+    graphOptimizationLevel: 'disabled',
+  });
   return { embedder, modelBytes: model.byteLength };
 }
