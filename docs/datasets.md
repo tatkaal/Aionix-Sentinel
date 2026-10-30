@@ -52,3 +52,24 @@ These were observed but not tuned away:
 | ICD-10-CM 2026 code descriptions | [CMS `2026-code-descriptions-tabular-order.zip`](https://www.cms.gov/files/zip/2026-code-descriptions-tabular-order.zip) (74,719 codes) | Public domain (US Government) | Medical-condition terms |
 | RxNorm Current Prescribable Content | [NLM `RxNorm_full_prescribe_*.zip`](https://www.nlm.nih.gov/research/umls/rxnorm/docs/prescribe.html) (IN / PIN / BN term types) | Freely available; no UMLS licence required | Medication names |
 | MiniLM-L6-v2 INT8 | [`Xenova/all-MiniLM-L6-v2`](https://huggingface.co/Xenova/all-MiniLM-L6-v2) | Apache-2.0 | Context validator + Tier 3B embeddings |
+
+## Tier 2 Path B model and training data
+
+The shipped Path B tagger (`assets/engine/pathb/`) is trained by `scripts/ml/` (see ADR-007 in [architecture.md](architecture.md)). Only permissively licensed data is used to train it. None of the benchmark corpora above are used for training or for selecting checkpoints.
+
+| Asset | Source | Licence | Use |
+|---|---|---|---|
+| Multilingual-MiniLM-L12-H384 | [`microsoft/Multilingual-MiniLM-L12-H384`](https://huggingface.co/microsoft/Multilingual-MiniLM-L12-H384) | MIT | Encoder (vocabulary trimmed to the training corpus) |
+| XLM-R tokenizer | `tokenizer.json` from [`sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2`](https://huggingface.co/sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2) (same 250k vocabulary) | Apache-2.0 | Source of the trimmed Unigram vocabulary |
+| Nemotron-PII | [`nvidia/Nemotron-PII`](https://huggingface.co/datasets/nvidia/Nemotron-PII), train split (100k synthetic English documents, 30 domains) | CC BY 4.0 (attribution) | Training (97k rows) and validation slice |
+| Gretel synthetic PII finance | [`gretelai/synthetic_pii_finance_multilingual`](https://huggingface.co/datasets/gretelai/synthetic_pii_finance_multilingual), train split (en, fr, de, it, es, nl, sv) | Apache-2.0 | Training (49k rows) and validation slice |
+
+Bake-off candidates: these were benchmarked and not shipped. Weights are downloaded to `.cache/ml/`.
+
+| Candidate | Source | Licence |
+|---|---|---|
+| Ettin-17M / 32M Nemotron-PII fine-tunes | [`kalyan-ks/ettin-17m-nemotron-pii`](https://huggingface.co/kalyan-ks/ettin-17m-nemotron-pii), [`kalyan-ks/ettin-32m-nemotron-pii`](https://huggingface.co/kalyan-ks/ettin-32m-nemotron-pii) | MIT |
+| OpenMed PII ClinicalE5-Small (33M) | [`OpenMed/OpenMed-PII-ClinicalE5-Small-33M-v1`](https://huggingface.co/OpenMed/OpenMed-PII-ClinicalE5-Small-33M-v1) | Apache-2.0 |
+| openai/privacy-filter | [`openai/privacy-filter`](https://huggingface.co/openai/privacy-filter) | Apache-2.0 (the earlier Path B; evicted in the extension at 958 MB) |
+
+AI4Privacy is never used for training. Its datasets carry a non-commercial licence, and its splits are our multilingual benchmark.

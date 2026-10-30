@@ -30,3 +30,7 @@ coverage/
 .DS_Store
 Thumbs.db
 *.log
+
+# Python ML environment for the Path B model pipeline (scripts/ml)
+.venv/
+__pycache__/
