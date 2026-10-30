@@ -13,6 +13,8 @@ Aionix Sentinel is a Manifest V3 Chrome extension that inspects prompts on claud
 | `npm run bench` / `npm run bench:gate` | Node benchmark, full cascade on Path A → `bench-results/path-a.json`; `:gate` exits non-zero below `bench-gate.json` |
 | `npm run build:ext:test && npm run measure:ext [-- --path-a-only]` | Loads the extension in Chromium, records offscreen memory (forced GC, raw CDP), Path B outcome and in-extension latency → `bench-results/extension-measurements-path-{a,b}.json` |
 | `npm run report` | Regenerates the README results section from `bench-results/*.json` |
+| `npm run bench:gate -- --path-b` | Full cascade with Tier 2 on the shipped Path B tagger → `bench-results/path-b.json`; gated by `bench-gate.json` → `pathB` |
+| `scripts/ml/*.py` (venv `.venv`) + `npx tsx scripts/bakeoff.ts` | Path B model pipeline: corpus → vocab trim → train → ONNX/INT8 → tag dev splits → bake-off in the real cascade → `package_pathb.py` (see README and ADR-007) |
 | `npm run build:ext:test && npm run test:e2e` | Playwright loads the test build (adds `localhost:4173` matches, open shadow root) against `tests/e2e/fixtures/portal.html` |
 
 ## Layout
@@ -21,13 +23,13 @@ Aionix Sentinel is a Manifest V3 Chrome extension that inspects prompts on claud
 - `src/extension/` — MV3 surfaces: `content/` (isolated world), `main-world-interceptor.ts`, `background-sw.ts`, `offscreen-onnx-worker.ts`, `popup.tsx`.
 - `src/workbench/` — React 19 SPA; `workspaces/<name>/` per workspace, `state/` zustand stores, `workers/engine.worker.ts` mirrors the offscreen document.
 - `src/shared/brand/` — logo path data and design tokens (single source for React and Shadow DOM).
-- `scripts/` — build + data pipelines. `assets/` — runtime binaries served to both targets (`models/`, `ort/` are gitignored and fetched).
+- `scripts/` — build + data pipelines; `scripts/ml/` is the Python Path B training pipeline (writes only to `.cache/ml/` until `package_pathb.py`). `assets/` — runtime binaries served to both targets (`models/`, `ort/` are gitignored and fetched).
 - `data/` — vault documents, lexicons, benchmark datasets.
 
 ## Non-negotiables
 
 1. **Git**: commits are attributed only to the local git user. Never add `Co-Authored-By` or any AI trailer. Conventional Commits, one short subject line (`feat(engine): …`, `fix: …`, `docs: …`).
-2. **Zero remote code**: ORT wasm is served from the extension (`wasmPaths` → `chrome.runtime.getURL('ort/')`). Only Path B model *weights* (data) may be fetched from the Hugging Face Hub.
+2. **Zero remote code, zero runtime downloads**: ORT wasm is served from the extension (`wasmPaths` → `chrome.runtime.getURL('ort/')`), and the Path B tagger ships in `assets/engine/pathb/`. The extension's only host permissions are the three portals.
 3. **Memory**: offscreen ceiling 150 MB (warn 105 MB). Path A target < 50 MB. Path B is evicted/degraded to Path A if the steady-state host footprint exceeds the ceiling. Report measured numbers, never assumed ones.
 4. **Honest metrics**: every number shown in Benchmarks, Telemetry and the Presentation comes from an actual run. Blueprint figures may only appear labelled as *targets*.
 5. **Zero-knowledge telemetry**: store category, tier, path, portal, latency, timestamp and a salted truncated hash. Never raw prompt text or secrets.

@@ -14,7 +14,7 @@ background-sw.js   offscreen lifecycle, routing, zero-knowledge telemetry (chrom
         ▼
 offscreen.html → offscreen-onnx-worker.js
         Tier 2 Path A (FST lexicon + MiniLM validator)  — CPU, always available
-        Tier 2 Path B (openai/privacy-filter, WebGPU)   — only when the hardware probe passes
+        Tier 2 Path B (multilingual MiniLM tagger, INT8) — packaged, CPU, any hardware (ADR-007)
         Tier 3 Path B (Orama vectors + CRM tuple hashes)
         memory governor
 ```
@@ -26,7 +26,7 @@ The Workbench runs the same `src/engine/` modules: Tier 1/3A on the main thread 
 | # | Category | Primary tier |
 |---|---|---|
 | 1 | API keys & access tokens | Tier 1 |
-| 2 | Passwords & secrets (labelled, multilingual, high-entropy) | Tier 1 (+ Path B `secret`) |
+| 2 | Passwords & secrets (labelled, multilingual, high-entropy) | Tier 1 |
 | 3 | Government IDs (SSN, passport, driver licence) | Tier 1 |
 | 4 | Australian Tax File Number | Tier 1 |
 | 5 | Payment cards & bank accounts (Luhn cards, IBAN, BSB + account) | Tier 1 |
@@ -39,6 +39,8 @@ The Workbench runs the same `src/engine/` modules: Tier 1/3A on the main thread 
 ## 3. Architecture decision records
 
 ### ADR-001 — Tier 2 redesign: FST lexicon (Path A) + WebGPU neural (Path B)
+
+*Path B was superseded by ADR-007: the WebGPU model could not fit the extension's memory ceiling.*
 
 **Context.** The blueprint paired an INT4 MoE on WebGPU with `gliner_small-v2.1` INT8 on WASM, with a < 80 MB WASM budget. Verified on the Hugging Face Hub (2026-10-30):
 
@@ -82,14 +84,16 @@ The Workbench runs the same `src/engine/` modules: Tier 1/3A on the main thread 
 |---|---|---|---|
 | `corporate-vault.bin` (Tier 3A) | sized to vault | 7.2 KB | file size (4 assets, per-asset Bloom p ≈ 1e-4) |
 | `vault-edm.bin` (Tier 3B) | — | 200 KB | file size (105 vectors, 250 salted field hashes) |
-| `medical.fst.bin` | ≤ 10 MB | 3.20 MB | file size (54,103 entries, 400,259 states) |
+| `medical.fst.bin` | ≤ 10 MB | 3.46 MB | file size (80,984 entries incl. 38,789 multilingual everyday words, 422,534 states) |
 | MiniLM-L6 INT8 weights | ~23 MB | 21.9 MB | file size |
 | MiniLM session in ONNX Runtime wasm | — | ≈ 80 MB | bare-page probe: 24.5 MB → 103 MB with graph optimisation, → 83.6 MB without |
-| **Offscreen Path A steady state** | **< 50 MB target · 150 MB ceiling** | **86.7 MB** | `measureUserAgentSpecificMemory` after a forced GC, inside the offscreen document (raw CDP), after 20 prompts |
-| Offscreen with Path B loaded (q4f16) | < 150 MB (else degrade) | **958 MB → evicted** | the governor's own post-load `measureUserAgentSpecificMemory` reading, which triggered the eviction |
-| Offscreen after eviction, same document | — | 999.8 MB | as the Path A row, in a run before recycling was added; session disposed, wasm heap retained |
-| Offscreen after eviction, recycled document | 150 MB ceiling | **86.7 MB** | as the Path A row (`bench-results/extension-measurements-path-b.json`) |
+| **Offscreen Path A only** (Path B evicted, recycled document) | **< 50 MB target · 150 MB ceiling** | **87.0 MB** | `measureUserAgentSpecificMemory` after a forced GC, inside the offscreen document (raw CDP), after 20 prompts (`extension-measurements-path-a.json`) |
+| Path B tagger INT8 weights | — | 22.9 MB | file size (`assets/engine/pathb/model_int8.onnx`) |
+| **Offscreen with the Path B tagger** (shipping state) | **150 MB ceiling** | **110.2 MB** | as above (`extension-measurements-path-b.json`); the governor's own post-load reading was 118 MB |
+| Offscreen with privacy-filter loaded (q4f16, superseded) | < 150 MB (else degrade) | 958 MB → evicted | the governor's post-load reading, which triggered the eviction |
+| Same, after eviction in the same document | — | 999.8 MB | session disposed, wasm heap retained (run before recycling was added) |
 
+- **The tagger costs about its own size.** Its session added ~23 MB for 22.9 MB of INT8 weights (graph optimisation disabled), far less than the MiniLM session's overhead suggested. The shipping state is above the 105 MB warning watermark and under the ceiling.
 - **Path A misses its < 50 MB target.** The MiniLM INT8 session alone costs about 80 MB of wasm memory in ONNX Runtime Web. Everything else (FST, EDM, Orama, validator anchors) adds about 7 MB. It stays under the 150 MB ceiling.
 - **Graph optimisation is disabled** for the browser embedder. It saved about 20 MB, and embeddings are unchanged.
 - **Transient readings during initialisation** reached about 263 MB while model buffers were in flight. The governor therefore never measures before Path A is ready, and its eviction decision waits for a reading taken *after* Path B loads (`measureFresh`).
@@ -97,7 +101,8 @@ The Workbench runs the same `src/engine/` modules: Tier 1/3A on the main thread 
   1. The host disposes the session.
   2. The offscreen document asks the background worker to recycle it. Disposing alone left 999.8 MB allocated, because wasm linear memory never shrinks.
   3. The eviction is remembered in the document's `localStorage`, so the replacement starts on Path A without re-downloading the weights.
-  4. *Force WebGPU* clears the memory and re-measures. A route change in flight during a recycle is answered with status, never resent, so it cannot loop.
+  4. *Force Path B* clears the memory and re-measures. A route change in flight during a recycle is answered with status, never resent, so it cannot loop.
+- **Unattributed readings are rejected.** Right after a document is recreated, Chrome can resolve `measureUserAgentSpecificMemory` with only the shared bucket (6.6 MB, no JavaScript attribution for the page). That is not a reading of the document, so the governor and `measure:ext` discard it.
 - **Fallback estimate.** If no browser reading arrives, the governor uses the `performance.memory` JS heap floored at the tracked model bytes. Chrome's heap figure already includes ArrayBuffer and wasm backing stores, so the two are never added together.
 
 ### ADR-003 — Build & packaging
@@ -133,6 +138,42 @@ The Workbench runs the same `src/engine/` modules: Tier 1/3A on the main thread 
 - **Ground truth** comes from each dataset's own annotations. Dev splits were used for error analysis; held-out splits were drawn later from different offsets and are only evaluated.
 - **Adjudications** correct genuinely wrong labels only, never engine behaviour. Each one carries a reason and lives in `data/datasets/enron-adjudications.json`.
 - **The CI gate** (`bench-gate.json`) is a regression guard just below measured performance. Blueprint targets are reported separately.
+
+### ADR-007 — Path B: a compact multilingual tagger instead of privacy-filter (and not MobileBERT)
+
+**Context.** `openai/privacy-filter` measured 958 MB in the offscreen document against a 150 MB ceiling, so the extension always evicted it. Its 8 coarse labels also caused most Path B false alarms: `account_number` was both a person and a financial fact, so two numbers formed a "customer record". The blueprint's fallback was a MobileBERT clinical NER. A state-of-the-art review (2026) found three things:
+- Published small-PII-model scores are mostly in-distribution, e.g. 93–96% F1 on Nemotron-PII's own test split.
+- Cross-dataset results are far lower. On PII-SCOPE, privacy-filter scores F1 0.475, and a 278M XLM-R model reaches 0.70 typed recall on AI4Privacy.
+- Domain-matched, fine-grained training matters more than model size.
+
+**Options, measured** (`bench-results/bakeoff-dev.json`, dev splits only; summary in the README):
+- **MobileBERT** (25.3M parameters, 24 layers, 44.5 MFLOPs/token, English uncased, no PII checkpoint) — not built. Ettin-17M needs about 1/5 of its compute per token, and the English-only candidates below already show what an English tagger gains here: little, because the held-out AI4Privacy split is 80% French, German and Italian. Its main strength, INT8 robustness, is matched by the BERT-family candidates.
+- **Off-the-shelf English taggers** (Ettin-17M/32M and OpenMed-ClinicalE5-Small, all Nemotron-PII fine-tunes):
+  - Ettin (ModernBERT family) loses 9–15% of token labels under INT8 dynamic quantisation, in every mode tried.
+  - OpenMed keeps 99.46%, but adds 2 Enron and 3 AI4Privacy false alarms for 7 recovered positives.
+- **Our tagger**:
+  - Base: `microsoft/Multilingual-MiniLM-L12-H384` (MIT), with the vocabulary trimmed from 250,002 to 30,376 pieces (Ushio et al., 2023) and truncated to 6 layers.
+  - Training: 145,836 synthetic documents (Nemotron-PII, CC BY 4.0; Gretel multilingual finance, Apache-2.0), 3 epochs on one RTX 3070 Ti.
+  - Labels: canonical kinds shared with the engine (`tier2/neural-labels.json`).
+  - Selection: on the training corpus's validation slice (micro-F1 0.9075).
+  - INT8: 99.95% token agreement with fp32, 22.9 MB.
+  - The 12-layer variant (micro-F1 0.9222, 33.9 MB) made identical block decisions on every dev split at twice the latency, so the 6-layer one ships.
+
+**Decision.** Path B is the 6-layer tagger on the CPU (`device: 'cpu'`). It shares the ONNX Runtime wasm instance with MiniLM, ships in the package (`assets/engine/pathb`), and nothing is fetched at runtime. Its spans feed the same proximity graph and validator under a policy fixed by dev-split error analysis:
+- Names, record IDs and DOBs are the person side. Phones and emails are excluded: help lines and team inboxes.
+- Account numbers are financial facts only if they are mostly numeric, not card-shaped, and stand alone (not inside URLs, emails or file names).
+- Neural card spans are ignored; Tier 1's Luhn decides cards.
+- Spans below 0.7 confidence are dropped, adjacent name spans are merged before the public-figure check, and government-ID/secret findings are off.
+
+The same analysis fixed two FST precision bugs that Path B exposed in French/Italian text:
+- Everyday words from XLM-R's multilingual vocabulary no longer fuzzy-match drugs.
+- RxNorm brand names match exactly only ("prochaine" ≠ procaine, "stimato" ≠ Stimate).
+
+**Consequences** (README results, measured):
+- Held-out AI4Privacy recall rises from 0.646 to 0.720 (F2 0.687 → 0.749). FPR rises 1.20% → 1.67%, and held-out Enron FPR 1.34% → 2.01%. privacy-filter had reached F2 0.770 at 14.83% FPR.
+- In the extension: 110.2 MB, Tier 2 p50 / p95 13.0 / 20.5 ms, load 0.22 s.
+- Path B is now gated in CI (`bench-gate.json` → `pathB`).
+- Not met: the dev-split gate "F2 ≥ Path A on every split" fails on Enron dev, which has a single positive, so one false alarm moves F2 from 1.000 to 0.833. FPR there is +0.33 points.
 
 ## 4. Known risks
 
