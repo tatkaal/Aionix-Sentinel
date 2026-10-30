@@ -39,6 +39,7 @@ function host(nerDelayMs: number) {
     }),
     createNeuralNer: async () => slowNer,
     autoLoadPathB: false,
+    enforceCeiling: false,
   });
 }
 
@@ -58,6 +59,47 @@ describe.skipIf(!ready)('engine host routing', () => {
     const strict = await h.scanAsync(input, { strictRoute: true });
     expect(strict.tier2Route).toBe('B');
     expect(strict.findings.some((f) => f.category === 9 && f.path === 'webgpu')).toBe(true);
+  });
+
+  it('evicts Path B above the memory ceiling and remembers the eviction across restarts', async () => {
+    let stored: string | null = null;
+    const evictionStore = { get: () => stored, set: (r: string) => void (stored = r) };
+    let loads = 0;
+    const make = () =>
+      new EngineHost({
+        loadBinary: async (p) => {
+          const b = readFileSync(resolve(assets, p));
+          return b.buffer.slice(b.byteOffset, b.byteOffset + b.byteLength) as ArrayBuffer;
+        },
+        createEmbedder: async () => ({ embedder: await createNodeEmbedder(modelDir), modelBytes: 0 }),
+        probeHardware: async () => ({
+          webgpu: true, eligible: true, reason: 'stub GPU', dtype: 'q4', vendor: 'stub', architecture: '', description: '',
+          isFallbackAdapter: false, maxStorageBufferBindingSize: 2 ** 31, maxBufferSize: 2 ** 31, shaderF16: false, deviceMemoryGB: 8,
+        }),
+        createNeuralNer: async (_dtype, onProgress) => {
+          loads++;
+          // ~0.9 GB of weights pass through host memory, as with the real q4 privacy-filter.
+          onProgress({ file: 'onnx/model_q4.onnx_data', loaded: 917_000_000, total: 917_000_000 });
+          return { modelId: 'stub', detect: async () => [], dispose: async () => undefined };
+        },
+        autoLoadPathB: true,
+        enforceCeiling: true,
+        evictionStore,
+      });
+
+    const first = make();
+    await first.init();
+    await first.loadPathB(); // joins the auto-load started by init
+    const s1 = await first.status();
+    expect(s1.pathBState).toBe('evicted');
+    expect(s1.route).toBe('A');
+    expect(s1.pathBReason).toMatch(/> 150 MB ceiling/);
+    expect(stored).toMatch(/ceiling/);
+
+    const second = make();
+    await second.init();
+    expect((await second.status()).pathBState).toBe('evicted');
+    expect(loads).toBe(1); // the restart did not re-download the weights
   });
 
   it('uses Path B directly when it answers inside the budget', async () => {

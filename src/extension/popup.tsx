@@ -61,12 +61,13 @@ function Popup() {
         <div>
           <div className="flex justify-between text-xs text-muted">
             <span>Offscreen memory</span>
-            <span className="metric text-alabaster">
+            <span className="metric text-alabaster" title={engine?.memoryMethod}>
               {mem != null ? mem.toFixed(1) : '—'} / {engine?.ceilingMB ?? 150} MB
+              {engine?.memoryStale && <span className="text-subtle"> · earlier reading</span>}
             </span>
           </div>
           <div className="mt-1.5 h-1.5 overflow-hidden rounded-full bg-graphite-2">
-            <div className={`h-full rounded-full ${memPct > 70 ? 'bg-amber' : 'bg-luminous'}`} style={{ width: `${memPct}%` }} />
+            <div className={`h-full rounded-full ${memPct >= 100 ? 'bg-crimson' : memPct > 70 ? 'bg-amber' : 'bg-luminous'}`} style={{ width: `${memPct}%` }} />
           </div>
         </div>
         <Segmented<RouteMode>

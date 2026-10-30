@@ -8,6 +8,7 @@ import { probeHardware } from '../engine/tier2/hardware-probe';
 import type { OffscreenRequest } from './messages';
 
 const base = chrome.runtime.getURL('');
+const EVICTION_KEY = 'aionix.pathB.evicted';
 
 const host = new EngineHost({
   loadBinary: async (path) => {
@@ -19,9 +20,34 @@ const host = new EngineHost({
   probeHardware: () => probeHardware(),
   createNeuralNer: async (dtype, onProgress) => {
     const { createPrivacyFilterNer } = await import('../engine/runtime/privacy-filter-ner');
-    return createPrivacyFilterNer(base, dtype, (p) => onProgress(p.total ? p.loaded / p.total : 0));
+    return createPrivacyFilterNer(base, dtype, onProgress);
   },
   autoLoadPathB: true,
+  enforceCeiling: true,
+  evictionStore: {
+    get: () => {
+      try {
+        return localStorage.getItem(EVICTION_KEY);
+      } catch {
+        return null;
+      }
+    },
+    set: (reason) => {
+      try {
+        localStorage.setItem(EVICTION_KEY, reason);
+      } catch {
+        /* storage unavailable — the next start will measure again */
+      }
+      // Recycle only if the eviction is remembered; otherwise the new document would re-load Path B.
+      let remembered = false;
+      try {
+        remembered = localStorage.getItem(EVICTION_KEY) === reason;
+      } catch {
+        /* ignore */
+      }
+      if (remembered) void chrome.runtime.sendMessage({ target: 'background', type: 'recycle-offscreen' }).catch(() => undefined);
+    },
+  },
 });
 
 void host.init();
@@ -31,6 +57,14 @@ async function handle(msg: OffscreenRequest): Promise<unknown> {
     case 'scan-async':
       return host.scanAsync(msg.input);
     case 'set-route':
+      // An explicit "Force WebGPU" clears a remembered eviction so the ceiling is re-measured.
+      if (msg.mode === 'force-b') {
+        try {
+          localStorage.removeItem(EVICTION_KEY);
+        } catch {
+          /* ignore */
+        }
+      }
       await host.setRouteMode(msg.mode);
       return host.status();
     case 'status':

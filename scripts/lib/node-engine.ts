@@ -33,6 +33,7 @@ export async function createNodeEngine(root: string) {
       deviceMemoryGB: null,
     }),
     autoLoadPathB: false,
+    enforceCeiling: false,
   });
   await host.init();
   const tier3a = createVaultDetector(decodeVault(readFileSync(resolve(assets, 'engine/corporate-vault.bin'))));

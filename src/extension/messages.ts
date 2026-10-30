@@ -19,7 +19,9 @@ export type BackgroundRequest =
   | { target: 'background'; type: 'salt' }
   | { target: 'background'; type: 'status' }
   | { target: 'background'; type: 'export-audit' }
-  | { target: 'background'; type: 'set-route'; mode: RouteMode };
+  | { target: 'background'; type: 'set-route'; mode: RouteMode }
+  /** Sent by the offscreen document after evicting Path B: its wasm heap only returns on teardown. */
+  | { target: 'background'; type: 'recycle-offscreen' };
 
 export type OffscreenRequest =
   | { target: 'offscreen'; type: 'scan-async'; input: ScanInput }

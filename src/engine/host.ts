@@ -27,6 +27,9 @@ export interface EngineStatus {
   adapterSummary: string;
   memoryMB: number | null;
   memoryMethod: string;
+  /** The newest reading predates a pending, fresher measurement. */
+  memoryStale: boolean;
+  memoryByType: Record<string, number> | null;
   ceilingMB: number;
   fstEntries: number;
   fstBytes: number;
@@ -39,9 +42,13 @@ export interface HostDeps {
   loadBinary(path: string): Promise<ArrayBuffer>;
   createEmbedder(): Promise<{ embedder: Embedder; modelBytes: number }>;
   probeHardware(): Promise<HardwareReport>;
-  createNeuralNer?(dtype: 'q4' | 'q4f16', onProgress: (fraction: number) => void): Promise<NeuralNer>;
+  createNeuralNer?(dtype: 'q4' | 'q4f16', onProgress: (p: { file: string; loaded: number; total: number }) => void): Promise<NeuralNer>;
   /** Load Path B automatically when the probe passes (extension: yes; Workbench: on request). */
   autoLoadPathB: boolean;
+  /** Evict Path B above MEMORY_CEILING_MB (extension: yes; evaluation runtimes report only). */
+  enforceCeiling: boolean;
+  /** Remembers an eviction so a restart does not re-load ~0.8 GB just to evict it again. */
+  evictionStore?: { get(): string | null; set(reason: string): void };
 }
 
 const now = () => performance.now();
@@ -63,6 +70,8 @@ export class EngineHost {
   private pathBReason = 'Not probed yet';
   private pathBProgress: number | null = null;
   private trackedBytes = 0;
+  private pathBBytes = 0;
+  private pathBLoad: Promise<void> | null = null;
   private loadMs: EngineStatus['loadMs'] = { pathA: null, pathB: null };
   private initPromise: Promise<void> | null = null;
   private readonly memory = createMemoryProbe(() => this.trackedBytes);
@@ -88,7 +97,6 @@ export class EngineHost {
     this.pathA = createLexiconPath(this.fst, this.validator);
     this.edm = await createEdmDetector(decodeEdm(edmBuf), this.embedder);
     this.loadMs.pathA = now() - t0;
-    void this.memory.measure();
 
     this.hardware = await this.deps.probeHardware();
     if (!this.deps.createNeuralNer) {
@@ -100,14 +108,28 @@ export class EngineHost {
     } else {
       this.pathBState = 'idle';
       this.pathBReason = `Eligible: ${this.hardware.reason}`;
-      if (this.deps.autoLoadPathB) void this.loadPathB();
+      const remembered = this.deps.evictionStore?.get();
+      if (remembered) {
+        this.pathBState = 'evicted';
+        this.pathBReason = `${remembered} (remembered — choose Force WebGPU to retry)`;
+      } else if (this.deps.autoLoadPathB) void this.loadPathB();
     }
   }
 
-  /** Loads privacy-filter; any failure (OOM, device lost, download) degrades to Path A. */
-  async loadPathB(force = false): Promise<void> {
+  /**
+   * Loads privacy-filter; any failure (OOM, device lost, download) degrades to Path A. Concurrent
+   * callers share one in-flight load, and Path B only becomes routable once the memory check passes.
+   */
+  loadPathB(force = false): Promise<void> {
+    this.pathBLoad ??= this.doLoadPathB(force).finally(() => {
+      this.pathBLoad = null;
+    });
+    return this.pathBLoad;
+  }
+
+  private async doLoadPathB(force: boolean): Promise<void> {
     await this.init();
-    if (this.pathBState === 'loading' || this.pathBState === 'ready') return;
+    if (this.pathBState === 'ready') return;
     if (!this.deps.createNeuralNer || !this.hardware?.webgpu || (!this.hardware.eligible && !force)) {
       this.pathBState = 'unavailable';
       this.pathBReason = this.hardware?.reason ?? 'WebGPU unavailable';
@@ -117,15 +139,41 @@ export class EngineHost {
     this.pathBReason = `Downloading ${this.hardware.dtype} weights (cached after first load)`;
     this.pathBProgress = 0;
     const t0 = now();
+    const files = new Map<string, { loaded: number; total: number }>();
+    let ner: NeuralNer | null = null;
     try {
-      this.ner = await this.deps.createNeuralNer(this.hardware.dtype, (f) => (this.pathBProgress = f));
-      this.pathB = createWebGpuPath(this.fst!, this.validator, this.ner);
+      ner = await this.deps.createNeuralNer(this.hardware.dtype, (p) => {
+        files.set(p.file, { loaded: p.loaded, total: p.total });
+        let loaded = 0;
+        let total = 0;
+        for (const f of files.values()) {
+          loaded += f.loaded;
+          total += f.total;
+        }
+        this.pathBProgress = total ? loaded / total : 0;
+      });
       this.loadMs.pathB = now() - t0;
-      this.pathBState = 'ready';
+      // Weight bytes that passed through host memory — the lower bound if no fresh reading arrives.
+      this.pathBBytes = [...files.values()].reduce((n, f) => n + f.total, 0);
+      this.trackedBytes += this.pathBBytes;
+      this.pathBReason = `${ner.modelId} · ${this.hardware.reason} · verifying host memory`;
+      const verdict = await this.checkCeiling();
       this.pathBProgress = null;
-      this.pathBReason = `${this.ner.modelId} · ${this.hardware.reason}`;
-      await this.enforceCeiling();
+      if (!verdict.keep) {
+        await ner.dispose().catch(() => undefined);
+        this.trackedBytes -= this.pathBBytes;
+        this.pathBBytes = 0;
+        this.pathBState = 'evicted';
+        this.pathBReason = verdict.note;
+        this.deps.evictionStore?.set(verdict.note);
+        return;
+      }
+      this.ner = ner;
+      this.pathB = createWebGpuPath(this.fst!, this.validator, ner);
+      this.pathBState = 'ready';
+      this.pathBReason = `${ner.modelId} · ${this.hardware.reason} · ${verdict.note}`;
     } catch (err) {
+      await ner?.dispose().catch(() => undefined);
       this.pathB = null;
       this.ner = null;
       this.pathBState = 'failed';
@@ -134,16 +182,18 @@ export class EngineHost {
     }
   }
 
-  /** Steady-state host footprint above the ceiling evicts Path B (VRAM weights are not counted). */
-  private async enforceCeiling(): Promise<void> {
-    const reading = await this.memory.measure(6000);
-    if (this.pathBState === 'ready' && reading.mb !== null && reading.mb > MEMORY_CEILING_MB) {
-      await this.ner?.dispose().catch(() => undefined);
-      this.ner = null;
-      this.pathB = null;
-      this.pathBState = 'evicted';
-      this.pathBReason = `Degraded → Path A: host memory ${reading.mb.toFixed(0)} MB > ${MEMORY_CEILING_MB} MB ceiling (${reading.method})`;
-    }
+  /**
+   * Steady-state host footprint above the ceiling evicts Path B (VRAM weights are not counted).
+   * Uses a reading taken *after* the load; if the browser has not produced one, the JS heap plus
+   * tracked model bytes (incl. the downloaded Path B weights) is used as a labelled lower bound.
+   */
+  private async checkCeiling(): Promise<{ keep: boolean; note: string }> {
+    const reading = (await this.memory.measureFresh()) ?? this.memory.estimate();
+    if (reading.mb === null) return { keep: true, note: 'host memory not measurable after load' };
+    const measured = `host ${reading.mb.toFixed(0)} MB after load (${reading.method})`;
+    if (reading.mb <= MEMORY_CEILING_MB) return { keep: true, note: measured };
+    if (!this.deps.enforceCeiling) return { keep: true, note: `${measured} · above the ${MEMORY_CEILING_MB} MB extension ceiling (reported, not enforced here)` };
+    return { keep: false, note: `Degraded → Path A: host memory ${reading.mb.toFixed(0)} MB > ${MEMORY_CEILING_MB} MB ceiling (${reading.method})` };
   }
 
   async setRouteMode(mode: RouteMode): Promise<void> {
@@ -210,7 +260,8 @@ export class EngineHost {
   }
 
   async status(): Promise<EngineStatus> {
-    const reading: MemoryReading = await this.memory.measure(1500);
+    // Measuring mid-initialisation captures transient load buffers, so wait until Path A is up.
+    const reading: MemoryReading = this.pathA ? await this.memory.measure(1500) : { mb: null, method: 'engine initialising', at: 0 };
     const route = this.activeRoute().route;
     const hw = this.hardware;
     return {
@@ -225,6 +276,8 @@ export class EngineHost {
       adapterSummary: hw?.webgpu ? [hw.vendor, hw.architecture, hw.description].filter(Boolean).join(' · ') || 'WebGPU adapter' : 'No WebGPU',
       memoryMB: reading.mb,
       memoryMethod: reading.method,
+      memoryStale: reading.stale === true,
+      memoryByType: reading.byType ?? null,
       ceilingMB: MEMORY_CEILING_MB,
       fstEntries: this.fst?.entryCount ?? 0,
       fstBytes: this.fst?.byteLength ?? 0,

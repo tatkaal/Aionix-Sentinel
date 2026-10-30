@@ -29,9 +29,11 @@ const host = new EngineHost({
   probeHardware: () => probeHardware(),
   createNeuralNer: async (dtype, onProgress) => {
     const { createPrivacyFilterNer } = await import('../../engine/runtime/privacy-filter-ner');
-    return createPrivacyFilterNer(base, dtype, (p) => onProgress(p.total ? p.loaded / p.total : 0));
+    return createPrivacyFilterNer(base, dtype, onProgress);
   },
   autoLoadPathB: false,
+  // The Workbench is an evaluation lab: it reports Path B's host footprint but does not evict it.
+  enforceCeiling: false,
 });
 
 async function handle(msg: WorkerRequest): Promise<unknown> {
