@@ -8,11 +8,15 @@ export const OUTPUT_SEP = 0x01;
 /** Output classes (first character of the output string). */
 export const FST_CLASS = {
   condition: 'C',
+  /** RxNorm ingredient (IN/PIN) — the only medication class fuzzy matching may produce. */
   medication: 'M',
+  /** RxNorm brand name (BN) — exact match only: coined brands sit one edit from everyday words
+   *  in other languages ("Journavx" ~ "journaux", "Stimate" ~ "stimato"). */
+  brand: 'B',
   financial: 'F',
   firstName: 'N',
   publicFigure: 'P',
-  /** Common English word (≥ 7 letters) — never a fuzzy-match candidate. */
+  /** Everyday word (≥ 7 letters; English BERT + multilingual XLM-R vocabularies) — never a fuzzy-match candidate. */
   commonWord: 'W',
 } as const;
 export type FstClass = (typeof FST_CLASS)[keyof typeof FST_CLASS];

@@ -100,7 +100,7 @@ export function findSensitiveNodes(text: string, fst: Fst): SensitiveNode[] {
   const out: SensitiveNode[] = [];
   for (const m of fst.scan(text, { fuzzy: true })) {
     const cond = m.outputs.find((o) => o[0] === FST_CLASS.condition);
-    const med = m.outputs.find((o) => o[0] === FST_CLASS.medication);
+    const med = m.outputs.find((o) => o[0] === FST_CLASS.medication || o[0] === FST_CLASS.brand);
     const fin = m.outputs.find((o) => o[0] === FST_CLASS.financial);
     const term = text.slice(m.start, m.end);
     if (cond) out.push({ kind: 'condition', domain: 'medical', start: m.start, end: m.end, term, code: cond.slice(1) });

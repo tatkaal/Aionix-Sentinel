@@ -14,6 +14,9 @@ mkdirSync(cache, { recursive: true });
 const ICD_URL = 'https://www.cms.gov/files/zip/2026-code-descriptions-tabular-order.zip';
 const RXNORM_PAGE = 'https://www.nlm.nih.gov/research/umls/rxnorm/docs/rxnormfiles.html';
 const RXNORM_FALLBACK = 'https://download.nlm.nih.gov/rxnorm/RxNorm_full_prescribe_10052026.zip';
+// XLM-R SentencePiece vocabulary (250k pieces, ~100 languages) — its whole-word pieces stand in for
+// "everyday words" outside English (Apache-2.0, via sentence-transformers).
+const XLMR_TOKENIZER_URL = 'https://huggingface.co/sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2/resolve/main/tokenizer.json';
 
 async function download(url: string, dest: string) {
   if (existsSync(dest)) return;
@@ -54,6 +57,17 @@ const vocab = new Set(
   readFileSync(resolve(root, 'assets/models/all-MiniLM-L6-v2/vocab.txt'), 'utf8')
     .split(/\r?\n/)
     .filter((t) => /^[a-z]+$/.test(t)),
+);
+// Multilingual everyday words (≥ 7 letters after normalisation). Dev-split error analysis on
+// AI4Privacy found French/Italian words fuzzy-matching RxNorm brands ("prochaine" → procaine,
+// "stimato" → Stimate) once Path B surfaced person nodes in non-English text.
+await download(XLMR_TOKENIZER_URL, resolve(cache, 'xlmr-tokenizer.json'));
+const multilingual = new Set(
+  (JSON.parse(readFileSync(resolve(cache, 'xlmr-tokenizer.json'), 'utf8')) as { model: { vocab: [string, number][] } }).model.vocab
+    .map(([piece]) => piece)
+    .filter((p) => p.startsWith('▁'))
+    .map((p) => normalizeTerm(p.slice(1)))
+    .filter((w) => /^[a-z]+$/.test(w) && w.length >= 7),
 );
 const stop = new Set(lines('medical-stoplist.txt'));
 const synonyms = new Set(lines('medical-synonyms.txt').map(normalizeTerm));
@@ -112,13 +126,16 @@ for (const line of readFileSync(rxFile, 'utf8').split(/\r?\n/)) {
   const words = norm.split(' ');
   const allCommon = words.every((w) => vocab.has(w));
   if (allCommon && !KEEP_COMMON_DRUGS.has(norm)) continue;
-  add(norm, `${FST_CLASS.medication}${f[0]}`);
+  // A one-word *brand* that is an everyday word in another language ("Activite") is not evidence of
+  // a prescription. Ingredients (IN/PIN) are kept: their names are the drug.
+  if (f[12] === 'BN' && words.length === 1 && multilingual.has(norm) && !KEEP_COMMON_DRUGS.has(norm)) continue;
+  add(norm, `${f[12] === 'BN' ? FST_CLASS.brand : FST_CLASS.medication}${f[0]}`);
 }
 
 for (const t of lines('financial-terms.txt')) add(t, `${FST_CLASS.financial}`);
 for (const line of lines('first-names.txt')) for (const n of line.split(/\s+/)) add(n, `${FST_CLASS.firstName}`);
 for (const p of lines('public-figures.txt')) add(p, `${FST_CLASS.publicFigure}`);
-for (const w of vocab) if (w.length >= 7) add(w, `${FST_CLASS.commonWord}`);
+for (const w of new Set([...vocab, ...multilingual])) if (w.length >= 7) add(w, `${FST_CLASS.commonWord}`);
 
 const { bytes, nodes, words } = compileFst(entries);
 mkdirSync(resolve(root, 'assets/engine'), { recursive: true });
