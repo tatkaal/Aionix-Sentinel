@@ -64,7 +64,8 @@ The Workbench runs the same `src/engine/` modules: Tier 1/3A on the main thread 
 - Path A is deterministic, fast and small, but its recall on colloquial phrasing depends on lexicon coverage.
 - Path B adds neural person and account detection on capable hardware.
 - Both paths are benchmarked side by side.
-- Path B's *load* passes about 0.8–0.9 GB of weights through host memory before GPU upload. This transient spike is measured and reported, not hidden.
+- Path B passes about 0.8–0.9 GB of weights through host memory, and in the offscreen document that cost is not transient: the host footprint measured 958 MB after load. Under the 150 MB ceiling the governor therefore evicts Path B in the extension (ADR-002), so the shipping extension runs Path A. Path B is evaluated in the Workbench, which reports the ceiling but does not enforce it.
+- That measurement is the condition the contingency names. A Path B that fits the extension needs a small model (the MobileBERT route, or a distilled token classifier), not a different runtime.
 
 ### ADR-002 — Memory governance
 
@@ -77,14 +78,27 @@ The Workbench runs the same `src/engine/` modules: Tier 1/3A on the main thread 
 - **One text per inference.** The INT8 model quantises activations with one scale per batch, so batching shifts vectors by about 1%. Embedding one text per inference keeps index-time and query-time vectors bit-identical. An LRU cache shares paragraph embeddings between Tier 2's validator and Tier 3's EDM.
 - **Measured numbers.** These are recorded in the table below as they are measured.
 
-| Component | Budget | Measured |
-|---|---|---|
-| Tier 1 (content script heap) | < 2 MB | _pending_ |
-| `corporate-vault.bin` (Tier 3A) | sized to vault | _pending_ |
-| `medical.fst.bin` | ≤ 10 MB | _pending_ |
-| MiniLM-L6 INT8 weights | ~23 MB | _pending_ |
-| Offscreen Path A steady state | < 50 MB | _pending_ |
-| Offscreen Path B steady state | < 150 MB (else degrade) | _pending_ |
+| Component | Budget | Measured | How |
+|---|---|---|---|
+| `corporate-vault.bin` (Tier 3A) | sized to vault | 7.2 KB | file size (4 assets, per-asset Bloom p ≈ 1e-4) |
+| `vault-edm.bin` (Tier 3B) | — | 200 KB | file size (105 vectors, 250 salted field hashes) |
+| `medical.fst.bin` | ≤ 10 MB | 3.20 MB | file size (54,103 entries, 400,259 states) |
+| MiniLM-L6 INT8 weights | ~23 MB | 21.9 MB | file size |
+| MiniLM session in ONNX Runtime wasm | — | ≈ 80 MB | bare-page probe: 24.5 MB → 103 MB with graph optimisation, → 83.6 MB without |
+| **Offscreen Path A steady state** | **< 50 MB target · 150 MB ceiling** | **86.7 MB** | `measureUserAgentSpecificMemory` after a forced GC, inside the offscreen document (raw CDP), after 20 prompts |
+| Offscreen with Path B loaded (q4f16) | < 150 MB (else degrade) | **958 MB → evicted** | the governor's own post-load `measureUserAgentSpecificMemory` reading, which triggered the eviction |
+| Offscreen after eviction, same document | — | 999.8 MB | as the Path A row, in a run before recycling was added; session disposed, wasm heap retained |
+| Offscreen after eviction, recycled document | 150 MB ceiling | **86.7 MB** | as the Path A row (`bench-results/extension-measurements-path-b.json`) |
+
+- **Path A misses its < 50 MB target.** The MiniLM INT8 session alone costs about 80 MB of wasm memory in ONNX Runtime Web. Everything else (FST, EDM, Orama, validator anchors) adds about 7 MB. It stays under the 150 MB ceiling.
+- **Graph optimisation is disabled** for the browser embedder. It saved about 20 MB, and embeddings are unchanged.
+- **Transient readings during initialisation** reached about 263 MB while model buffers were in flight. The governor therefore never measures before Path A is ready, and its eviction decision waits for a reading taken *after* Path B loads (`measureFresh`).
+- **Eviction.** Path B is not routable until that post-load check passes. Above the ceiling, the sequence is:
+  1. The host disposes the session.
+  2. The offscreen document asks the background worker to recycle it. Disposing alone left 999.8 MB allocated, because wasm linear memory never shrinks.
+  3. The eviction is remembered in the document's `localStorage`, so the replacement starts on Path A without re-downloading the weights.
+  4. *Force WebGPU* clears the memory and re-measures. A route change in flight during a recycle is answered with status, never resent, so it cannot loop.
+- **Fallback estimate.** If no browser reading arrives, the governor uses the `performance.memory` JS heap floored at the tracked model bytes. Chrome's heap figure already includes ArrayBuffer and wasm backing stores, so the two are never added together.
 
 ### ADR-003 — Build & packaging
 
@@ -106,6 +120,19 @@ The Workbench runs the same `src/engine/` modules: Tier 1/3A on the main thread 
 - **Large pastes.** A paste of 1,200 characters or more is captured into the `AttachmentShadowStore` before the portal turns it into a `pasted-content.txt` chip. A MutationObserver lifts the block when a flagged chip is removed.
 - **Fetch backstop.** The MAIN-world `fetch` wrapper only allows prompt bodies whose digest the content script has verified. Unverified bodies get a bundled Tier 1 scan.
 - **Redaction.** Raw offsets are mapped to DOM Ranges, and `execCommand('insertText')` is applied last-to-first so ProseMirror/Quill editor state stays consistent.
+
+### ADR-005 — Tier 2 latency budget
+
+- **Context.** The send path promises a verdict within 1,000 ms. On integrated GPUs, `openai/privacy-filter` can take longer than that on long prompts. If Tier 2 times out, the content script fails open on the already-clean Tier 1/3A verdict.
+- **Decision.** Path B gets a 650 ms Tier 2 budget (`PATH_B_BUDGET_MS`). Past it, Path A (CPU, about 20–40 ms) decides that prompt and the result carries a `degradedReason`. ONNX Runtime cannot cancel a run, so the in-flight Path B inference finishes and is discarded.
+- **Benchmarks** call the host with `strictRoute`, so Path B quality and latency are measured as they are, never padded by Path A.
+
+### ADR-006 — Benchmark methodology
+
+- **One harness everywhere.** `src/engine/bench/harness.ts` runs the full cascade in Node (`npm run bench`) and in the Workbench worker. Both produce the same Path A detections.
+- **Ground truth** comes from each dataset's own annotations. Dev splits were used for error analysis; held-out splits were drawn later from different offsets and are only evaluated.
+- **Adjudications** correct genuinely wrong labels only, never engine behaviour. Each one carries a reason and lives in `data/datasets/enron-adjudications.json`.
+- **The CI gate** (`bench-gate.json`) is a regression guard just below measured performance. Blueprint targets are reported separately.
 
 ## 4. Known risks
 

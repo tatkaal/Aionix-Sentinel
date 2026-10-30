@@ -11,6 +11,8 @@ Aionix Sentinel is a Manifest V3 Chrome extension that inspects prompts on claud
 | `npm run build` | `build:ext` (tsx → `dist-extension/`) then `build:web` (→ `dist/`, embeds the extension for the ZIP packager) |
 | `npm run typecheck` / `npm test` | TypeScript 7 strict check / Vitest unit suite |
 | `npm run bench` / `npm run bench:gate` | Node benchmark, full cascade on Path A → `bench-results/path-a.json`; `:gate` exits non-zero below `bench-gate.json` |
+| `npm run build:ext:test && npm run measure:ext [-- --path-a-only]` | Loads the extension in Chromium, records offscreen memory (forced GC, raw CDP), Path B outcome and in-extension latency → `bench-results/extension-measurements-path-{a,b}.json` |
+| `npm run report` | Regenerates the README results section from `bench-results/*.json` |
 | `npm run build:ext:test && npm run test:e2e` | Playwright loads the test build (adds `localhost:4173` matches, open shadow root) against `tests/e2e/fixtures/portal.html` |
 
 ## Layout
