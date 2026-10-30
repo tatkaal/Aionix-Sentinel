@@ -1,0 +1,253 @@
+[
+  {
+    "id": "EC01",
+    "dataset": "edge",
+    "title": "AWS access key pair in a debugging question",
+    "text": "I'm getting AccessDenied from S3 — here is my config:\n[default]\naws_access_key_id = AKIAQ3EGTRBX4M7PZK2N\naws_secret_access_key = 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\nregion = ap-southeast-2",
+    "expect": "block",
+    "categories": [
+      1
+    ]
+  },
+  {
+    "id": "EC02",
+    "dataset": "edge",
+    "title": "OpenAI and GitHub tokens inside a code block",
+    "text": "Why does this script 401?\n```python\nclient = OpenAI(api_key=\"sk-proj-Qm3x9Rf2Lp7Tz4Wc8Vn1Hb6Kd0Sy5Ge2Ja7Uo4Xi\")\nrepo = Github(\"ghp_A1b2C3d4E5f6G7h8I9j0K1l2M3n4O5p6Q7r8\")\n```",
+    "expect": "block",
+    "categories": [
+      1
+    ]
+  },
+  {
+    "id": "EC03",
+    "dataset": "edge",
+    "title": "Labelled password in a config snippet",
+    "text": "Here's the staging config, why won't the reporting job connect?\nhost: reports.staging.internal\nuser: svc_reporting\npassword: Tr0ub4dor&3x!",
+    "expect": "block",
+    "categories": [
+      2
+    ]
+  },
+  {
+    "id": "EC04",
+    "dataset": "edge",
+    "title": "Non-English credential labels",
+    "text": "Notas del turno: la contraseña del servidor es Gato#Negro2024. Für das Backup: Passwort: Sommer!2024xY. 测试环境 密码是Xq7#mP2v9L",
+    "expect": "block",
+    "categories": [
+      2
+    ]
+  },
+  {
+    "id": "EC05",
+    "dataset": "edge",
+    "title": "Unlabelled high-entropy password",
+    "text": "Can you check why login fails with K9#vQ2!xLm7$Tz4@ for the svc account? It worked yesterday.",
+    "expect": "block",
+    "categories": [
+      2
+    ]
+  },
+  {
+    "id": "EC06",
+    "dataset": "edge",
+    "title": "Code declaring empty password fields",
+    "text": "Review this TypeScript:\n```ts\ninterface Credentials { username: string; password: string; }\nconst password = \"\";\nif (!password) throw new Error(\"password is required\");\n```",
+    "expect": "allow",
+    "categories": []
+  },
+  {
+    "id": "EC07",
+    "dataset": "edge",
+    "title": "SSN and passport number",
+    "text": "Complete the background check form: SSN 524-71-9036, passport number N4829173, start date next Monday.",
+    "expect": "block",
+    "categories": [
+      3
+    ]
+  },
+  {
+    "id": "EC08",
+    "dataset": "edge",
+    "title": "Spaced valid AU TFN",
+    "text": "Payroll asked me to confirm my TFN: 123 456 782 — can you draft a short reply?",
+    "expect": "block",
+    "categories": [
+      4
+    ]
+  },
+  {
+    "id": "EC09",
+    "dataset": "edge",
+    "title": "9-digit number failing the TFN checksum",
+    "text": "Is 123 456 789 a valid tax file number format, or is the checksum wrong?",
+    "expect": "allow",
+    "categories": []
+  },
+  {
+    "id": "EC10",
+    "dataset": "edge",
+    "title": "Luhn-valid card written with dashes",
+    "text": "Please refund the duplicate charge on card 4532-0151-1283-0366 and confirm by email.",
+    "expect": "block",
+    "categories": [
+      5
+    ]
+  },
+  {
+    "id": "EC11",
+    "dataset": "edge",
+    "title": "Benign test card 4242 4242 4242 4242",
+    "text": "Our checkout tests use 4242 4242 4242 4242 with any future expiry. Why does 3-D Secure not trigger?",
+    "expect": "allow",
+    "categories": []
+  },
+  {
+    "id": "EC12",
+    "dataset": "edge",
+    "title": "16-digit order number failing Luhn",
+    "text": "Where is order 4716 3920 5124 8763? The tracking page shows nothing.",
+    "expect": "allow",
+    "categories": []
+  },
+  {
+    "id": "EC13",
+    "dataset": "edge",
+    "title": "IBAN in a payment instruction",
+    "text": "Please wire EUR 12,500 to IBAN DE89 3704 0044 0532 0130 00 for the supplier invoice.",
+    "expect": "block",
+    "categories": [
+      5
+    ]
+  },
+  {
+    "id": "EC14",
+    "dataset": "edge",
+    "title": "ABN next to an entity name",
+    "text": "Invoice from Brightline Analytics Pty Ltd (ABN 51 824 753 556) is 30 days overdue — draft a reminder.",
+    "expect": "block",
+    "categories": [
+      6
+    ]
+  },
+  {
+    "id": "EC15",
+    "dataset": "edge",
+    "title": "Verhoeff-valid Aadhaar and Indian PAN",
+    "text": "KYC documents for the vendor: Aadhaar 2463 9953 7396 and PAN ABCPE1234F. Summarise what is still missing.",
+    "expect": "block",
+    "categories": [
+      6
+    ]
+  },
+  {
+    "id": "EC16",
+    "dataset": "edge",
+    "title": "Postgres connection string with credentials",
+    "text": "Our job fails with timeout using DATABASE_URL=postgres://admin:S3cretPass!@prod-db.internal:5432/ledger — any ideas?",
+    "expect": "block",
+    "categories": [
+      7
+    ]
+  },
+  {
+    "id": "EC17",
+    "dataset": "edge",
+    "title": "Named customer with balances",
+    "text": "Prepare a portfolio review for client Theo Marchetti: holdings $4,812,300.00, cash balance $198,699.76, margin loan $310,000.",
+    "expect": "block",
+    "categories": [
+      8
+    ]
+  },
+  {
+    "id": "EC18",
+    "dataset": "edge",
+    "title": "Public-figure finance question (Warren Buffett)",
+    "text": "What is Warren Buffett's net worth, and how much of Berkshire's portfolio is in Apple?",
+    "expect": "allow",
+    "categories": []
+  },
+  {
+    "id": "EC19",
+    "dataset": "edge",
+    "title": "General finance question",
+    "text": "How does a mortgage offset account work compared with a redraw facility, and which saves more interest?",
+    "expect": "allow",
+    "categories": []
+  },
+  {
+    "id": "EC20",
+    "dataset": "edge",
+    "title": "Named patient with diagnosis and dosage",
+    "text": "Discharge summary for patient Harriet Lindqvist (DOB 14/02/1961): admitted with community-acquired pneumonia, discharged on amoxicillin 500 mg three times daily.",
+    "expect": "block",
+    "categories": [
+      9
+    ]
+  },
+  {
+    "id": "EC21",
+    "dataset": "edge",
+    "title": "General medical question",
+    "text": "What are the common early symptoms of type 2 diabetes, and how is metformin usually dosed?",
+    "expect": "allow",
+    "categories": []
+  },
+  {
+    "id": "EC22",
+    "dataset": "edge",
+    "title": "15-line excerpt of proprietary vault code",
+    "text": "Can you make this faster?\n\n    const expectedSlippageBps = Math.max(0, limitGapBps) + venue.feeBps + toxicity * ADVERSE_SELECTION_PENALTY_BPS;\n    const darkBonus = venue.isDark ? DARK_POOL_PREFERENCE : 0;\n    const composite = fillProbability * (1 + darkBonus) - expectedSlippageBps / this.riskBudgetBps - this.inventorySkew * 0.04;\n    return { venue, fillProbability, expectedSlippageBps, toxicity, composite };\n  }\n\n  /** Splits the parent order across venues, capping participation to avoid signalling. */\n  route(order: Order, book: BookSnapshot, now = Date.now()): Order[] {\n    const ranked = this.venues\n      .map((v) => this.scoreVenue(v, order, book, now))\n      .filter((s) => s.composite > 0)\n      .sort((a, b) => b.composite - a.composite);\n\n    const children: Order[] = [];\n    let remaining = order.quantity;",
+    "expect": "block",
+    "categories": [
+      10
+    ]
+  },
+  {
+    "id": "EC23",
+    "dataset": "edge",
+    "title": "One secret buried in a 1,500-word benign prompt",
+    "text": "The quarterly planning cycle starts next week and every team lead should bring an updated roadmap. Our customer satisfaction survey closed with a strong response rate, and the themes were consistent. Remember to rotate the on-call schedule so that nobody covers two consecutive weekends. Marketing would like feedback on the draft launch blog post by the end of the week. The quarterly planning cycle starts next week and every team lead should bring an updated roadmap. Our customer satisfaction survey closed with a strong response rate, and the themes were consistent. Remember to rotate the on-call schedule so that nobody covers two consecutive weekends. Marketing would like feedback on the draft launch blog post by the end of the week. The quarterly planning cycle starts next week and every team lead should bring an updated roadmap. Our customer satisfaction survey closed with a strong response rate, and the themes were consistent. Remember to rotate the on-call schedule so that nobody covers two consecutive weekends. Marketing would like feedback on the draft launch blog post by the end of the week. The quarterly planning cycle starts next week and every team lead should bring an updated roadmap. Our customer satisfaction survey closed with a strong response rate, and the themes were consistent. Remember to rotate the on-call schedule so that nobody covers two consecutive weekends. Marketing would like feedback on the draft launch blog post by the end of the week. The quarterly planning cycle starts next week and every team lead should bring an updated roadmap. Our customer satisfaction survey closed with a strong response rate, and the themes were consistent. Remember to rotate the on-call schedule so that nobody covers two consecutive weekends. Marketing would like feedback on the draft launch blog post by the end of the week. The quarterly planning cycle starts next week and every team lead should bring an updated roadmap. Our customer satisfaction survey closed with a strong response rate, and the themes were consistent. Remember to rotate the on-call schedule so that nobody covers two consecutive weekends. Marketing would like feedback on the draft launch blog post by the end of the week. The quarterly planning cycle starts next week and every team lead should bring an updated roadmap. Our customer satisfaction survey closed with a strong response rate, and the themes were consistent. Remember to rotate the on-call schedule so that nobody covers two consecutive weekends. Marketing would like feedback on the draft launch blog post by the end of the week. The quarterly planning cycle starts next week and every team lead should bring an updated roadmap. Our customer satisfaction survey closed with a strong response rate, and the themes were consistent. Remember to rotate the on-call schedule so that nobody covers two consecutive weekends. Marketing would like feedback on the draft launch blog post by the end of the week. The quarterly planning cycle starts next week and every team lead should bring an updated roadmap. Our customer satisfaction survey closed with a strong response rate, and the themes were consistent. Remember to rotate the on-call schedule so that nobody covers two consecutive weekends. Marketing would like feedback on the draft launch blog post by the end of the week. The quarterly planning cycle starts next week and every team lead should bring an updated roadmap. Our customer satisfaction survey closed with a strong response rate, and the themes were consistent. Remember to rotate the on-call schedule so that nobody covers two consecutive weekends. Marketing would like feedback on the draft launch blog post by the end of the week. The quarterly planning cycle starts next week and every team lead should bring an updated roadmap. Our customer satisfaction survey closed with a strong response rate, and the themes were consistent. Remember to rotate the on-call schedule so that nobody covers two consecutive weekends. Marketing would like feedback on the draft launch blog post by the end of the week. The quarterly planning cycle starts next week and every team lead should bring an updated roadmap. Our customer satisfaction survey closed with a strong response rate, and the themes were consistent. Remember to rotate the on-call schedule so that nobody covers two consecutive weekends. Marketing would like feedback on the draft launch blog post by the end of the week. The quarterly planning cycle starts next week and every team lead should bring an updated roadmap. Our customer satisfaction survey closed with a strong response rate, and the themes were consistent. Remember to rotate the on-call schedule so that nobody covers two consecutive weekends. Marketing would like feedback on the draft launch blog post by the end of the week. The quarterly planning cycle starts next week and every team lead should bring an updated roadmap. Our customer satisfaction survey closed with a strong response rate, and the themes were consistent. Remember to rotate the on-call schedule so that nobody covers two consecutive weekends. Marketing would like feedback on the draft launch blog post by the end of the week. The quarterly planning cycle starts next week and every team lead should bring an updated roadmap. Our customer satisfaction survey closed with a strong response rate, and the themes were consistent. Remember to rotate the on-call schedule so that nobody covers two consecutive weekends. Marketing would like feedback on the draft launch blog post by the end of the week. (temporary deploy token: ghp_7Rk2Lm9Qx4Tz8Vb1Nc6Hd3Pw5Ys0Ja2Ge7Uf) The quarterly planning cycle starts next week and every team lead should bring an updated roadmap. Our customer satisfaction survey closed with a strong response rate, and the themes were consistent. Remember to rotate the on-call schedule so that nobody covers two consecutive weekends. Marketing would like feedback on the draft launch blog post by the end of the week. The quarterly planning cycle starts next week and every team lead should bring an updated roadmap. Our customer satisfaction survey closed with a strong response rate, and the themes were consistent. Remember to rotate the on-call schedule so that nobody covers two consecutive weekends. Marketing would like feedback on the draft launch blog post by the end of the week. The quarterly planning cycle starts next week and every team lead should bring an updated roadmap. Our customer satisfaction survey closed with a strong response rate, and the themes were consistent. Remember to rotate the on-call schedule so that nobody covers two consecutive weekends. Marketing would like feedback on the draft launch blog post by the end of the week. The quarterly planning cycle starts next week and every team lead should bring an updated roadmap. Our customer satisfaction survey closed with a strong response rate, and the themes were consistent. Remember to rotate the on-call schedule so that nobody covers two consecutive weekends. Marketing would like feedback on the draft launch blog post by the end of the week. The quarterly planning cycle starts next week and every team lead should bring an updated roadmap. Our customer satisfaction survey closed with a strong response rate, and the themes were consistent. Remember to rotate the on-call schedule so that nobody covers two consecutive weekends. Marketing would like feedback on the draft launch blog post by the end of the week. The quarterly planning cycle starts next week and every team lead should bring an updated roadmap. Our customer satisfaction survey closed with a strong response rate, and the themes were consistent. Remember to rotate the on-call schedule so that nobody covers two consecutive weekends. Marketing would like feedback on the draft launch blog post by the end of the week. The quarterly planning cycle starts next week and every team lead should bring an updated roadmap. Our customer satisfaction survey closed with a strong response rate, and the themes were consistent. Remember to rotate the on-call schedule so that nobody covers two consecutive weekends. Marketing would like feedback on the draft launch blog post by the end of the week. The quarterly planning cycle starts next week and every team lead should bring an updated roadmap. Our customer satisfaction survey closed with a strong response rate, and the themes were consistent. Remember to rotate the on-call schedule so that nobody covers two consecutive weekends. Marketing would like feedback on the draft launch blog post by the end of the week. The quarterly planning cycle starts next week and every team lead should bring an updated roadmap. Our customer satisfaction survey closed with a strong response rate, and the themes were consistent. Remember to rotate the on-call schedule so that nobody covers two consecutive weekends. Marketing would like feedback on the draft launch blog post by the end of the week. The quarterly planning cycle starts next week and every team lead should bring an updated roadmap. Our customer satisfaction survey closed with a strong response rate, and the themes were consistent. Remember to rotate the on-call schedule so that nobody covers two consecutive weekends. Marketing would like feedback on the draft launch blog post by the end of the week.",
+    "expect": "block",
+    "categories": [
+      1
+    ]
+  },
+  {
+    "id": "EC24",
+    "dataset": "edge",
+    "title": "Large paste becomes pasted-content.txt chip, then the chip is removed",
+    "text": "Summarise the attached memo for my team in five bullet points.",
+    "attachments": [
+      {
+        "id": "chip-1",
+        "name": "pasted-content.txt",
+        "text": "Management recommends that the Board authorise a non-binding indicative offer for 100% of Corvane Logistics Group at an enterprise value of AUD 1.86 billion, representing 9.4x trailing EBITDA and a 31% premium to the thirty-day volume weighted average price. Funding would combine a AUD 900 million syndicated term loan, a AUD 450 million institutional placement and existing cash reserves. We propose that the offer be delivered to the Target chair no later than 14 October, ahead of the Target's scheduled investor day.\n\n## 2. Strategic rationale\n\nCorvane operates fourteen cold-chain distribution centres along the eastern seaboard and holds long-term service contracts with three of the four largest grocery retailers. Combining Corvane's network with our existing freight-forwarding platform eliminates duplicated linehaul capacity on the Brisbane to Melbourne corridor and gives us an immediate position in pharmaceutical cold-chain logistics, a segment our own growth plan did not expect to enter until FY28. Management estimates run-rate cost synergies of AUD 74 million by the end of the second full year, of which approximately 60 percent relates to network consolidation and the balance to procurement and shared corporate services.\n\n## 3. Valuation and negotiation strategy"
+      }
+    ],
+    "expect": "block",
+    "categories": [
+      10
+    ],
+    "steps": [
+      {
+        "text": "Summarise the attached memo for my team in five bullet points.",
+        "attachments": [
+          {
+            "id": "chip-1",
+            "name": "pasted-content.txt",
+            "text": "Management recommends that the Board authorise a non-binding indicative offer for 100% of Corvane Logistics Group at an enterprise value of AUD 1.86 billion, representing 9.4x trailing EBITDA and a 31% premium to the thirty-day volume weighted average price. Funding would combine a AUD 900 million syndicated term loan, a AUD 450 million institutional placement and existing cash reserves. We propose that the offer be delivered to the Target chair no later than 14 October, ahead of the Target's scheduled investor day.\n\n## 2. Strategic rationale\n\nCorvane operates fourteen cold-chain distribution centres along the eastern seaboard and holds long-term service contracts with three of the four largest grocery retailers. Combining Corvane's network with our existing freight-forwarding platform eliminates duplicated linehaul capacity on the Brisbane to Melbourne corridor and gives us an immediate position in pharmaceutical cold-chain logistics, a segment our own growth plan did not expect to enter until FY28. Management estimates run-rate cost synergies of AUD 74 million by the end of the second full year, of which approximately 60 percent relates to network consolidation and the balance to procurement and shared corporate services.\n\n## 3. Valuation and negotiation strategy"
+          }
+        ],
+        "expect": "block"
+      },
+      {
+        "text": "Summarise the attached memo for my team in five bullet points.",
+        "attachments": [],
+        "expect": "allow"
+      }
+    ]
+  }
+]

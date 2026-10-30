@@ -1,0 +1,819 @@
+{
+  "generatedAt": "2026-10-30T03:22:14.799Z",
+  "runtime": {
+    "kind": "node",
+    "node": "v22.14.0",
+    "cpu": "12th Gen Intel(R) Core(TM) i7-12700H",
+    "cores": 20
+  },
+  "route": "A",
+  "engine": {
+    "fstEntries": 54103,
+    "fstBytes": 3355096,
+    "edmVectors": 105,
+    "edmFields": 250,
+    "pathB": "Neural path not available in this runtime"
+  },
+  "summaries": [
+    {
+      "dataset": "edge",
+      "route": "A",
+      "startedAt": "2026-10-30T03:21:40.789Z",
+      "durationMs": 262.75969999999995,
+      "observations": 25,
+      "metrics": {
+        "tp": 17,
+        "fp": 0,
+        "tn": 8,
+        "fn": 0,
+        "n": 25,
+        "precision": 1,
+        "recall": 1,
+        "f1": 1,
+        "f2": 1,
+        "fpr": 0,
+        "accuracy": 1
+      },
+      "metricsSource": {
+        "tp": 17,
+        "fp": 0,
+        "tn": 8,
+        "fn": 0,
+        "n": 25,
+        "precision": 1,
+        "recall": 1,
+        "f1": 1,
+        "f2": 1,
+        "fpr": 0,
+        "accuracy": 1
+      },
+      "metricsAugmented": null,
+      "checksumInvalid": {
+        "n": 0,
+        "blocked": 0
+      },
+      "latency": {
+        "p50": 5.4903000000000475,
+        "p95": 37.20740000000001,
+        "p99": 47.61180000000002,
+        "mean": 10.474923999999993
+      },
+      "tierP50": {
+        "tier1": 0.21550000000002,
+        "tier3a": 0.05769999999995434,
+        "tier2": 0.0283999999999196,
+        "tier3b": 4.392399999999952
+      },
+      "categoryAgreement": 1,
+      "byPath": {
+        "math": 13,
+        "lexicon": 2,
+        "minhash": 2
+      },
+      "misclassified": []
+    },
+    {
+      "dataset": "enron",
+      "route": "A",
+      "startedAt": "2026-10-30T03:21:53.494Z",
+      "durationMs": 12701.1301,
+      "observations": 300,
+      "metrics": {
+        "tp": 1,
+        "fp": 0,
+        "tn": 299,
+        "fn": 0,
+        "n": 300,
+        "precision": 1,
+        "recall": 1,
+        "f1": 1,
+        "f2": 1,
+        "fpr": 0,
+        "accuracy": 1
+      },
+      "metricsSource": {
+        "tp": 1,
+        "fp": 0,
+        "tn": 299,
+        "fn": 0,
+        "n": 300,
+        "precision": 1,
+        "recall": 1,
+        "f1": 1,
+        "f2": 1,
+        "fpr": 0,
+        "accuracy": 1
+      },
+      "metricsAugmented": null,
+      "checksumInvalid": {
+        "n": 0,
+        "blocked": 0
+      },
+      "latency": {
+        "p50": 29.14469999999983,
+        "p95": 115.63350000000014,
+        "p99": 158.42559999999958,
+        "mean": 42.32431366666669
+      },
+      "tierP50": {
+        "tier1": 0.16060000000015862,
+        "tier3a": 0.1662000000005719,
+        "tier2": 0.2703000000001339,
+        "tier3b": 28.668399999999565
+      },
+      "categoryAgreement": 1,
+      "byPath": {
+        "math": 1
+      },
+      "misclassified": []
+    },
+    {
+      "dataset": "presidio",
+      "route": "A",
+      "startedAt": "2026-10-30T03:21:54.808Z",
+      "durationMs": 1312.0448000000015,
+      "observations": 488,
+      "metrics": {
+        "tp": 208,
+        "fp": 0,
+        "tn": 280,
+        "fn": 0,
+        "n": 488,
+        "precision": 1,
+        "recall": 1,
+        "f1": 1,
+        "f2": 1,
+        "fpr": 0,
+        "accuracy": 1
+      },
+      "metricsSource": {
+        "tp": 178,
+        "fp": 0,
+        "tn": 250,
+        "fn": 0,
+        "n": 428,
+        "precision": 1,
+        "recall": 1,
+        "f1": 1,
+        "f2": 1,
+        "fpr": 0,
+        "accuracy": 1
+      },
+      "metricsAugmented": {
+        "tp": 30,
+        "fp": 0,
+        "tn": 30,
+        "fn": 0,
+        "n": 60,
+        "precision": 1,
+        "recall": 1,
+        "f1": 1,
+        "f2": 1,
+        "fpr": 0,
+        "accuracy": 1
+      },
+      "checksumInvalid": {
+        "n": 0,
+        "blocked": 0
+      },
+      "latency": {
+        "p50": 3.0789000000004307,
+        "p95": 7.115900000000693,
+        "p99": 11.69590000000062,
+        "mean": 2.6809579918033064
+      },
+      "tierP50": {
+        "tier1": 0.03900000000066939,
+        "tier3a": 0.0136000000002241,
+        "tier2": 0.010699999998905696,
+        "tier3b": 2.741199999998571
+      },
+      "categoryAgreement": 1,
+      "byPath": {
+        "math": 196,
+        "lexicon": 12
+      },
+      "misclassified": []
+    },
+    {
+      "dataset": "ai4privacy",
+      "route": "A",
+      "startedAt": "2026-10-30T03:21:59.334Z",
+      "durationMs": 4523.355200000002,
+      "observations": 584,
+      "metrics": {
+        "tp": 138,
+        "fp": 0,
+        "tn": 414,
+        "fn": 32,
+        "n": 584,
+        "precision": 1,
+        "recall": 0.8117647058823529,
+        "f1": 0.8961038961038961,
+        "f2": 0.843520782396088,
+        "fpr": 0,
+        "accuracy": 0.9452054794520548
+      },
+      "metricsSource": {
+        "tp": 73,
+        "fp": 0,
+        "tn": 402,
+        "fn": 25,
+        "n": 500,
+        "precision": 1,
+        "recall": 0.7448979591836735,
+        "f1": 0.8538011695906433,
+        "f2": 0.7849462365591399,
+        "fpr": 0,
+        "accuracy": 0.95
+      },
+      "metricsAugmented": {
+        "tp": 65,
+        "fp": 0,
+        "tn": 12,
+        "fn": 7,
+        "n": 84,
+        "precision": 1,
+        "recall": 0.9027777777777778,
+        "f1": 0.9489051094890512,
+        "f2": 0.9206798866855526,
+        "fpr": 0,
+        "accuracy": 0.9166666666666666
+      },
+      "checksumInvalid": {
+        "n": 27,
+        "blocked": 0
+      },
+      "latency": {
+        "p50": 7.797199999997247,
+        "p95": 14.34440000000177,
+        "p99": 20.033699999999953,
+        "mean": 7.735454794520605
+      },
+      "tierP50": {
+        "tier1": 0.06240000000252621,
+        "tier3a": 0.038199999999051215,
+        "tier2": 0.018899999999121064,
+        "tier3b": 7.602200000001176
+      },
+      "categoryAgreement": 1,
+      "byPath": {
+        "math": 136,
+        "lexicon": 2
+      },
+      "misclassified": [
+        {
+          "id": "ai4privacy-1000-3",
+          "expect": "block",
+          "predicted": "allow",
+          "types": []
+        },
+        {
+          "id": "ai4privacy-1000-23",
+          "expect": "block",
+          "predicted": "allow",
+          "types": []
+        },
+        {
+          "id": "ai4privacy-1000-44",
+          "expect": "block",
+          "predicted": "allow",
+          "types": []
+        },
+        {
+          "id": "ai4privacy-1000-62",
+          "expect": "block",
+          "predicted": "allow",
+          "types": []
+        },
+        {
+          "id": "ai4privacy-1000-67",
+          "expect": "block",
+          "predicted": "allow",
+          "types": []
+        },
+        {
+          "id": "ai4privacy-1000-79",
+          "expect": "block",
+          "predicted": "allow",
+          "types": []
+        },
+        {
+          "id": "ai4privacy-1000-90",
+          "expect": "block",
+          "predicted": "allow",
+          "types": []
+        },
+        {
+          "id": "ai4privacy-1000-91",
+          "expect": "block",
+          "predicted": "allow",
+          "types": []
+        },
+        {
+          "id": "ai4privacy-48000-120",
+          "expect": "block",
+          "predicted": "allow",
+          "types": []
+        },
+        {
+          "id": "ai4privacy-48000-124",
+          "expect": "block",
+          "predicted": "allow",
+          "types": []
+        },
+        {
+          "id": "ai4privacy-48000-153",
+          "expect": "block",
+          "predicted": "allow",
+          "types": []
+        },
+        {
+          "id": "ai4privacy-48000-159",
+          "expect": "block",
+          "predicted": "allow",
+          "types": []
+        },
+        {
+          "id": "ai4privacy-97000-204",
+          "expect": "block",
+          "predicted": "allow",
+          "types": []
+        },
+        {
+          "id": "ai4privacy-97000-230",
+          "expect": "block",
+          "predicted": "allow",
+          "types": []
+        },
+        {
+          "id": "ai4privacy-97000-258",
+          "expect": "block",
+          "predicted": "allow",
+          "types": []
+        },
+        {
+          "id": "ai4privacy-97000-279",
+          "expect": "block",
+          "predicted": "allow",
+          "types": []
+        },
+        {
+          "id": "ai4privacy-143000-309",
+          "expect": "block",
+          "predicted": "allow",
+          "types": []
+        },
+        {
+          "id": "ai4privacy-143000-376",
+          "expect": "block",
+          "predicted": "allow",
+          "types": []
+        },
+        {
+          "id": "ai4privacy-143000-396",
+          "expect": "block",
+          "predicted": "allow",
+          "types": []
+        },
+        {
+          "id": "ai4privacy-143000-397",
+          "expect": "block",
+          "predicted": "allow",
+          "types": []
+        },
+        {
+          "id": "ai4privacy-191000-417",
+          "expect": "block",
+          "predicted": "allow",
+          "types": []
+        },
+        {
+          "id": "ai4privacy-191000-433",
+          "expect": "block",
+          "predicted": "allow",
+          "types": []
+        },
+        {
+          "id": "ai4privacy-191000-439",
+          "expect": "block",
+          "predicted": "allow",
+          "types": []
+        },
+        {
+          "id": "ai4privacy-191000-443",
+          "expect": "block",
+          "predicted": "allow",
+          "types": []
+        },
+        {
+          "id": "ai4privacy-191000-454",
+          "expect": "block",
+          "predicted": "allow",
+          "types": []
+        },
+        {
+          "id": "ai4p-aug-006",
+          "expect": "block",
+          "predicted": "allow",
+          "types": []
+        },
+        {
+          "id": "ai4p-aug-020",
+          "expect": "block",
+          "predicted": "allow",
+          "types": []
+        },
+        {
+          "id": "ai4p-aug-027",
+          "expect": "block",
+          "predicted": "allow",
+          "types": []
+        },
+        {
+          "id": "ai4p-aug-048",
+          "expect": "block",
+          "predicted": "allow",
+          "types": []
+        },
+        {
+          "id": "ai4p-aug-062",
+          "expect": "block",
+          "predicted": "allow",
+          "types": []
+        },
+        {
+          "id": "ai4p-aug-076",
+          "expect": "block",
+          "predicted": "allow",
+          "types": []
+        },
+        {
+          "id": "ai4p-aug-083",
+          "expect": "block",
+          "predicted": "allow",
+          "types": []
+        }
+      ]
+    },
+    {
+      "dataset": "enron-holdout",
+      "route": "A",
+      "startedAt": "2026-10-30T03:22:10.498Z",
+      "durationMs": 11160.137200000001,
+      "observations": 300,
+      "metrics": {
+        "tp": 1,
+        "fp": 4,
+        "tn": 295,
+        "fn": 0,
+        "n": 300,
+        "precision": 0.2,
+        "recall": 1,
+        "f1": 0.33333333333333337,
+        "f2": 0.5555555555555556,
+        "fpr": 0.013377926421404682,
+        "accuracy": 0.9866666666666667
+      },
+      "metricsSource": {
+        "tp": 1,
+        "fp": 4,
+        "tn": 295,
+        "fn": 0,
+        "n": 300,
+        "precision": 0.2,
+        "recall": 1,
+        "f1": 0.33333333333333337,
+        "f2": 0.5555555555555556,
+        "fpr": 0.013377926421404682,
+        "accuracy": 0.9866666666666667
+      },
+      "metricsAugmented": null,
+      "checksumInvalid": {
+        "n": 0,
+        "blocked": 0
+      },
+      "latency": {
+        "p50": 26.977199999997538,
+        "p95": 101.71979999999894,
+        "p99": 142.4383999999991,
+        "mean": 37.18694633333335
+      },
+      "tierP50": {
+        "tier1": 0.14120000000184518,
+        "tier3a": 0.1540999999997439,
+        "tier2": 0.28289999999833526,
+        "tier3b": 26.220799999999144
+      },
+      "categoryAgreement": 1,
+      "byPath": {
+        "math": 4,
+        "lexicon": 1
+      },
+      "misclassified": [
+        {
+          "id": "enron-holdout-330000-214",
+          "expect": "allow",
+          "predicted": "block",
+          "types": [
+            "TFN"
+          ]
+        },
+        {
+          "id": "enron-holdout-330000-226",
+          "expect": "allow",
+          "predicted": "block",
+          "types": [
+            "PASSWORD"
+          ]
+        },
+        {
+          "id": "enron-holdout-412000-274",
+          "expect": "allow",
+          "predicted": "block",
+          "types": [
+            "PASSWORD"
+          ]
+        },
+        {
+          "id": "enron-holdout-412000-287",
+          "expect": "allow",
+          "predicted": "block",
+          "types": [
+            "PATIENT_IDENTITY"
+          ]
+        }
+      ]
+    },
+    {
+      "dataset": "ai4privacy-holdout",
+      "route": "A",
+      "startedAt": "2026-10-30T03:22:14.788Z",
+      "durationMs": 4287.3478,
+      "observations": 500,
+      "metrics": {
+        "tp": 53,
+        "fp": 5,
+        "tn": 413,
+        "fn": 29,
+        "n": 500,
+        "precision": 0.9137931034482759,
+        "recall": 0.6463414634146342,
+        "f1": 0.7571428571428572,
+        "f2": 0.6865284974093265,
+        "fpr": 0.011961722488038277,
+        "accuracy": 0.932
+      },
+      "metricsSource": {
+        "tp": 53,
+        "fp": 5,
+        "tn": 413,
+        "fn": 29,
+        "n": 500,
+        "precision": 0.9137931034482759,
+        "recall": 0.6463414634146342,
+        "f1": 0.7571428571428572,
+        "f2": 0.6865284974093265,
+        "fpr": 0.011961722488038277,
+        "accuracy": 0.932
+      },
+      "metricsAugmented": null,
+      "checksumInvalid": {
+        "n": 24,
+        "blocked": 0
+      },
+      "latency": {
+        "p50": 8.01390000000174,
+        "p95": 14.760000000002037,
+        "p99": 17.779900000001362,
+        "mean": 8.564437200000015
+      },
+      "tierP50": {
+        "tier1": 0.05979999999544816,
+        "tier3a": 0.03740000000107102,
+        "tier2": 0.01900000000023283,
+        "tier3b": 7.8682000000007974
+      },
+      "categoryAgreement": 1,
+      "byPath": {
+        "math": 58
+      },
+      "misclassified": [
+        {
+          "id": "ai4privacy-holdout-25000-19",
+          "expect": "block",
+          "predicted": "allow",
+          "types": []
+        },
+        {
+          "id": "ai4privacy-holdout-25000-26",
+          "expect": "block",
+          "predicted": "allow",
+          "types": []
+        },
+        {
+          "id": "ai4privacy-holdout-25000-29",
+          "expect": "allow",
+          "predicted": "block",
+          "types": [
+            "SECRET"
+          ]
+        },
+        {
+          "id": "ai4privacy-holdout-25000-33",
+          "expect": "block",
+          "predicted": "allow",
+          "types": []
+        },
+        {
+          "id": "ai4privacy-holdout-25000-37",
+          "expect": "block",
+          "predicted": "allow",
+          "types": []
+        },
+        {
+          "id": "ai4privacy-holdout-25000-43",
+          "expect": "block",
+          "predicted": "allow",
+          "types": []
+        },
+        {
+          "id": "ai4privacy-holdout-25000-66",
+          "expect": "block",
+          "predicted": "allow",
+          "types": []
+        },
+        {
+          "id": "ai4privacy-holdout-25000-75",
+          "expect": "block",
+          "predicted": "allow",
+          "types": []
+        },
+        {
+          "id": "ai4privacy-holdout-25000-82",
+          "expect": "allow",
+          "predicted": "block",
+          "types": [
+            "SECRET"
+          ]
+        },
+        {
+          "id": "ai4privacy-holdout-25000-97",
+          "expect": "block",
+          "predicted": "allow",
+          "types": []
+        },
+        {
+          "id": "ai4privacy-holdout-72000-124",
+          "expect": "block",
+          "predicted": "allow",
+          "types": []
+        },
+        {
+          "id": "ai4privacy-holdout-72000-127",
+          "expect": "block",
+          "predicted": "allow",
+          "types": []
+        },
+        {
+          "id": "ai4privacy-holdout-72000-140",
+          "expect": "block",
+          "predicted": "allow",
+          "types": []
+        },
+        {
+          "id": "ai4privacy-holdout-72000-169",
+          "expect": "allow",
+          "predicted": "block",
+          "types": [
+            "CREDIT_CARD"
+          ]
+        },
+        {
+          "id": "ai4privacy-holdout-72000-176",
+          "expect": "block",
+          "predicted": "allow",
+          "types": []
+        },
+        {
+          "id": "ai4privacy-holdout-72000-185",
+          "expect": "block",
+          "predicted": "allow",
+          "types": []
+        },
+        {
+          "id": "ai4privacy-holdout-118000-253",
+          "expect": "block",
+          "predicted": "allow",
+          "types": []
+        },
+        {
+          "id": "ai4privacy-holdout-118000-272",
+          "expect": "block",
+          "predicted": "allow",
+          "types": []
+        },
+        {
+          "id": "ai4privacy-holdout-167000-301",
+          "expect": "block",
+          "predicted": "allow",
+          "types": []
+        },
+        {
+          "id": "ai4privacy-holdout-167000-317",
+          "expect": "block",
+          "predicted": "allow",
+          "types": []
+        },
+        {
+          "id": "ai4privacy-holdout-167000-335",
+          "expect": "block",
+          "predicted": "allow",
+          "types": []
+        },
+        {
+          "id": "ai4privacy-holdout-167000-336",
+          "expect": "block",
+          "predicted": "allow",
+          "types": []
+        },
+        {
+          "id": "ai4privacy-holdout-167000-353",
+          "expect": "block",
+          "predicted": "allow",
+          "types": []
+        },
+        {
+          "id": "ai4privacy-holdout-167000-363",
+          "expect": "block",
+          "predicted": "allow",
+          "types": []
+        },
+        {
+          "id": "ai4privacy-holdout-167000-364",
+          "expect": "block",
+          "predicted": "allow",
+          "types": []
+        },
+        {
+          "id": "ai4privacy-holdout-167000-372",
+          "expect": "block",
+          "predicted": "allow",
+          "types": []
+        },
+        {
+          "id": "ai4privacy-holdout-167000-396",
+          "expect": "block",
+          "predicted": "allow",
+          "types": []
+        },
+        {
+          "id": "ai4privacy-holdout-167000-398",
+          "expect": "block",
+          "predicted": "allow",
+          "types": []
+        },
+        {
+          "id": "ai4privacy-holdout-205000-408",
+          "expect": "allow",
+          "predicted": "block",
+          "types": [
+            "CREDIT_CARD"
+          ]
+        },
+        {
+          "id": "ai4privacy-holdout-205000-428",
+          "expect": "block",
+          "predicted": "allow",
+          "types": []
+        },
+        {
+          "id": "ai4privacy-holdout-205000-481",
+          "expect": "block",
+          "predicted": "allow",
+          "types": []
+        },
+        {
+          "id": "ai4privacy-holdout-205000-483",
+          "expect": "block",
+          "predicted": "allow",
+          "types": []
+        },
+        {
+          "id": "ai4privacy-holdout-205000-489",
+          "expect": "allow",
+          "predicted": "block",
+          "types": [
+            "SECRET"
+          ]
+        },
+        {
+          "id": "ai4privacy-holdout-205000-499",
+          "expect": "block",
+          "predicted": "allow",
+          "types": []
+        }
+      ]
+    }
+  ]
+}

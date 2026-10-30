@@ -16,6 +16,7 @@ assets/ort/
 # datasets whose licence does not permit redistribution are fetched at setup time
 data/datasets/.raw/
 data/datasets/ai4privacy.jsonl
+data/datasets/ai4privacy-holdout.jsonl
 
 # test artefacts
 test-results/

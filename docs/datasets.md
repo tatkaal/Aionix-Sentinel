@@ -22,6 +22,29 @@ All sampling is seeded, so re-running the script produces the same rows.
 - **Augmentation is labelled as augmentation.** It adds checksum-valid AU TFN, ABN, Aadhaar and PAN rows, Category 8 and 9 rows, and obfuscation (spacing, dashes, JSON/CSV/code wrapping). Every augmented row carries `augmented: true` and is reported both separately and combined.
 - **Checksum policy:** synthetic card or ID numbers that fail their checksum are reported in a separate bucket. They are not real cards or IDs, so blocking them would be a false positive.
 
+## Dev vs held-out splits (read before quoting numbers)
+
+- **Dev splits were used for error analysis.** These are `enron`, `presidio` and `ai4privacy`. I studied their misclassifications and refined the detectors on them:
+  - an IMEI exclusion;
+  - stricter unlabelled-secret shapes;
+  - financial-record linking rules;
+  - multilingual national-ID labels;
+  - single-word ICD headings filtered against everyday English.
+
+  Their scores are therefore **optimistic, in-sample** numbers.
+- **Held-out splits** (`enron-holdout`, `ai4privacy-holdout`) were drawn from different corpus offsets after rule development finished. They are only ever *evaluated*. Their misclassifications are reviewed solely to fix wrong ground-truth labels, never to change rules. **Quote the held-out numbers** as the expected real-world behaviour.
+- **Adjudications** are recorded in `data/datasets/enron-adjudications.json`, each with its reason. Two Enron emails turned out to share real credentials (`Password: WELCOME`, `password is ENRON`) and are labelled `block`.
+- **Release gate.** `bench-gate.json` is a regression guard set just below the measured results. The blueprint targets (F2 ≥ 0.97, FPR < 0.05 %) are shown separately as targets and are not yet met on held-out data.
+
+### Known failure modes on held-out data
+
+These were observed but not tuned away:
+
+- Password-*scheme* descriptions ("Your Password: Date of Birth") are read as labelled passwords.
+- Phone-number fragments with dashes can pass the TFN Mod-11 checksum.
+- Charity or health event notices that name a volunteer near a disease term are read as a patient link.
+- Unlabelled national IDs and unlabelled passwords without login cues are missed. These dominate AI4Privacy recall.
+
 ## Tier 2 Path A vocabularies
 
 | Vocabulary | Source | Licence | Use |

@@ -1,0 +1,12 @@
+{
+  "enron-371000-269": {
+    "expect": "block",
+    "categories": [2],
+    "reason": "Email shares a working login: User ID plus initial password (\"Password: WELCOME\")."
+  },
+  "enron-holdout-330000-237": {
+    "expect": "block",
+    "categories": [2],
+    "reason": "Email instructs staff that the system password is \"ENRON\" — a shared default credential."
+  }
+}
