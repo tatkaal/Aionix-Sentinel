@@ -1,7 +1,8 @@
 // Loads the built extension in Chromium and records what the offscreen document actually measures:
 // memory (method-labelled), Tier 2 route / Path B state and per-tier latency inside the extension.
 // Usage: npm run build:ext:test && npm run measure:ext [-- --path-a-only]
-//   --path-a-only  GPU disabled → the hardware probe rejects Path B → pure Path A steady state
+//   --path-a-only  the extension's fallback state: a remembered Path B eviction and a recycled
+//                  offscreen document, i.e. pure Path A (Path B runs on any CPU, so no flag disables it)
 //   (default)      waits until Path B is ready / evicted / failed, then measures
 // Output: bench-results/extension-measurements-path-{a,b}.json
 import { chromium } from '@playwright/test';
@@ -18,8 +19,28 @@ await new Promise((r) => setTimeout(r, 800));
 
 const context = await chromium.launchPersistentContext('', {
   channel: 'chromium',
-  args: [`--disable-extensions-except=${extPath}`, `--load-extension=${extPath}`, `--remote-debugging-port=${DEBUG_PORT}`, ...(pathAOnly ? ['--disable-gpu'] : [])],
+  args: [`--disable-extensions-except=${extPath}`, `--load-extension=${extPath}`, `--remote-debugging-port=${DEBUG_PORT}`],
 });
+
+/** Raw CDP session on the current offscreen document (it changes when the background recycles it). */
+async function offscreenCdp() {
+  const targets = (await (await fetch(`http://127.0.0.1:${DEBUG_PORT}/json/list`)).json()) as { url: string; webSocketDebuggerUrl: string }[];
+  const ws = new WebSocket(targets.find((t) => t.url.endsWith('offscreen.html'))!.webSocketDebuggerUrl);
+  await new Promise((r) => (ws.onopen = r));
+  let seq = 0;
+  const waiting = new Map<number, (v: { result?: { result?: { value?: unknown } } }) => void>();
+  ws.onmessage = (e) => {
+    const m = JSON.parse(String(e.data)) as { id: number };
+    waiting.get(m.id)?.(m as never);
+  };
+  const cdp = (method: string, params: unknown = {}) =>
+    new Promise<{ result?: { result?: { value?: unknown } } }>((r) => {
+      const id = ++seq;
+      waiting.set(id, r);
+      ws.send(JSON.stringify({ id, method, params }));
+    });
+  return { cdp, close: () => ws.close() };
+}
 try {
   let [sw] = context.serviceWorkers();
   sw ??= await context.waitForEvent('serviceworker');
@@ -29,8 +50,18 @@ try {
   const status = () => popup.evaluate(() => chrome.runtime.sendMessage({ target: 'background', type: 'status' })) as Promise<{ engine: Record<string, unknown> | null }>;
   for (let i = 0; i < 120 && !(await status()).engine?.pathAReady; i++) await popup.waitForTimeout(500);
   let pathBOutcome: Record<string, unknown> | null = null;
-  if (!pathAOnly) {
-    // A fresh profile downloads ~0.8 GB of Path B weights; wait for a terminal state (≤ 15 min).
+  if (pathAOnly) {
+    const o = await offscreenCdp();
+    await o.cdp('Runtime.evaluate', { expression: "localStorage.setItem('aionix.pathB.evicted.v2', 'measurement: Path A only')" });
+    o.close();
+    await popup.evaluate(() => chrome.runtime.sendMessage({ target: 'background', type: 'recycle-offscreen' }));
+    for (let i = 0; i < 120; i++) {
+      const e = (await status()).engine;
+      if (e?.pathAReady && /remembered/.test(String(e.pathBReason))) break;
+      await popup.waitForTimeout(500);
+    }
+  } else {
+    // Wait for a terminal Path B state (the tagger ships with the extension; this takes < 1 s).
     for (let i = 0; i < 900; i++) {
       const e = (await status()).engine;
       if (['ready', 'evicted', 'failed', 'unavailable'].includes(String(e?.pathBState))) {
@@ -67,35 +98,32 @@ try {
   }
   // Ground truth: attach to the offscreen document over raw CDP, force a GC, then measure inside it.
   // (Chrome resolves measureUserAgentSpecificMemory at the next GC, which an idle page may not run.)
-  const targets = (await (await fetch(`http://127.0.0.1:${DEBUG_PORT}/json/list`)).json()) as { url: string; webSocketDebuggerUrl: string }[];
-  const ws = new WebSocket(targets.find((t) => t.url.endsWith('offscreen.html'))!.webSocketDebuggerUrl);
-  await new Promise((r) => (ws.onopen = r));
-  let seq = 0;
-  const waiting = new Map<number, (v: { result?: { result?: { value?: unknown } } }) => void>();
-  ws.onmessage = (e) => {
-    const m = JSON.parse(String(e.data)) as { id: number };
-    waiting.get(m.id)?.(m as never);
-  };
-  const cdp = (method: string, params: unknown = {}) =>
-    new Promise<{ result?: { result?: { value?: unknown } } }>((r) => {
-      const id = ++seq;
-      waiting.set(id, r);
-      ws.send(JSON.stringify({ id, method, params }));
-    });
-  await cdp('HeapProfiler.collectGarbage');
-  const direct = (
-    await cdp('Runtime.evaluate', {
-      expression:
-        'performance.measureUserAgentSpecificMemory().then(r => ({ mb: r.bytes / 1048576, byType: Object.fromEntries(r.breakdown.filter(b => b.bytes > 1e5).map(b => [b.types.join("+") + " @ " + b.attribution.map(a => a.scope + ":" + (a.url || "").split("/").pop()).join(","), +(b.bytes / 1048576).toFixed(1)])) }))',
-      awaitPromise: true,
-      returnByValue: true,
-    })
-  ).result?.result?.value as { mb: number; byType: Record<string, number> };
-  ws.close();
+  const { cdp, close } = await offscreenCdp();
+  // A reading without the document's own JavaScript attribution did not capture its heap (seen once
+  // after a recycle: "Shared" only, 6.6 MB) — retry rather than record it.
+  let direct: { mb: number; byType: Record<string, number> } | null = null;
+  for (let attempt = 0; attempt < 5 && !direct; attempt++) {
+    await cdp('HeapProfiler.collectGarbage');
+    const r = (
+      await cdp('Runtime.evaluate', {
+        expression:
+          'performance.measureUserAgentSpecificMemory().then(r => ({ mb: r.bytes / 1048576, byType: Object.fromEntries(r.breakdown.filter(b => b.bytes > 1e5).map(b => [b.types.join("+") + " @ " + b.attribution.map(a => a.scope + ":" + (a.url || "").split("/").pop()).join(","), +(b.bytes / 1048576).toFixed(1)])) }))',
+        awaitPromise: true,
+        returnByValue: true,
+      })
+    ).result?.result?.value as { mb: number; byType: Record<string, number> };
+    if (Object.keys(r.byType).some((k) => k.startsWith('JavaScript @ Window:offscreen.html'))) direct = r;
+    else {
+      console.error(`measurement ${attempt + 1} lacked the document's JavaScript attribution (${JSON.stringify(r.byType)}); retrying`);
+      await popup.waitForTimeout(3000);
+    }
+  }
+  close();
+  if (!direct) throw new Error('no attributable offscreen memory reading after 5 attempts');
   const engine = (await status()).engine;
   const p = (xs: number[], q: number) => [...xs].sort((a, b) => a - b)[Math.min(xs.length - 1, Math.floor((q / 100) * xs.length))] ?? null;
   const report = {
-    mode: pathAOnly ? 'path-a-only (GPU disabled)' : 'auto (Path B allowed)',
+    mode: pathAOnly ? 'path-a-only (Path B evicted, recycled document)' : 'auto (Path B allowed)',
     measuredAt: new Date().toISOString(),
     offscreenMemory: { mb: +direct.mb.toFixed(1), method: 'measureUserAgentSpecificMemory after forced GC (raw CDP, offscreen document)', byType: direct.byType },
     pathBOutcome,

@@ -1,0 +1,6408 @@
+{
+  "generatedAt": "2026-10-30T12:32:16.961Z",
+  "split": "dev",
+  "pathA": [
+    {
+      "dataset": "edge",
+      "route": "A",
+      "startedAt": "2026-10-30T12:32:30.663Z",
+      "durationMs": 272.26560000000063,
+      "observations": 25,
+      "metrics": {
+        "tp": 17,
+        "fp": 0,
+        "tn": 8,
+        "fn": 0,
+        "n": 25,
+        "precision": 1,
+        "recall": 1,
+        "f1": 1,
+        "f2": 1,
+        "fpr": 0,
+        "accuracy": 1
+      },
+      "metricsSource": {
+        "tp": 17,
+        "fp": 0,
+        "tn": 8,
+        "fn": 0,
+        "n": 25,
+        "precision": 1,
+        "recall": 1,
+        "f1": 1,
+        "f2": 1,
+        "fpr": 0,
+        "accuracy": 1
+      },
+      "metricsAugmented": null,
+      "checksumInvalid": {
+        "n": 0,
+        "blocked": 0
+      },
+      "latency": {
+        "p50": 5.281100000000151,
+        "p95": 34.55420000000049,
+        "p99": 47.18870000000061,
+        "mean": 10.853160000000061
+      },
+      "tierP50": {
+        "tier1": 0.22879999999895517,
+        "tier3a": 0.05529999999998836,
+        "tier2": 0.03780000000006112,
+        "tier3b": 4.753399999999601
+      },
+      "categoryAgreement": 1,
+      "byPath": {
+        "math": 13,
+        "lexicon": 2,
+        "minhash": 2
+      },
+      "misclassified": []
+    },
+    {
+      "dataset": "enron",
+      "route": "A",
+      "startedAt": "2026-10-30T12:32:43.444Z",
+      "durationMs": 12777.252900000001,
+      "observations": 300,
+      "metrics": {
+        "tp": 1,
+        "fp": 0,
+        "tn": 299,
+        "fn": 0,
+        "n": 300,
+        "precision": 1,
+        "recall": 1,
+        "f1": 1,
+        "f2": 1,
+        "fpr": 0,
+        "accuracy": 1
+      },
+      "metricsSource": {
+        "tp": 1,
+        "fp": 0,
+        "tn": 299,
+        "fn": 0,
+        "n": 300,
+        "precision": 1,
+        "recall": 1,
+        "f1": 1,
+        "f2": 1,
+        "fpr": 0,
+        "accuracy": 1
+      },
+      "metricsAugmented": null,
+      "checksumInvalid": {
+        "n": 0,
+        "blocked": 0
+      },
+      "latency": {
+        "p50": 29.09740000000238,
+        "p95": 116.5731999999989,
+        "p99": 162.98479999999836,
+        "mean": 42.57723033333341
+      },
+      "tierP50": {
+        "tier1": 0.16519999999945867,
+        "tier3a": 0.16719999999986612,
+        "tier2": 0.2724999999991269,
+        "tier3b": 27.886599999999817
+      },
+      "categoryAgreement": 1,
+      "byPath": {
+        "math": 1
+      },
+      "misclassified": []
+    },
+    {
+      "dataset": "presidio",
+      "route": "A",
+      "startedAt": "2026-10-30T12:32:44.726Z",
+      "durationMs": 1280.3054999999986,
+      "observations": 488,
+      "metrics": {
+        "tp": 208,
+        "fp": 0,
+        "tn": 280,
+        "fn": 0,
+        "n": 488,
+        "precision": 1,
+        "recall": 1,
+        "f1": 1,
+        "f2": 1,
+        "fpr": 0,
+        "accuracy": 1
+      },
+      "metricsSource": {
+        "tp": 178,
+        "fp": 0,
+        "tn": 250,
+        "fn": 0,
+        "n": 428,
+        "precision": 1,
+        "recall": 1,
+        "f1": 1,
+        "f2": 1,
+        "fpr": 0,
+        "accuracy": 1
+      },
+      "metricsAugmented": {
+        "tp": 30,
+        "fp": 0,
+        "tn": 30,
+        "fn": 0,
+        "n": 60,
+        "precision": 1,
+        "recall": 1,
+        "f1": 1,
+        "f2": 1,
+        "fpr": 0,
+        "accuracy": 1
+      },
+      "checksumInvalid": {
+        "n": 0,
+        "blocked": 0
+      },
+      "latency": {
+        "p50": 3.0885999999991327,
+        "p95": 6.769500000002154,
+        "p99": 11.60450000000128,
+        "mean": 2.6158694672131175
+      },
+      "tierP50": {
+        "tier1": 0.04099999999743886,
+        "tier3a": 0.013900000001740409,
+        "tier2": 0.011200000000826549,
+        "tier3b": 2.798800000000483
+      },
+      "categoryAgreement": 1,
+      "byPath": {
+        "math": 196,
+        "lexicon": 12
+      },
+      "misclassified": []
+    },
+    {
+      "dataset": "ai4privacy",
+      "route": "A",
+      "startedAt": "2026-10-30T12:32:49.219Z",
+      "durationMs": 4490.802599999999,
+      "observations": 584,
+      "metrics": {
+        "tp": 138,
+        "fp": 0,
+        "tn": 414,
+        "fn": 32,
+        "n": 584,
+        "precision": 1,
+        "recall": 0.8117647058823529,
+        "f1": 0.8961038961038961,
+        "f2": 0.843520782396088,
+        "fpr": 0,
+        "accuracy": 0.9452054794520548
+      },
+      "metricsSource": {
+        "tp": 73,
+        "fp": 0,
+        "tn": 402,
+        "fn": 25,
+        "n": 500,
+        "precision": 1,
+        "recall": 0.7448979591836735,
+        "f1": 0.8538011695906433,
+        "f2": 0.7849462365591399,
+        "fpr": 0,
+        "accuracy": 0.95
+      },
+      "metricsAugmented": {
+        "tp": 65,
+        "fp": 0,
+        "tn": 12,
+        "fn": 7,
+        "n": 84,
+        "precision": 1,
+        "recall": 0.9027777777777778,
+        "f1": 0.9489051094890512,
+        "f2": 0.9206798866855526,
+        "fpr": 0,
+        "accuracy": 0.9166666666666666
+      },
+      "checksumInvalid": {
+        "n": 27,
+        "blocked": 0
+      },
+      "latency": {
+        "p50": 7.9474000000009255,
+        "p95": 13.931700000001001,
+        "p99": 19.94090000000142,
+        "mean": 7.678561472602767
+      },
+      "tierP50": {
+        "tier1": 0.06979999999748543,
+        "tier3a": 0.03980000000228756,
+        "tier2": 0.0220999999983178,
+        "tier3b": 7.6876999999985856
+      },
+      "categoryAgreement": 1,
+      "byPath": {
+        "math": 136,
+        "lexicon": 2
+      },
+      "misclassified": [
+        {
+          "id": "ai4privacy-1000-3",
+          "expect": "block",
+          "predicted": "allow",
+          "types": []
+        },
+        {
+          "id": "ai4privacy-1000-23",
+          "expect": "block",
+          "predicted": "allow",
+          "types": []
+        },
+        {
+          "id": "ai4privacy-1000-44",
+          "expect": "block",
+          "predicted": "allow",
+          "types": []
+        },
+        {
+          "id": "ai4privacy-1000-62",
+          "expect": "block",
+          "predicted": "allow",
+          "types": []
+        },
+        {
+          "id": "ai4privacy-1000-67",
+          "expect": "block",
+          "predicted": "allow",
+          "types": []
+        },
+        {
+          "id": "ai4privacy-1000-79",
+          "expect": "block",
+          "predicted": "allow",
+          "types": []
+        },
+        {
+          "id": "ai4privacy-1000-90",
+          "expect": "block",
+          "predicted": "allow",
+          "types": []
+        },
+        {
+          "id": "ai4privacy-1000-91",
+          "expect": "block",
+          "predicted": "allow",
+          "types": []
+        },
+        {
+          "id": "ai4privacy-48000-120",
+          "expect": "block",
+          "predicted": "allow",
+          "types": []
+        },
+        {
+          "id": "ai4privacy-48000-124",
+          "expect": "block",
+          "predicted": "allow",
+          "types": []
+        },
+        {
+          "id": "ai4privacy-48000-153",
+          "expect": "block",
+          "predicted": "allow",
+          "types": []
+        },
+        {
+          "id": "ai4privacy-48000-159",
+          "expect": "block",
+          "predicted": "allow",
+          "types": []
+        },
+        {
+          "id": "ai4privacy-97000-204",
+          "expect": "block",
+          "predicted": "allow",
+          "types": []
+        },
+        {
+          "id": "ai4privacy-97000-230",
+          "expect": "block",
+          "predicted": "allow",
+          "types": []
+        },
+        {
+          "id": "ai4privacy-97000-258",
+          "expect": "block",
+          "predicted": "allow",
+          "types": []
+        },
+        {
+          "id": "ai4privacy-97000-279",
+          "expect": "block",
+          "predicted": "allow",
+          "types": []
+        },
+        {
+          "id": "ai4privacy-143000-309",
+          "expect": "block",
+          "predicted": "allow",
+          "types": []
+        },
+        {
+          "id": "ai4privacy-143000-376",
+          "expect": "block",
+          "predicted": "allow",
+          "types": []
+        },
+        {
+          "id": "ai4privacy-143000-396",
+          "expect": "block",
+          "predicted": "allow",
+          "types": []
+        },
+        {
+          "id": "ai4privacy-143000-397",
+          "expect": "block",
+          "predicted": "allow",
+          "types": []
+        },
+        {
+          "id": "ai4privacy-191000-417",
+          "expect": "block",
+          "predicted": "allow",
+          "types": []
+        },
+        {
+          "id": "ai4privacy-191000-433",
+          "expect": "block",
+          "predicted": "allow",
+          "types": []
+        },
+        {
+          "id": "ai4privacy-191000-439",
+          "expect": "block",
+          "predicted": "allow",
+          "types": []
+        },
+        {
+          "id": "ai4privacy-191000-443",
+          "expect": "block",
+          "predicted": "allow",
+          "types": []
+        },
+        {
+          "id": "ai4privacy-191000-454",
+          "expect": "block",
+          "predicted": "allow",
+          "types": []
+        },
+        {
+          "id": "ai4p-aug-006",
+          "expect": "block",
+          "predicted": "allow",
+          "types": []
+        },
+        {
+          "id": "ai4p-aug-020",
+          "expect": "block",
+          "predicted": "allow",
+          "types": []
+        },
+        {
+          "id": "ai4p-aug-027",
+          "expect": "block",
+          "predicted": "allow",
+          "types": []
+        },
+        {
+          "id": "ai4p-aug-048",
+          "expect": "block",
+          "predicted": "allow",
+          "types": []
+        },
+        {
+          "id": "ai4p-aug-062",
+          "expect": "block",
+          "predicted": "allow",
+          "types": []
+        },
+        {
+          "id": "ai4p-aug-076",
+          "expect": "block",
+          "predicted": "allow",
+          "types": []
+        },
+        {
+          "id": "ai4p-aug-083",
+          "expect": "block",
+          "predicted": "allow",
+          "types": []
+        }
+      ]
+    }
+  ],
+  "candidates": {
+    "aionix-l6": {
+      "meta": {
+        "model": "aionix-pathb-l6",
+        "onnx": "model_int8.onnx",
+        "threads": 4,
+        "maxLen": 512,
+        "runtime": "onnxruntime 1.31.1 CPU",
+        "onnxMB": 22.9,
+        "quantization": {
+          "fp32MB": 90.2,
+          "int8MB": 22.9,
+          "mode": "per-channel",
+          "argmaxAgreement": 0.9995,
+          "tokens": 33812,
+          "maxLogitDrift": 3.98
+        }
+      },
+      "modelLatency": {
+        "edge": {
+          "p50": 2.894,
+          "p95": 15.785,
+          "tokensP50": 30
+        },
+        "enron": {
+          "p50": 15.114,
+          "p95": 79.38,
+          "tokensP50": 268
+        },
+        "presidio": {
+          "p50": 2.338,
+          "p95": 4.314,
+          "tokensP50": 22
+        },
+        "ai4privacy": {
+          "p50": 3.621,
+          "p95": 5.58,
+          "tokensP50": 48
+        }
+      },
+      "policies": {
+        "graph": [
+          {
+            "dataset": "edge",
+            "route": "B",
+            "startedAt": "2026-10-30T12:32:49.654Z",
+            "durationMs": 228.3862999999983,
+            "observations": 25,
+            "metrics": {
+              "tp": 17,
+              "fp": 0,
+              "tn": 8,
+              "fn": 0,
+              "n": 25,
+              "precision": 1,
+              "recall": 1,
+              "f1": 1,
+              "f2": 1,
+              "fpr": 0,
+              "accuracy": 1
+            },
+            "metricsSource": {
+              "tp": 17,
+              "fp": 0,
+              "tn": 8,
+              "fn": 0,
+              "n": 25,
+              "precision": 1,
+              "recall": 1,
+              "f1": 1,
+              "f2": 1,
+              "fpr": 0,
+              "accuracy": 1
+            },
+            "metricsAugmented": null,
+            "checksumInvalid": {
+              "n": 0,
+              "blocked": 0
+            },
+            "latency": {
+              "p50": 5.552000000003318,
+              "p95": 31.601300000002084,
+              "p99": 42.5879999999961,
+              "mean": 9.11872399999993
+            },
+            "tierP50": {
+              "tier1": 0.07660000000032596,
+              "tier3a": 0.026499999999941792,
+              "tier2": 0.04099999999743886,
+              "tier3b": 4.876300000003539
+            },
+            "categoryAgreement": 1,
+            "byPath": {
+              "math": 13,
+              "neural": 2,
+              "minhash": 2
+            },
+            "misclassified": []
+          },
+          {
+            "dataset": "enron",
+            "route": "B",
+            "startedAt": "2026-10-30T12:33:02.778Z",
+            "durationMs": 13121.2581,
+            "observations": 300,
+            "metrics": {
+              "tp": 1,
+              "fp": 1,
+              "tn": 298,
+              "fn": 0,
+              "n": 300,
+              "precision": 0.5,
+              "recall": 1,
+              "f1": 0.6666666666666666,
+              "f2": 0.8333333333333334,
+              "fpr": 0.0033444816053511705,
+              "accuracy": 0.9966666666666667
+            },
+            "metricsSource": {
+              "tp": 1,
+              "fp": 1,
+              "tn": 298,
+              "fn": 0,
+              "n": 300,
+              "precision": 0.5,
+              "recall": 1,
+              "f1": 0.6666666666666666,
+              "f2": 0.8333333333333334,
+              "fpr": 0.0033444816053511705,
+              "accuracy": 0.9966666666666667
+            },
+            "metricsAugmented": null,
+            "checksumInvalid": {
+              "n": 0,
+              "blocked": 0
+            },
+            "latency": {
+              "p50": 29.112700000005134,
+              "p95": 121.41539999999804,
+              "p99": 179.24399999999878,
+              "mean": 43.722823666666784
+            },
+            "tierP50": {
+              "tier1": 0.1592000000018743,
+              "tier3a": 0.32669999999779975,
+              "tier2": 0.8875999999945634,
+              "tier3b": 27.60870000000432
+            },
+            "categoryAgreement": 1,
+            "byPath": {
+              "neural": 1,
+              "math": 1
+            },
+            "misclassified": [
+              {
+                "id": "enron-61000-98",
+                "expect": "allow",
+                "predicted": "block",
+                "types": [
+                  "PATIENT_IDENTITY"
+                ]
+              }
+            ]
+          },
+          {
+            "dataset": "presidio",
+            "route": "B",
+            "startedAt": "2026-10-30T12:33:04.106Z",
+            "durationMs": 1326.3428000000058,
+            "observations": 488,
+            "metrics": {
+              "tp": 208,
+              "fp": 0,
+              "tn": 280,
+              "fn": 0,
+              "n": 488,
+              "precision": 1,
+              "recall": 1,
+              "f1": 1,
+              "f2": 1,
+              "fpr": 0,
+              "accuracy": 1
+            },
+            "metricsSource": {
+              "tp": 178,
+              "fp": 0,
+              "tn": 250,
+              "fn": 0,
+              "n": 428,
+              "precision": 1,
+              "recall": 1,
+              "f1": 1,
+              "f2": 1,
+              "fpr": 0,
+              "accuracy": 1
+            },
+            "metricsAugmented": {
+              "tp": 30,
+              "fp": 0,
+              "tn": 30,
+              "fn": 0,
+              "n": 60,
+              "precision": 1,
+              "recall": 1,
+              "f1": 1,
+              "f2": 1,
+              "fpr": 0,
+              "accuracy": 1
+            },
+            "checksumInvalid": {
+              "n": 0,
+              "blocked": 0
+            },
+            "latency": {
+              "p50": 3.1361000000033528,
+              "p95": 7.448199999998906,
+              "p99": 11.704899999996996,
+              "mean": 2.7090991803278945
+            },
+            "tierP50": {
+              "tier1": 0.04069999999774154,
+              "tier3a": 0.012900000001536682,
+              "tier2": 0.018200000005890615,
+              "tier3b": 0.7343000000037136
+            },
+            "categoryAgreement": 1,
+            "byPath": {
+              "math": 196,
+              "neural": 17
+            },
+            "misclassified": []
+          },
+          {
+            "dataset": "ai4privacy",
+            "route": "B",
+            "startedAt": "2026-10-30T12:33:08.735Z",
+            "durationMs": 4626.8701,
+            "observations": 584,
+            "metrics": {
+              "tp": 143,
+              "fp": 2,
+              "tn": 412,
+              "fn": 27,
+              "n": 584,
+              "precision": 0.9862068965517241,
+              "recall": 0.8411764705882353,
+              "f1": 0.9079365079365078,
+              "f2": 0.8666666666666668,
+              "fpr": 0.004830917874396135,
+              "accuracy": 0.9503424657534246
+            },
+            "metricsSource": {
+              "tp": 78,
+              "fp": 2,
+              "tn": 400,
+              "fn": 20,
+              "n": 500,
+              "precision": 0.975,
+              "recall": 0.7959183673469388,
+              "f1": 0.8764044943820225,
+              "f2": 0.8262711864406781,
+              "fpr": 0.004975124378109453,
+              "accuracy": 0.956
+            },
+            "metricsAugmented": {
+              "tp": 65,
+              "fp": 0,
+              "tn": 12,
+              "fn": 7,
+              "n": 84,
+              "precision": 1,
+              "recall": 0.9027777777777778,
+              "f1": 0.9489051094890512,
+              "f2": 0.9206798866855526,
+              "fpr": 0,
+              "accuracy": 0.9166666666666666
+            },
+            "checksumInvalid": {
+              "n": 27,
+              "blocked": 0
+            },
+            "latency": {
+              "p50": 8.11019999999553,
+              "p95": 14.863299999997253,
+              "p99": 20.90350000000035,
+              "mean": 7.911572773972868
+            },
+            "tierP50": {
+              "tier1": 0.06480000000010477,
+              "tier3a": 0.06859999999869615,
+              "tier2": 0.03190000000176951,
+              "tier3b": 7.615700000002107
+            },
+            "categoryAgreement": 1,
+            "byPath": {
+              "neural": 15,
+              "math": 136
+            },
+            "misclassified": [
+              {
+                "id": "ai4privacy-1000-23",
+                "expect": "block",
+                "predicted": "allow",
+                "types": []
+              },
+              {
+                "id": "ai4privacy-1000-62",
+                "expect": "block",
+                "predicted": "allow",
+                "types": []
+              },
+              {
+                "id": "ai4privacy-1000-69",
+                "expect": "allow",
+                "predicted": "block",
+                "types": [
+                  "PATIENT_IDENTITY"
+                ]
+              },
+              {
+                "id": "ai4privacy-1000-79",
+                "expect": "block",
+                "predicted": "allow",
+                "types": []
+              },
+              {
+                "id": "ai4privacy-1000-90",
+                "expect": "block",
+                "predicted": "allow",
+                "types": []
+              },
+              {
+                "id": "ai4privacy-1000-91",
+                "expect": "block",
+                "predicted": "allow",
+                "types": []
+              },
+              {
+                "id": "ai4privacy-48000-120",
+                "expect": "block",
+                "predicted": "allow",
+                "types": []
+              },
+              {
+                "id": "ai4privacy-48000-124",
+                "expect": "block",
+                "predicted": "allow",
+                "types": []
+              },
+              {
+                "id": "ai4privacy-48000-153",
+                "expect": "block",
+                "predicted": "allow",
+                "types": []
+              },
+              {
+                "id": "ai4privacy-48000-159",
+                "expect": "block",
+                "predicted": "allow",
+                "types": []
+              },
+              {
+                "id": "ai4privacy-97000-230",
+                "expect": "block",
+                "predicted": "allow",
+                "types": []
+              },
+              {
+                "id": "ai4privacy-97000-258",
+                "expect": "block",
+                "predicted": "allow",
+                "types": []
+              },
+              {
+                "id": "ai4privacy-97000-279",
+                "expect": "block",
+                "predicted": "allow",
+                "types": []
+              },
+              {
+                "id": "ai4privacy-143000-309",
+                "expect": "block",
+                "predicted": "allow",
+                "types": []
+              },
+              {
+                "id": "ai4privacy-143000-376",
+                "expect": "block",
+                "predicted": "allow",
+                "types": []
+              },
+              {
+                "id": "ai4privacy-143000-397",
+                "expect": "block",
+                "predicted": "allow",
+                "types": []
+              },
+              {
+                "id": "ai4privacy-191000-417",
+                "expect": "block",
+                "predicted": "allow",
+                "types": []
+              },
+              {
+                "id": "ai4privacy-191000-433",
+                "expect": "block",
+                "predicted": "allow",
+                "types": []
+              },
+              {
+                "id": "ai4privacy-191000-439",
+                "expect": "block",
+                "predicted": "allow",
+                "types": []
+              },
+              {
+                "id": "ai4privacy-191000-443",
+                "expect": "block",
+                "predicted": "allow",
+                "types": []
+              },
+              {
+                "id": "ai4privacy-191000-454",
+                "expect": "block",
+                "predicted": "allow",
+                "types": []
+              },
+              {
+                "id": "ai4privacy-191000-493",
+                "expect": "allow",
+                "predicted": "block",
+                "types": [
+                  "CUSTOMER_IDENTITY"
+                ]
+              },
+              {
+                "id": "ai4p-aug-006",
+                "expect": "block",
+                "predicted": "allow",
+                "types": []
+              },
+              {
+                "id": "ai4p-aug-020",
+                "expect": "block",
+                "predicted": "allow",
+                "types": []
+              },
+              {
+                "id": "ai4p-aug-027",
+                "expect": "block",
+                "predicted": "allow",
+                "types": []
+              },
+              {
+                "id": "ai4p-aug-048",
+                "expect": "block",
+                "predicted": "allow",
+                "types": []
+              },
+              {
+                "id": "ai4p-aug-062",
+                "expect": "block",
+                "predicted": "allow",
+                "types": []
+              },
+              {
+                "id": "ai4p-aug-076",
+                "expect": "block",
+                "predicted": "allow",
+                "types": []
+              },
+              {
+                "id": "ai4p-aug-083",
+                "expect": "block",
+                "predicted": "allow",
+                "types": []
+              }
+            ]
+          }
+        ],
+        "graph+gov": [
+          {
+            "dataset": "edge",
+            "route": "B",
+            "startedAt": "2026-10-30T12:33:09.145Z",
+            "durationMs": 225.1278999999995,
+            "observations": 25,
+            "metrics": {
+              "tp": 17,
+              "fp": 0,
+              "tn": 8,
+              "fn": 0,
+              "n": 25,
+              "precision": 1,
+              "recall": 1,
+              "f1": 1,
+              "f2": 1,
+              "fpr": 0,
+              "accuracy": 1
+            },
+            "metricsSource": {
+              "tp": 17,
+              "fp": 0,
+              "tn": 8,
+              "fn": 0,
+              "n": 25,
+              "precision": 1,
+              "recall": 1,
+              "f1": 1,
+              "f2": 1,
+              "fpr": 0,
+              "accuracy": 1
+            },
+            "metricsAugmented": null,
+            "checksumInvalid": {
+              "n": 0,
+              "blocked": 0
+            },
+            "latency": {
+              "p50": 4.855799999997544,
+              "p95": 37.5992999999944,
+              "p99": 40.73800000000483,
+              "mean": 8.988083999999217
+            },
+            "tierP50": {
+              "tier1": 0.06259999999747379,
+              "tier3a": 0.019100000004982576,
+              "tier2": 0.025400000005902257,
+              "tier3b": 4.519000000000233
+            },
+            "categoryAgreement": 1,
+            "byPath": {
+              "math": 13,
+              "neural": 2,
+              "minhash": 2
+            },
+            "misclassified": []
+          },
+          {
+            "dataset": "enron",
+            "route": "B",
+            "startedAt": "2026-10-30T12:33:22.147Z",
+            "durationMs": 13000.267099999997,
+            "observations": 300,
+            "metrics": {
+              "tp": 1,
+              "fp": 5,
+              "tn": 294,
+              "fn": 0,
+              "n": 300,
+              "precision": 0.16666666666666666,
+              "recall": 1,
+              "f1": 0.2857142857142857,
+              "f2": 0.5,
+              "fpr": 0.016722408026755852,
+              "accuracy": 0.9833333333333333
+            },
+            "metricsSource": {
+              "tp": 1,
+              "fp": 5,
+              "tn": 294,
+              "fn": 0,
+              "n": 300,
+              "precision": 0.16666666666666666,
+              "recall": 1,
+              "f1": 0.2857142857142857,
+              "f2": 0.5,
+              "fpr": 0.016722408026755852,
+              "accuracy": 0.9833333333333333
+            },
+            "metricsAugmented": null,
+            "checksumInvalid": {
+              "n": 0,
+              "blocked": 0
+            },
+            "latency": {
+              "p50": 29.02339999999822,
+              "p95": 121.64959999999701,
+              "p99": 159.18040000000474,
+              "mean": 43.31907133333307
+            },
+            "tierP50": {
+              "tier1": 0.15479999999661231,
+              "tier3a": 0.344199999999546,
+              "tier2": 0.8884000000034575,
+              "tier3b": 28.130700000001525
+            },
+            "categoryAgreement": 1,
+            "byPath": {
+              "neural": 5,
+              "math": 1
+            },
+            "misclassified": [
+              {
+                "id": "enron-61000-61",
+                "expect": "allow",
+                "predicted": "block",
+                "types": [
+                  "GOV_ID"
+                ]
+              },
+              {
+                "id": "enron-61000-98",
+                "expect": "allow",
+                "predicted": "block",
+                "types": [
+                  "PATIENT_IDENTITY"
+                ]
+              },
+              {
+                "id": "enron-207000-182",
+                "expect": "allow",
+                "predicted": "block",
+                "types": [
+                  "GOV_ID"
+                ]
+              },
+              {
+                "id": "enron-288000-243",
+                "expect": "allow",
+                "predicted": "block",
+                "types": [
+                  "GOV_ID"
+                ]
+              },
+              {
+                "id": "enron-288000-245",
+                "expect": "allow",
+                "predicted": "block",
+                "types": [
+                  "GOV_ID"
+                ]
+              }
+            ]
+          },
+          {
+            "dataset": "presidio",
+            "route": "B",
+            "startedAt": "2026-10-30T12:33:23.468Z",
+            "durationMs": 1318.4326,
+            "observations": 488,
+            "metrics": {
+              "tp": 208,
+              "fp": 0,
+              "tn": 280,
+              "fn": 0,
+              "n": 488,
+              "precision": 1,
+              "recall": 1,
+              "f1": 1,
+              "f2": 1,
+              "fpr": 0,
+              "accuracy": 1
+            },
+            "metricsSource": {
+              "tp": 178,
+              "fp": 0,
+              "tn": 250,
+              "fn": 0,
+              "n": 428,
+              "precision": 1,
+              "recall": 1,
+              "f1": 1,
+              "f2": 1,
+              "fpr": 0,
+              "accuracy": 1
+            },
+            "metricsAugmented": {
+              "tp": 30,
+              "fp": 0,
+              "tn": 30,
+              "fn": 0,
+              "n": 60,
+              "precision": 1,
+              "recall": 1,
+              "f1": 1,
+              "f2": 1,
+              "fpr": 0,
+              "accuracy": 1
+            },
+            "checksumInvalid": {
+              "n": 0,
+              "blocked": 0
+            },
+            "latency": {
+              "p50": 3.1288000000058673,
+              "p95": 7.323300000003655,
+              "p99": 11.841199999995297,
+              "mean": 2.6948631147538658
+            },
+            "tierP50": {
+              "tier1": 0.034899999998742715,
+              "tier3a": 0.012999999991734512,
+              "tier2": 0.015699999989010394,
+              "tier3b": 0.4376999999949476
+            },
+            "categoryAgreement": 1,
+            "byPath": {
+              "math": 196,
+              "neural": 17
+            },
+            "misclassified": []
+          },
+          {
+            "dataset": "ai4privacy",
+            "route": "B",
+            "startedAt": "2026-10-30T12:33:28.095Z",
+            "durationMs": 4624.794000000009,
+            "observations": 584,
+            "metrics": {
+              "tp": 144,
+              "fp": 13,
+              "tn": 401,
+              "fn": 26,
+              "n": 584,
+              "precision": 0.9171974522292994,
+              "recall": 0.8470588235294118,
+              "f1": 0.8807339449541285,
+              "f2": 0.8602150537634409,
+              "fpr": 0.03140096618357488,
+              "accuracy": 0.9332191780821918
+            },
+            "metricsSource": {
+              "tp": 79,
+              "fp": 13,
+              "tn": 389,
+              "fn": 19,
+              "n": 500,
+              "precision": 0.8586956521739131,
+              "recall": 0.8061224489795918,
+              "f1": 0.8315789473684211,
+              "f2": 0.816115702479339,
+              "fpr": 0.03233830845771144,
+              "accuracy": 0.936
+            },
+            "metricsAugmented": {
+              "tp": 65,
+              "fp": 0,
+              "tn": 12,
+              "fn": 7,
+              "n": 84,
+              "precision": 1,
+              "recall": 0.9027777777777778,
+              "f1": 0.9489051094890512,
+              "f2": 0.9206798866855526,
+              "fpr": 0,
+              "accuracy": 0.9166666666666666
+            },
+            "checksumInvalid": {
+              "n": 27,
+              "blocked": 0
+            },
+            "latency": {
+              "p50": 8.095799999995506,
+              "p95": 14.763699999995879,
+              "p99": 19.976599999994505,
+              "mean": 7.9099611301369634
+            },
+            "tierP50": {
+              "tier1": 0.05640000000130385,
+              "tier3a": 0.06739999999990687,
+              "tier2": 0.030899999997927807,
+              "tier3b": 7.672899999990477
+            },
+            "categoryAgreement": 1,
+            "byPath": {
+              "neural": 28,
+              "math": 136
+            },
+            "misclassified": [
+              {
+                "id": "ai4privacy-1000-23",
+                "expect": "block",
+                "predicted": "allow",
+                "types": []
+              },
+              {
+                "id": "ai4privacy-1000-42",
+                "expect": "allow",
+                "predicted": "block",
+                "types": [
+                  "GOV_ID"
+                ]
+              },
+              {
+                "id": "ai4privacy-1000-62",
+                "expect": "block",
+                "predicted": "allow",
+                "types": []
+              },
+              {
+                "id": "ai4privacy-1000-66",
+                "expect": "allow",
+                "predicted": "block",
+                "types": [
+                  "GOV_ID"
+                ]
+              },
+              {
+                "id": "ai4privacy-1000-69",
+                "expect": "allow",
+                "predicted": "block",
+                "types": [
+                  "PATIENT_IDENTITY"
+                ]
+              },
+              {
+                "id": "ai4privacy-1000-90",
+                "expect": "block",
+                "predicted": "allow",
+                "types": []
+              },
+              {
+                "id": "ai4privacy-1000-91",
+                "expect": "block",
+                "predicted": "allow",
+                "types": []
+              },
+              {
+                "id": "ai4privacy-48000-120",
+                "expect": "block",
+                "predicted": "allow",
+                "types": []
+              },
+              {
+                "id": "ai4privacy-48000-124",
+                "expect": "block",
+                "predicted": "allow",
+                "types": []
+              },
+              {
+                "id": "ai4privacy-48000-141",
+                "expect": "allow",
+                "predicted": "block",
+                "types": [
+                  "GOV_ID"
+                ]
+              },
+              {
+                "id": "ai4privacy-48000-151",
+                "expect": "allow",
+                "predicted": "block",
+                "types": [
+                  "GOV_ID"
+                ]
+              },
+              {
+                "id": "ai4privacy-48000-153",
+                "expect": "block",
+                "predicted": "allow",
+                "types": []
+              },
+              {
+                "id": "ai4privacy-48000-159",
+                "expect": "block",
+                "predicted": "allow",
+                "types": []
+              },
+              {
+                "id": "ai4privacy-48000-196",
+                "expect": "allow",
+                "predicted": "block",
+                "types": [
+                  "GOV_ID"
+                ]
+              },
+              {
+                "id": "ai4privacy-97000-230",
+                "expect": "block",
+                "predicted": "allow",
+                "types": []
+              },
+              {
+                "id": "ai4privacy-97000-258",
+                "expect": "block",
+                "predicted": "allow",
+                "types": []
+              },
+              {
+                "id": "ai4privacy-97000-271",
+                "expect": "allow",
+                "predicted": "block",
+                "types": [
+                  "GOV_ID"
+                ]
+              },
+              {
+                "id": "ai4privacy-97000-279",
+                "expect": "block",
+                "predicted": "allow",
+                "types": []
+              },
+              {
+                "id": "ai4privacy-97000-294",
+                "expect": "allow",
+                "predicted": "block",
+                "types": [
+                  "GOV_ID"
+                ]
+              },
+              {
+                "id": "ai4privacy-143000-309",
+                "expect": "block",
+                "predicted": "allow",
+                "types": []
+              },
+              {
+                "id": "ai4privacy-143000-333",
+                "expect": "allow",
+                "predicted": "block",
+                "types": [
+                  "GOV_ID"
+                ]
+              },
+              {
+                "id": "ai4privacy-143000-376",
+                "expect": "block",
+                "predicted": "allow",
+                "types": []
+              },
+              {
+                "id": "ai4privacy-143000-397",
+                "expect": "block",
+                "predicted": "allow",
+                "types": []
+              },
+              {
+                "id": "ai4privacy-191000-417",
+                "expect": "block",
+                "predicted": "allow",
+                "types": []
+              },
+              {
+                "id": "ai4privacy-191000-418",
+                "expect": "allow",
+                "predicted": "block",
+                "types": [
+                  "GOV_ID"
+                ]
+              },
+              {
+                "id": "ai4privacy-191000-433",
+                "expect": "block",
+                "predicted": "allow",
+                "types": []
+              },
+              {
+                "id": "ai4privacy-191000-439",
+                "expect": "block",
+                "predicted": "allow",
+                "types": []
+              },
+              {
+                "id": "ai4privacy-191000-443",
+                "expect": "block",
+                "predicted": "allow",
+                "types": []
+              },
+              {
+                "id": "ai4privacy-191000-454",
+                "expect": "block",
+                "predicted": "allow",
+                "types": []
+              },
+              {
+                "id": "ai4privacy-191000-471",
+                "expect": "allow",
+                "predicted": "block",
+                "types": [
+                  "GOV_ID"
+                ]
+              },
+              {
+                "id": "ai4privacy-191000-481",
+                "expect": "allow",
+                "predicted": "block",
+                "types": [
+                  "GOV_ID"
+                ]
+              },
+              {
+                "id": "ai4privacy-191000-493",
+                "expect": "allow",
+                "predicted": "block",
+                "types": [
+                  "CUSTOMER_IDENTITY"
+                ]
+              },
+              {
+                "id": "ai4p-aug-006",
+                "expect": "block",
+                "predicted": "allow",
+                "types": []
+              },
+              {
+                "id": "ai4p-aug-020",
+                "expect": "block",
+                "predicted": "allow",
+                "types": []
+              },
+              {
+                "id": "ai4p-aug-027",
+                "expect": "block",
+                "predicted": "allow",
+                "types": []
+              },
+              {
+                "id": "ai4p-aug-048",
+                "expect": "block",
+                "predicted": "allow",
+                "types": []
+              },
+              {
+                "id": "ai4p-aug-062",
+                "expect": "block",
+                "predicted": "allow",
+                "types": []
+              },
+              {
+                "id": "ai4p-aug-076",
+                "expect": "block",
+                "predicted": "allow",
+                "types": []
+              },
+              {
+                "id": "ai4p-aug-083",
+                "expect": "block",
+                "predicted": "allow",
+                "types": []
+              }
+            ]
+          }
+        ]
+      }
+    },
+    "aionix-l12": {
+      "meta": {
+        "model": "aionix-pathb-l12",
+        "onnx": "model_int8.onnx",
+        "threads": 4,
+        "maxLen": 512,
+        "runtime": "onnxruntime 1.31.1 CPU",
+        "onnxMB": 33.9,
+        "quantization": {
+          "fp32MB": 132.9,
+          "int8MB": 33.9,
+          "mode": "per-channel",
+          "argmaxAgreement": 0.9987,
+          "tokens": 33812,
+          "maxLogitDrift": 2.81
+        }
+      },
+      "modelLatency": {
+        "edge": {
+          "p50": 5.589,
+          "p95": 32.011,
+          "tokensP50": 30
+        },
+        "enron": {
+          "p50": 26.566,
+          "p95": 145.784,
+          "tokensP50": 268
+        },
+        "presidio": {
+          "p50": 4.28,
+          "p95": 7.048,
+          "tokensP50": 22
+        },
+        "ai4privacy": {
+          "p50": 6.691,
+          "p95": 9.953,
+          "tokensP50": 48
+        }
+      },
+      "policies": {
+        "graph": [
+          {
+            "dataset": "edge",
+            "route": "B",
+            "startedAt": "2026-10-30T12:33:28.510Z",
+            "durationMs": 217.33920000000217,
+            "observations": 25,
+            "metrics": {
+              "tp": 17,
+              "fp": 0,
+              "tn": 8,
+              "fn": 0,
+              "n": 25,
+              "precision": 1,
+              "recall": 1,
+              "f1": 1,
+              "f2": 1,
+              "fpr": 0,
+              "accuracy": 1
+            },
+            "metricsSource": {
+              "tp": 17,
+              "fp": 0,
+              "tn": 8,
+              "fn": 0,
+              "n": 25,
+              "precision": 1,
+              "recall": 1,
+              "f1": 1,
+              "f2": 1,
+              "fpr": 0,
+              "accuracy": 1
+            },
+            "metricsAugmented": null,
+            "checksumInvalid": {
+              "n": 0,
+              "blocked": 0
+            },
+            "latency": {
+              "p50": 4.925900000002002,
+              "p95": 32.2161999999953,
+              "p99": 39.486900000003516,
+              "mean": 8.680240000000921
+            },
+            "tierP50": {
+              "tier1": 0.05610000000160653,
+              "tier3a": 0.017999999996391125,
+              "tier2": 0.025899999993271194,
+              "tier3b": 4.501300000003539
+            },
+            "categoryAgreement": 1,
+            "byPath": {
+              "math": 13,
+              "neural": 2,
+              "minhash": 2
+            },
+            "misclassified": []
+          },
+          {
+            "dataset": "enron",
+            "route": "B",
+            "startedAt": "2026-10-30T12:33:41.316Z",
+            "durationMs": 12803.104000000007,
+            "observations": 300,
+            "metrics": {
+              "tp": 1,
+              "fp": 1,
+              "tn": 298,
+              "fn": 0,
+              "n": 300,
+              "precision": 0.5,
+              "recall": 1,
+              "f1": 0.6666666666666666,
+              "f2": 0.8333333333333334,
+              "fpr": 0.0033444816053511705,
+              "accuracy": 0.9966666666666667
+            },
+            "metricsSource": {
+              "tp": 1,
+              "fp": 1,
+              "tn": 298,
+              "fn": 0,
+              "n": 300,
+              "precision": 0.5,
+              "recall": 1,
+              "f1": 0.6666666666666666,
+              "f2": 0.8333333333333334,
+              "fpr": 0.0033444816053511705,
+              "accuracy": 0.9966666666666667
+            },
+            "metricsAugmented": null,
+            "checksumInvalid": {
+              "n": 0,
+              "blocked": 0
+            },
+            "latency": {
+              "p50": 29.572099999990314,
+              "p95": 119.15140000000247,
+              "p99": 161.05460000000312,
+              "mean": 42.66552333333321
+            },
+            "tierP50": {
+              "tier1": 0.14659999999275897,
+              "tier3a": 0.327900000003865,
+              "tier2": 0.8333000000129687,
+              "tier3b": 28.190300000002026
+            },
+            "categoryAgreement": 1,
+            "byPath": {
+              "neural": 1,
+              "math": 1
+            },
+            "misclassified": [
+              {
+                "id": "enron-61000-98",
+                "expect": "allow",
+                "predicted": "block",
+                "types": [
+                  "PATIENT_IDENTITY"
+                ]
+              }
+            ]
+          },
+          {
+            "dataset": "presidio",
+            "route": "B",
+            "startedAt": "2026-10-30T12:33:42.621Z",
+            "durationMs": 1303.1561999999976,
+            "observations": 488,
+            "metrics": {
+              "tp": 208,
+              "fp": 0,
+              "tn": 280,
+              "fn": 0,
+              "n": 488,
+              "precision": 1,
+              "recall": 1,
+              "f1": 1,
+              "f2": 1,
+              "fpr": 0,
+              "accuracy": 1
+            },
+            "metricsSource": {
+              "tp": 178,
+              "fp": 0,
+              "tn": 250,
+              "fn": 0,
+              "n": 428,
+              "precision": 1,
+              "recall": 1,
+              "f1": 1,
+              "f2": 1,
+              "fpr": 0,
+              "accuracy": 1
+            },
+            "metricsAugmented": {
+              "tp": 30,
+              "fp": 0,
+              "tn": 30,
+              "fn": 0,
+              "n": 60,
+              "precision": 1,
+              "recall": 1,
+              "f1": 1,
+              "f2": 1,
+              "fpr": 0,
+              "accuracy": 1
+            },
+            "checksumInvalid": {
+              "n": 0,
+              "blocked": 0
+            },
+            "latency": {
+              "p50": 3.292799999995623,
+              "p95": 7.147799999991548,
+              "p99": 11.163000000000466,
+              "mean": 2.663962909836196
+            },
+            "tierP50": {
+              "tier1": 0.03500000000349246,
+              "tier3a": 0.012799999996786937,
+              "tier2": 0.01840000000083819,
+              "tier3b": 0.5014999999984866
+            },
+            "categoryAgreement": 1,
+            "byPath": {
+              "math": 196,
+              "neural": 17
+            },
+            "misclassified": []
+          },
+          {
+            "dataset": "ai4privacy",
+            "route": "B",
+            "startedAt": "2026-10-30T12:33:47.278Z",
+            "durationMs": 4654.512300000002,
+            "observations": 584,
+            "metrics": {
+              "tp": 143,
+              "fp": 2,
+              "tn": 412,
+              "fn": 27,
+              "n": 584,
+              "precision": 0.9862068965517241,
+              "recall": 0.8411764705882353,
+              "f1": 0.9079365079365078,
+              "f2": 0.8666666666666668,
+              "fpr": 0.004830917874396135,
+              "accuracy": 0.9503424657534246
+            },
+            "metricsSource": {
+              "tp": 78,
+              "fp": 2,
+              "tn": 400,
+              "fn": 20,
+              "n": 500,
+              "precision": 0.975,
+              "recall": 0.7959183673469388,
+              "f1": 0.8764044943820225,
+              "f2": 0.8262711864406781,
+              "fpr": 0.004975124378109453,
+              "accuracy": 0.956
+            },
+            "metricsAugmented": {
+              "tp": 65,
+              "fp": 0,
+              "tn": 12,
+              "fn": 7,
+              "n": 84,
+              "precision": 1,
+              "recall": 0.9027777777777778,
+              "f1": 0.9489051094890512,
+              "f2": 0.9206798866855526,
+              "fpr": 0,
+              "accuracy": 0.9166666666666666
+            },
+            "checksumInvalid": {
+              "n": 27,
+              "blocked": 0
+            },
+            "latency": {
+              "p50": 8.151199999992969,
+              "p95": 14.982499999998254,
+              "p99": 19.282200000001467,
+              "mean": 7.962605650684877
+            },
+            "tierP50": {
+              "tier1": 0.05730000000039581,
+              "tier3a": 0.06909999999334104,
+              "tier2": 0.03190000000176951,
+              "tier3b": 7.625099999990198
+            },
+            "categoryAgreement": 1,
+            "byPath": {
+              "neural": 16,
+              "math": 136
+            },
+            "misclassified": [
+              {
+                "id": "ai4privacy-1000-23",
+                "expect": "block",
+                "predicted": "allow",
+                "types": []
+              },
+              {
+                "id": "ai4privacy-1000-44",
+                "expect": "block",
+                "predicted": "allow",
+                "types": []
+              },
+              {
+                "id": "ai4privacy-1000-62",
+                "expect": "block",
+                "predicted": "allow",
+                "types": []
+              },
+              {
+                "id": "ai4privacy-1000-69",
+                "expect": "allow",
+                "predicted": "block",
+                "types": [
+                  "PATIENT_IDENTITY"
+                ]
+              },
+              {
+                "id": "ai4privacy-1000-77",
+                "expect": "allow",
+                "predicted": "block",
+                "types": [
+                  "CUSTOMER_IDENTITY"
+                ]
+              },
+              {
+                "id": "ai4privacy-1000-79",
+                "expect": "block",
+                "predicted": "allow",
+                "types": []
+              },
+              {
+                "id": "ai4privacy-1000-90",
+                "expect": "block",
+                "predicted": "allow",
+                "types": []
+              },
+              {
+                "id": "ai4privacy-1000-91",
+                "expect": "block",
+                "predicted": "allow",
+                "types": []
+              },
+              {
+                "id": "ai4privacy-48000-120",
+                "expect": "block",
+                "predicted": "allow",
+                "types": []
+              },
+              {
+                "id": "ai4privacy-48000-124",
+                "expect": "block",
+                "predicted": "allow",
+                "types": []
+              },
+              {
+                "id": "ai4privacy-48000-153",
+                "expect": "block",
+                "predicted": "allow",
+                "types": []
+              },
+              {
+                "id": "ai4privacy-48000-159",
+                "expect": "block",
+                "predicted": "allow",
+                "types": []
+              },
+              {
+                "id": "ai4privacy-97000-230",
+                "expect": "block",
+                "predicted": "allow",
+                "types": []
+              },
+              {
+                "id": "ai4privacy-97000-279",
+                "expect": "block",
+                "predicted": "allow",
+                "types": []
+              },
+              {
+                "id": "ai4privacy-143000-309",
+                "expect": "block",
+                "predicted": "allow",
+                "types": []
+              },
+              {
+                "id": "ai4privacy-143000-376",
+                "expect": "block",
+                "predicted": "allow",
+                "types": []
+              },
+              {
+                "id": "ai4privacy-143000-397",
+                "expect": "block",
+                "predicted": "allow",
+                "types": []
+              },
+              {
+                "id": "ai4privacy-191000-417",
+                "expect": "block",
+                "predicted": "allow",
+                "types": []
+              },
+              {
+                "id": "ai4privacy-191000-433",
+                "expect": "block",
+                "predicted": "allow",
+                "types": []
+              },
+              {
+                "id": "ai4privacy-191000-439",
+                "expect": "block",
+                "predicted": "allow",
+                "types": []
+              },
+              {
+                "id": "ai4privacy-191000-443",
+                "expect": "block",
+                "predicted": "allow",
+                "types": []
+              },
+              {
+                "id": "ai4privacy-191000-454",
+                "expect": "block",
+                "predicted": "allow",
+                "types": []
+              },
+              {
+                "id": "ai4p-aug-006",
+                "expect": "block",
+                "predicted": "allow",
+                "types": []
+              },
+              {
+                "id": "ai4p-aug-020",
+                "expect": "block",
+                "predicted": "allow",
+                "types": []
+              },
+              {
+                "id": "ai4p-aug-027",
+                "expect": "block",
+                "predicted": "allow",
+                "types": []
+              },
+              {
+                "id": "ai4p-aug-048",
+                "expect": "block",
+                "predicted": "allow",
+                "types": []
+              },
+              {
+                "id": "ai4p-aug-062",
+                "expect": "block",
+                "predicted": "allow",
+                "types": []
+              },
+              {
+                "id": "ai4p-aug-076",
+                "expect": "block",
+                "predicted": "allow",
+                "types": []
+              },
+              {
+                "id": "ai4p-aug-083",
+                "expect": "block",
+                "predicted": "allow",
+                "types": []
+              }
+            ]
+          }
+        ],
+        "graph+gov": [
+          {
+            "dataset": "edge",
+            "route": "B",
+            "startedAt": "2026-10-30T12:33:47.684Z",
+            "durationMs": 214.3451000000059,
+            "observations": 25,
+            "metrics": {
+              "tp": 17,
+              "fp": 0,
+              "tn": 8,
+              "fn": 0,
+              "n": 25,
+              "precision": 1,
+              "recall": 1,
+              "f1": 1,
+              "f2": 1,
+              "fpr": 0,
+              "accuracy": 1
+            },
+            "metricsSource": {
+              "tp": 17,
+              "fp": 0,
+              "tn": 8,
+              "fn": 0,
+              "n": 25,
+              "precision": 1,
+              "recall": 1,
+              "f1": 1,
+              "f2": 1,
+              "fpr": 0,
+              "accuracy": 1
+            },
+            "metricsAugmented": null,
+            "checksumInvalid": {
+              "n": 0,
+              "blocked": 0
+            },
+            "latency": {
+              "p50": 4.887600000001839,
+              "p95": 32.11230000000796,
+              "p99": 39.295100000003,
+              "mean": 8.560024000001722
+            },
+            "tierP50": {
+              "tier1": 0.05340000000433065,
+              "tier3a": 0.01660000000265427,
+              "tier2": 0.021600000007310882,
+              "tier3b": 4.478700000006938
+            },
+            "categoryAgreement": 1,
+            "byPath": {
+              "math": 13,
+              "neural": 2,
+              "minhash": 2
+            },
+            "misclassified": []
+          },
+          {
+            "dataset": "enron",
+            "route": "B",
+            "startedAt": "2026-10-30T12:34:00.559Z",
+            "durationMs": 12872.902099999992,
+            "observations": 300,
+            "metrics": {
+              "tp": 1,
+              "fp": 1,
+              "tn": 298,
+              "fn": 0,
+              "n": 300,
+              "precision": 0.5,
+              "recall": 1,
+              "f1": 0.6666666666666666,
+              "f2": 0.8333333333333334,
+              "fpr": 0.0033444816053511705,
+              "accuracy": 0.9966666666666667
+            },
+            "metricsSource": {
+              "tp": 1,
+              "fp": 1,
+              "tn": 298,
+              "fn": 0,
+              "n": 300,
+              "precision": 0.5,
+              "recall": 1,
+              "f1": 0.6666666666666666,
+              "f2": 0.8333333333333334,
+              "fpr": 0.0033444816053511705,
+              "accuracy": 0.9966666666666667
+            },
+            "metricsAugmented": null,
+            "checksumInvalid": {
+              "n": 0,
+              "blocked": 0
+            },
+            "latency": {
+              "p50": 29.201799999995274,
+              "p95": 117.2167000000045,
+              "p99": 160.70720000000438,
+              "mean": 42.897644999999564
+            },
+            "tierP50": {
+              "tier1": 0.14149999999790452,
+              "tier3a": 0.323499999998603,
+              "tier2": 0.794899999993504,
+              "tier3b": 28.082500000004075
+            },
+            "categoryAgreement": 1,
+            "byPath": {
+              "neural": 1,
+              "math": 1
+            },
+            "misclassified": [
+              {
+                "id": "enron-61000-98",
+                "expect": "allow",
+                "predicted": "block",
+                "types": [
+                  "PATIENT_IDENTITY"
+                ]
+              }
+            ]
+          },
+          {
+            "dataset": "presidio",
+            "route": "B",
+            "startedAt": "2026-10-30T12:34:01.910Z",
+            "durationMs": 1348.799800000008,
+            "observations": 488,
+            "metrics": {
+              "tp": 208,
+              "fp": 0,
+              "tn": 280,
+              "fn": 0,
+              "n": 488,
+              "precision": 1,
+              "recall": 1,
+              "f1": 1,
+              "f2": 1,
+              "fpr": 0,
+              "accuracy": 1
+            },
+            "metricsSource": {
+              "tp": 178,
+              "fp": 0,
+              "tn": 250,
+              "fn": 0,
+              "n": 428,
+              "precision": 1,
+              "recall": 1,
+              "f1": 1,
+              "f2": 1,
+              "fpr": 0,
+              "accuracy": 1
+            },
+            "metricsAugmented": {
+              "tp": 30,
+              "fp": 0,
+              "tn": 30,
+              "fn": 0,
+              "n": 60,
+              "precision": 1,
+              "recall": 1,
+              "f1": 1,
+              "f2": 1,
+              "fpr": 0,
+              "accuracy": 1
+            },
+            "checksumInvalid": {
+              "n": 0,
+              "blocked": 0
+            },
+            "latency": {
+              "p50": 3.1876000000047497,
+              "p95": 7.150200000003679,
+              "p99": 11.964200000002165,
+              "mean": 2.7553301229510283
+            },
+            "tierP50": {
+              "tier1": 0.04069999999774154,
+              "tier3a": 0.013699999995878898,
+              "tier2": 0.01980000000912696,
+              "tier3b": 0.8848999999900116
+            },
+            "categoryAgreement": 1,
+            "byPath": {
+              "math": 196,
+              "neural": 17
+            },
+            "misclassified": []
+          },
+          {
+            "dataset": "ai4privacy",
+            "route": "B",
+            "startedAt": "2026-10-30T12:34:06.503Z",
+            "durationMs": 4589.7063999999955,
+            "observations": 584,
+            "metrics": {
+              "tp": 145,
+              "fp": 15,
+              "tn": 399,
+              "fn": 25,
+              "n": 584,
+              "precision": 0.90625,
+              "recall": 0.8529411764705882,
+              "f1": 0.8787878787878787,
+              "f2": 0.8630952380952381,
+              "fpr": 0.036231884057971016,
+              "accuracy": 0.9315068493150684
+            },
+            "metricsSource": {
+              "tp": 80,
+              "fp": 15,
+              "tn": 387,
+              "fn": 18,
+              "n": 500,
+              "precision": 0.8421052631578947,
+              "recall": 0.8163265306122449,
+              "f1": 0.8290155440414508,
+              "f2": 0.8213552361396305,
+              "fpr": 0.03731343283582089,
+              "accuracy": 0.934
+            },
+            "metricsAugmented": {
+              "tp": 65,
+              "fp": 0,
+              "tn": 12,
+              "fn": 7,
+              "n": 84,
+              "precision": 1,
+              "recall": 0.9027777777777778,
+              "f1": 0.9489051094890512,
+              "f2": 0.9206798866855526,
+              "fpr": 0,
+              "accuracy": 0.9166666666666666
+            },
+            "checksumInvalid": {
+              "n": 27,
+              "blocked": 0
+            },
+            "latency": {
+              "p50": 7.937200000000303,
+              "p95": 14.641499999997905,
+              "p99": 19.530799999993178,
+              "mean": 7.8481015410958355
+            },
+            "tierP50": {
+              "tier1": 0.05719999999564607,
+              "tier3a": 0.06869999998889398,
+              "tier2": 0.030399999988730997,
+              "tier3b": 7.50010000000475
+            },
+            "categoryAgreement": 1,
+            "byPath": {
+              "neural": 32,
+              "math": 136
+            },
+            "misclassified": [
+              {
+                "id": "ai4privacy-1000-23",
+                "expect": "block",
+                "predicted": "allow",
+                "types": []
+              },
+              {
+                "id": "ai4privacy-1000-44",
+                "expect": "block",
+                "predicted": "allow",
+                "types": []
+              },
+              {
+                "id": "ai4privacy-1000-62",
+                "expect": "block",
+                "predicted": "allow",
+                "types": []
+              },
+              {
+                "id": "ai4privacy-1000-66",
+                "expect": "allow",
+                "predicted": "block",
+                "types": [
+                  "GOV_ID"
+                ]
+              },
+              {
+                "id": "ai4privacy-1000-69",
+                "expect": "allow",
+                "predicted": "block",
+                "types": [
+                  "PATIENT_IDENTITY"
+                ]
+              },
+              {
+                "id": "ai4privacy-1000-77",
+                "expect": "allow",
+                "predicted": "block",
+                "types": [
+                  "CUSTOMER_IDENTITY"
+                ]
+              },
+              {
+                "id": "ai4privacy-1000-90",
+                "expect": "block",
+                "predicted": "allow",
+                "types": []
+              },
+              {
+                "id": "ai4privacy-1000-91",
+                "expect": "block",
+                "predicted": "allow",
+                "types": []
+              },
+              {
+                "id": "ai4privacy-48000-105",
+                "expect": "allow",
+                "predicted": "block",
+                "types": [
+                  "GOV_ID"
+                ]
+              },
+              {
+                "id": "ai4privacy-48000-123",
+                "expect": "allow",
+                "predicted": "block",
+                "types": [
+                  "GOV_ID"
+                ]
+              },
+              {
+                "id": "ai4privacy-48000-124",
+                "expect": "block",
+                "predicted": "allow",
+                "types": []
+              },
+              {
+                "id": "ai4privacy-48000-141",
+                "expect": "allow",
+                "predicted": "block",
+                "types": [
+                  "GOV_ID"
+                ]
+              },
+              {
+                "id": "ai4privacy-48000-145",
+                "expect": "allow",
+                "predicted": "block",
+                "types": [
+                  "GOV_ID"
+                ]
+              },
+              {
+                "id": "ai4privacy-48000-153",
+                "expect": "block",
+                "predicted": "allow",
+                "types": []
+              },
+              {
+                "id": "ai4privacy-48000-159",
+                "expect": "block",
+                "predicted": "allow",
+                "types": []
+              },
+              {
+                "id": "ai4privacy-48000-173",
+                "expect": "allow",
+                "predicted": "block",
+                "types": [
+                  "GOV_ID"
+                ]
+              },
+              {
+                "id": "ai4privacy-48000-196",
+                "expect": "allow",
+                "predicted": "block",
+                "types": [
+                  "GOV_ID"
+                ]
+              },
+              {
+                "id": "ai4privacy-97000-230",
+                "expect": "block",
+                "predicted": "allow",
+                "types": []
+              },
+              {
+                "id": "ai4privacy-97000-271",
+                "expect": "allow",
+                "predicted": "block",
+                "types": [
+                  "GOV_ID"
+                ]
+              },
+              {
+                "id": "ai4privacy-97000-279",
+                "expect": "block",
+                "predicted": "allow",
+                "types": []
+              },
+              {
+                "id": "ai4privacy-143000-309",
+                "expect": "block",
+                "predicted": "allow",
+                "types": []
+              },
+              {
+                "id": "ai4privacy-143000-339",
+                "expect": "allow",
+                "predicted": "block",
+                "types": [
+                  "GOV_ID"
+                ]
+              },
+              {
+                "id": "ai4privacy-143000-376",
+                "expect": "block",
+                "predicted": "allow",
+                "types": []
+              },
+              {
+                "id": "ai4privacy-143000-397",
+                "expect": "block",
+                "predicted": "allow",
+                "types": []
+              },
+              {
+                "id": "ai4privacy-191000-417",
+                "expect": "block",
+                "predicted": "allow",
+                "types": []
+              },
+              {
+                "id": "ai4privacy-191000-418",
+                "expect": "allow",
+                "predicted": "block",
+                "types": [
+                  "GOV_ID"
+                ]
+              },
+              {
+                "id": "ai4privacy-191000-433",
+                "expect": "block",
+                "predicted": "allow",
+                "types": []
+              },
+              {
+                "id": "ai4privacy-191000-438",
+                "expect": "allow",
+                "predicted": "block",
+                "types": [
+                  "GOV_ID"
+                ]
+              },
+              {
+                "id": "ai4privacy-191000-439",
+                "expect": "block",
+                "predicted": "allow",
+                "types": []
+              },
+              {
+                "id": "ai4privacy-191000-443",
+                "expect": "block",
+                "predicted": "allow",
+                "types": []
+              },
+              {
+                "id": "ai4privacy-191000-454",
+                "expect": "block",
+                "predicted": "allow",
+                "types": []
+              },
+              {
+                "id": "ai4privacy-191000-471",
+                "expect": "allow",
+                "predicted": "block",
+                "types": [
+                  "GOV_ID"
+                ]
+              },
+              {
+                "id": "ai4privacy-191000-481",
+                "expect": "allow",
+                "predicted": "block",
+                "types": [
+                  "GOV_ID"
+                ]
+              },
+              {
+                "id": "ai4p-aug-006",
+                "expect": "block",
+                "predicted": "allow",
+                "types": []
+              },
+              {
+                "id": "ai4p-aug-020",
+                "expect": "block",
+                "predicted": "allow",
+                "types": []
+              },
+              {
+                "id": "ai4p-aug-027",
+                "expect": "block",
+                "predicted": "allow",
+                "types": []
+              },
+              {
+                "id": "ai4p-aug-048",
+                "expect": "block",
+                "predicted": "allow",
+                "types": []
+              },
+              {
+                "id": "ai4p-aug-062",
+                "expect": "block",
+                "predicted": "allow",
+                "types": []
+              },
+              {
+                "id": "ai4p-aug-076",
+                "expect": "block",
+                "predicted": "allow",
+                "types": []
+              },
+              {
+                "id": "ai4p-aug-083",
+                "expect": "block",
+                "predicted": "allow",
+                "types": []
+              }
+            ]
+          }
+        ]
+      }
+    },
+    "openmed-e5small-int8": {
+      "meta": {
+        "model": "OpenMed__OpenMed-PII-ClinicalE5-Small-33M-v1",
+        "onnx": "model_int8.onnx",
+        "threads": 4,
+        "maxLen": 384,
+        "runtime": "onnxruntime 1.31.1 CPU",
+        "onnxMB": 34,
+        "quantization": {
+          "fp32MB": 133.2,
+          "int8MB": 34,
+          "mode": "per-channel",
+          "argmaxAgreement": 0.9946,
+          "tokens": 35438,
+          "maxLogitDrift": 2.99
+        }
+      },
+      "modelLatency": {
+        "edge": {
+          "p50": 5.835,
+          "p95": 27.492,
+          "tokensP50": 31
+        },
+        "enron": {
+          "p50": 31.58,
+          "p95": 157.519,
+          "tokensP50": 272
+        },
+        "presidio": {
+          "p50": 4.415,
+          "p95": 7.484,
+          "tokensP50": 21
+        },
+        "ai4privacy": {
+          "p50": 7.956,
+          "p95": 12.796,
+          "tokensP50": 58
+        }
+      },
+      "policies": {
+        "graph": [
+          {
+            "dataset": "edge",
+            "route": "B",
+            "startedAt": "2026-10-30T12:34:06.926Z",
+            "durationMs": 217.78899999998976,
+            "observations": 25,
+            "metrics": {
+              "tp": 17,
+              "fp": 0,
+              "tn": 8,
+              "fn": 0,
+              "n": 25,
+              "precision": 1,
+              "recall": 1,
+              "f1": 1,
+              "f2": 1,
+              "fpr": 0,
+              "accuracy": 1
+            },
+            "metricsSource": {
+              "tp": 17,
+              "fp": 0,
+              "tn": 8,
+              "fn": 0,
+              "n": 25,
+              "precision": 1,
+              "recall": 1,
+              "f1": 1,
+              "f2": 1,
+              "fpr": 0,
+              "accuracy": 1
+            },
+            "metricsAugmented": null,
+            "checksumInvalid": {
+              "n": 0,
+              "blocked": 0
+            },
+            "latency": {
+              "p50": 5.108099999997648,
+              "p95": 32.70580000001064,
+              "p99": 40.32250000000931,
+              "mean": 8.69838400000066
+            },
+            "tierP50": {
+              "tier1": 0.055199999987962656,
+              "tier3a": 0.01720000000204891,
+              "tier2": 0.03149999999732245,
+              "tier3b": 4.368900000001304
+            },
+            "categoryAgreement": 1,
+            "byPath": {
+              "math": 13,
+              "neural": 2,
+              "minhash": 2
+            },
+            "misclassified": []
+          },
+          {
+            "dataset": "enron",
+            "route": "B",
+            "startedAt": "2026-10-30T12:34:19.861Z",
+            "durationMs": 12932.019799999995,
+            "observations": 300,
+            "metrics": {
+              "tp": 1,
+              "fp": 2,
+              "tn": 297,
+              "fn": 0,
+              "n": 300,
+              "precision": 0.3333333333333333,
+              "recall": 1,
+              "f1": 0.5,
+              "f2": 0.7142857142857143,
+              "fpr": 0.006688963210702341,
+              "accuracy": 0.9933333333333333
+            },
+            "metricsSource": {
+              "tp": 1,
+              "fp": 2,
+              "tn": 297,
+              "fn": 0,
+              "n": 300,
+              "precision": 0.3333333333333333,
+              "recall": 1,
+              "f1": 0.5,
+              "f2": 0.7142857142857143,
+              "fpr": 0.006688963210702341,
+              "accuracy": 0.9933333333333333
+            },
+            "metricsAugmented": null,
+            "checksumInvalid": {
+              "n": 0,
+              "blocked": 0
+            },
+            "latency": {
+              "p50": 28.750899999999092,
+              "p95": 120.86759999999776,
+              "p99": 157.3231000000087,
+              "mean": 43.093341666666284
+            },
+            "tierP50": {
+              "tier1": 0.14459999999962747,
+              "tier3a": 0.3312000000005355,
+              "tier2": 0.9257999999972526,
+              "tier3b": 27.543299999990268
+            },
+            "categoryAgreement": 1,
+            "byPath": {
+              "neural": 2,
+              "math": 1
+            },
+            "misclassified": [
+              {
+                "id": "enron-61000-98",
+                "expect": "allow",
+                "predicted": "block",
+                "types": [
+                  "PATIENT_IDENTITY"
+                ]
+              },
+              {
+                "id": "enron-371000-253",
+                "expect": "allow",
+                "predicted": "block",
+                "types": [
+                  "PATIENT_IDENTITY"
+                ]
+              }
+            ]
+          },
+          {
+            "dataset": "presidio",
+            "route": "B",
+            "startedAt": "2026-10-30T12:34:21.171Z",
+            "durationMs": 1308.5446999999986,
+            "observations": 488,
+            "metrics": {
+              "tp": 208,
+              "fp": 0,
+              "tn": 280,
+              "fn": 0,
+              "n": 488,
+              "precision": 1,
+              "recall": 1,
+              "f1": 1,
+              "f2": 1,
+              "fpr": 0,
+              "accuracy": 1
+            },
+            "metricsSource": {
+              "tp": 178,
+              "fp": 0,
+              "tn": 250,
+              "fn": 0,
+              "n": 428,
+              "precision": 1,
+              "recall": 1,
+              "f1": 1,
+              "f2": 1,
+              "fpr": 0,
+              "accuracy": 1
+            },
+            "metricsAugmented": {
+              "tp": 30,
+              "fp": 0,
+              "tn": 30,
+              "fn": 0,
+              "n": 60,
+              "precision": 1,
+              "recall": 1,
+              "f1": 1,
+              "f2": 1,
+              "fpr": 0,
+              "accuracy": 1
+            },
+            "checksumInvalid": {
+              "n": 0,
+              "blocked": 0
+            },
+            "latency": {
+              "p50": 3.099900000001071,
+              "p95": 7.328800000002957,
+              "p99": 11.14660000000731,
+              "mean": 2.6740540983608327
+            },
+            "tierP50": {
+              "tier1": 0.03449999999429565,
+              "tier3a": 0.012399999992339872,
+              "tier2": 0.02079999999841675,
+              "tier3b": 1.0344000000040978
+            },
+            "categoryAgreement": 1,
+            "byPath": {
+              "math": 196,
+              "neural": 12
+            },
+            "misclassified": []
+          },
+          {
+            "dataset": "ai4privacy",
+            "route": "B",
+            "startedAt": "2026-10-30T12:34:25.893Z",
+            "durationMs": 4719.128699999987,
+            "observations": 584,
+            "metrics": {
+              "tp": 145,
+              "fp": 3,
+              "tn": 411,
+              "fn": 25,
+              "n": 584,
+              "precision": 0.9797297297297297,
+              "recall": 0.8529411764705882,
+              "f1": 0.9119496855345911,
+              "f2": 0.8756038647342995,
+              "fpr": 0.007246376811594203,
+              "accuracy": 0.952054794520548
+            },
+            "metricsSource": {
+              "tp": 80,
+              "fp": 3,
+              "tn": 399,
+              "fn": 18,
+              "n": 500,
+              "precision": 0.963855421686747,
+              "recall": 0.8163265306122449,
+              "f1": 0.8839779005524863,
+              "f2": 0.8421052631578947,
+              "fpr": 0.007462686567164179,
+              "accuracy": 0.958
+            },
+            "metricsAugmented": {
+              "tp": 65,
+              "fp": 0,
+              "tn": 12,
+              "fn": 7,
+              "n": 84,
+              "precision": 1,
+              "recall": 0.9027777777777778,
+              "f1": 0.9489051094890512,
+              "f2": 0.9206798866855526,
+              "fpr": 0,
+              "accuracy": 0.9166666666666666
+            },
+            "checksumInvalid": {
+              "n": 27,
+              "blocked": 0
+            },
+            "latency": {
+              "p50": 8.231499999994412,
+              "p95": 15.148199999995995,
+              "p99": 21.159700000003795,
+              "mean": 8.072588356164363
+            },
+            "tierP50": {
+              "tier1": 0.05719999999564607,
+              "tier3a": 0.06819999999424908,
+              "tier2": 0.12199999998847488,
+              "tier3b": 7.684899999992922
+            },
+            "categoryAgreement": 1,
+            "byPath": {
+              "neural": 19,
+              "math": 136
+            },
+            "misclassified": [
+              {
+                "id": "ai4privacy-1000-23",
+                "expect": "block",
+                "predicted": "allow",
+                "types": []
+              },
+              {
+                "id": "ai4privacy-1000-62",
+                "expect": "block",
+                "predicted": "allow",
+                "types": []
+              },
+              {
+                "id": "ai4privacy-1000-69",
+                "expect": "allow",
+                "predicted": "block",
+                "types": [
+                  "PATIENT_IDENTITY"
+                ]
+              },
+              {
+                "id": "ai4privacy-1000-79",
+                "expect": "block",
+                "predicted": "allow",
+                "types": []
+              },
+              {
+                "id": "ai4privacy-1000-90",
+                "expect": "block",
+                "predicted": "allow",
+                "types": []
+              },
+              {
+                "id": "ai4privacy-1000-91",
+                "expect": "block",
+                "predicted": "allow",
+                "types": []
+              },
+              {
+                "id": "ai4privacy-48000-120",
+                "expect": "block",
+                "predicted": "allow",
+                "types": []
+              },
+              {
+                "id": "ai4privacy-48000-124",
+                "expect": "block",
+                "predicted": "allow",
+                "types": []
+              },
+              {
+                "id": "ai4privacy-48000-141",
+                "expect": "allow",
+                "predicted": "block",
+                "types": [
+                  "PATIENT_IDENTITY"
+                ]
+              },
+              {
+                "id": "ai4privacy-48000-153",
+                "expect": "block",
+                "predicted": "allow",
+                "types": []
+              },
+              {
+                "id": "ai4privacy-48000-159",
+                "expect": "block",
+                "predicted": "allow",
+                "types": []
+              },
+              {
+                "id": "ai4privacy-97000-230",
+                "expect": "block",
+                "predicted": "allow",
+                "types": []
+              },
+              {
+                "id": "ai4privacy-97000-279",
+                "expect": "block",
+                "predicted": "allow",
+                "types": []
+              },
+              {
+                "id": "ai4privacy-143000-302",
+                "expect": "allow",
+                "predicted": "block",
+                "types": [
+                  "CUSTOMER_IDENTITY"
+                ]
+              },
+              {
+                "id": "ai4privacy-143000-309",
+                "expect": "block",
+                "predicted": "allow",
+                "types": []
+              },
+              {
+                "id": "ai4privacy-143000-396",
+                "expect": "block",
+                "predicted": "allow",
+                "types": []
+              },
+              {
+                "id": "ai4privacy-143000-397",
+                "expect": "block",
+                "predicted": "allow",
+                "types": []
+              },
+              {
+                "id": "ai4privacy-191000-417",
+                "expect": "block",
+                "predicted": "allow",
+                "types": []
+              },
+              {
+                "id": "ai4privacy-191000-439",
+                "expect": "block",
+                "predicted": "allow",
+                "types": []
+              },
+              {
+                "id": "ai4privacy-191000-443",
+                "expect": "block",
+                "predicted": "allow",
+                "types": []
+              },
+              {
+                "id": "ai4privacy-191000-454",
+                "expect": "block",
+                "predicted": "allow",
+                "types": []
+              },
+              {
+                "id": "ai4p-aug-006",
+                "expect": "block",
+                "predicted": "allow",
+                "types": []
+              },
+              {
+                "id": "ai4p-aug-020",
+                "expect": "block",
+                "predicted": "allow",
+                "types": []
+              },
+              {
+                "id": "ai4p-aug-027",
+                "expect": "block",
+                "predicted": "allow",
+                "types": []
+              },
+              {
+                "id": "ai4p-aug-048",
+                "expect": "block",
+                "predicted": "allow",
+                "types": []
+              },
+              {
+                "id": "ai4p-aug-062",
+                "expect": "block",
+                "predicted": "allow",
+                "types": []
+              },
+              {
+                "id": "ai4p-aug-076",
+                "expect": "block",
+                "predicted": "allow",
+                "types": []
+              },
+              {
+                "id": "ai4p-aug-083",
+                "expect": "block",
+                "predicted": "allow",
+                "types": []
+              }
+            ]
+          }
+        ],
+        "graph+gov": [
+          {
+            "dataset": "edge",
+            "route": "B",
+            "startedAt": "2026-10-30T12:34:26.306Z",
+            "durationMs": 222.6027000000031,
+            "observations": 25,
+            "metrics": {
+              "tp": 17,
+              "fp": 0,
+              "tn": 8,
+              "fn": 0,
+              "n": 25,
+              "precision": 1,
+              "recall": 1,
+              "f1": 1,
+              "f2": 1,
+              "fpr": 0,
+              "accuracy": 1
+            },
+            "metricsSource": {
+              "tp": 17,
+              "fp": 0,
+              "tn": 8,
+              "fn": 0,
+              "n": 25,
+              "precision": 1,
+              "recall": 1,
+              "f1": 1,
+              "f2": 1,
+              "fpr": 0,
+              "accuracy": 1
+            },
+            "metricsAugmented": null,
+            "checksumInvalid": {
+              "n": 0,
+              "blocked": 0
+            },
+            "latency": {
+              "p50": 5.174299999998766,
+              "p95": 34.93709999999555,
+              "p99": 39.49069999999483,
+              "mean": 8.894591999999829
+            },
+            "tierP50": {
+              "tier1": 0.05430000000342261,
+              "tier3a": 0.01690000000235159,
+              "tier2": 0.02449999999953434,
+              "tier3b": 4.673599999994622
+            },
+            "categoryAgreement": 1,
+            "byPath": {
+              "math": 13,
+              "neural": 2,
+              "minhash": 2
+            },
+            "misclassified": []
+          },
+          {
+            "dataset": "enron",
+            "route": "B",
+            "startedAt": "2026-10-30T12:34:39.108Z",
+            "durationMs": 12799.388800000015,
+            "observations": 300,
+            "metrics": {
+              "tp": 1,
+              "fp": 2,
+              "tn": 297,
+              "fn": 0,
+              "n": 300,
+              "precision": 0.3333333333333333,
+              "recall": 1,
+              "f1": 0.5,
+              "f2": 0.7142857142857143,
+              "fpr": 0.006688963210702341,
+              "accuracy": 0.9933333333333333
+            },
+            "metricsSource": {
+              "tp": 1,
+              "fp": 2,
+              "tn": 297,
+              "fn": 0,
+              "n": 300,
+              "precision": 0.3333333333333333,
+              "recall": 1,
+              "f1": 0.5,
+              "f2": 0.7142857142857143,
+              "fpr": 0.006688963210702341,
+              "accuracy": 0.9933333333333333
+            },
+            "metricsAugmented": null,
+            "checksumInvalid": {
+              "n": 0,
+              "blocked": 0
+            },
+            "latency": {
+              "p50": 28.895300000003772,
+              "p95": 118.9660000000149,
+              "p99": 158.84390000000712,
+              "mean": 42.65535166666702
+            },
+            "tierP50": {
+              "tier1": 0.1431999999913387,
+              "tier3a": 0.32259999998495914,
+              "tier2": 0.93839999998454,
+              "tier3b": 27.935800000006566
+            },
+            "categoryAgreement": 1,
+            "byPath": {
+              "neural": 2,
+              "math": 1
+            },
+            "misclassified": [
+              {
+                "id": "enron-61000-98",
+                "expect": "allow",
+                "predicted": "block",
+                "types": [
+                  "PATIENT_IDENTITY"
+                ]
+              },
+              {
+                "id": "enron-371000-253",
+                "expect": "allow",
+                "predicted": "block",
+                "types": [
+                  "PATIENT_IDENTITY"
+                ]
+              }
+            ]
+          },
+          {
+            "dataset": "presidio",
+            "route": "B",
+            "startedAt": "2026-10-30T12:34:40.417Z",
+            "durationMs": 1307.5237999999954,
+            "observations": 488,
+            "metrics": {
+              "tp": 208,
+              "fp": 0,
+              "tn": 280,
+              "fn": 0,
+              "n": 488,
+              "precision": 1,
+              "recall": 1,
+              "f1": 1,
+              "f2": 1,
+              "fpr": 0,
+              "accuracy": 1
+            },
+            "metricsSource": {
+              "tp": 178,
+              "fp": 0,
+              "tn": 250,
+              "fn": 0,
+              "n": 428,
+              "precision": 1,
+              "recall": 1,
+              "f1": 1,
+              "f2": 1,
+              "fpr": 0,
+              "accuracy": 1
+            },
+            "metricsAugmented": {
+              "tp": 30,
+              "fp": 0,
+              "tn": 30,
+              "fn": 0,
+              "n": 60,
+              "precision": 1,
+              "recall": 1,
+              "f1": 1,
+              "f2": 1,
+              "fpr": 0,
+              "accuracy": 1
+            },
+            "checksumInvalid": {
+              "n": 0,
+              "blocked": 0
+            },
+            "latency": {
+              "p50": 3.1190999999816995,
+              "p95": 7.172999999980675,
+              "p99": 11.377999999996973,
+              "mean": 2.674573565573662
+            },
+            "tierP50": {
+              "tier1": 0.03320000000530854,
+              "tier3a": 0.012499999982537702,
+              "tier2": 0.017099999997299165,
+              "tier3b": 1.0914000000047963
+            },
+            "categoryAgreement": 1,
+            "byPath": {
+              "math": 196,
+              "neural": 12
+            },
+            "misclassified": []
+          },
+          {
+            "dataset": "ai4privacy",
+            "route": "B",
+            "startedAt": "2026-10-30T12:34:45.075Z",
+            "durationMs": 4656.159799999994,
+            "observations": 584,
+            "metrics": {
+              "tp": 146,
+              "fp": 3,
+              "tn": 411,
+              "fn": 24,
+              "n": 584,
+              "precision": 0.9798657718120806,
+              "recall": 0.8588235294117647,
+              "f1": 0.9153605015673981,
+              "f2": 0.8805790108564534,
+              "fpr": 0.007246376811594203,
+              "accuracy": 0.9537671232876712
+            },
+            "metricsSource": {
+              "tp": 81,
+              "fp": 3,
+              "tn": 399,
+              "fn": 17,
+              "n": 500,
+              "precision": 0.9642857142857143,
+              "recall": 0.826530612244898,
+              "f1": 0.8901098901098902,
+              "f2": 0.8508403361344538,
+              "fpr": 0.007462686567164179,
+              "accuracy": 0.96
+            },
+            "metricsAugmented": {
+              "tp": 65,
+              "fp": 0,
+              "tn": 12,
+              "fn": 7,
+              "n": 84,
+              "precision": 1,
+              "recall": 0.9027777777777778,
+              "f1": 0.9489051094890512,
+              "f2": 0.9206798866855526,
+              "fpr": 0,
+              "accuracy": 0.9166666666666666
+            },
+            "checksumInvalid": {
+              "n": 27,
+              "blocked": 0
+            },
+            "latency": {
+              "p50": 8.01480000000447,
+              "p95": 14.697099999990314,
+              "p99": 21.529999999998836,
+              "mean": 7.965493150684729
+            },
+            "tierP50": {
+              "tier1": 0.05760000000009313,
+              "tier3a": 0.0684999999939464,
+              "tier2": 0.11860000001615845,
+              "tier3b": 7.449499999987893
+            },
+            "categoryAgreement": 1,
+            "byPath": {
+              "neural": 20,
+              "math": 136
+            },
+            "misclassified": [
+              {
+                "id": "ai4privacy-1000-23",
+                "expect": "block",
+                "predicted": "allow",
+                "types": []
+              },
+              {
+                "id": "ai4privacy-1000-62",
+                "expect": "block",
+                "predicted": "allow",
+                "types": []
+              },
+              {
+                "id": "ai4privacy-1000-69",
+                "expect": "allow",
+                "predicted": "block",
+                "types": [
+                  "PATIENT_IDENTITY"
+                ]
+              },
+              {
+                "id": "ai4privacy-1000-90",
+                "expect": "block",
+                "predicted": "allow",
+                "types": []
+              },
+              {
+                "id": "ai4privacy-1000-91",
+                "expect": "block",
+                "predicted": "allow",
+                "types": []
+              },
+              {
+                "id": "ai4privacy-48000-120",
+                "expect": "block",
+                "predicted": "allow",
+                "types": []
+              },
+              {
+                "id": "ai4privacy-48000-124",
+                "expect": "block",
+                "predicted": "allow",
+                "types": []
+              },
+              {
+                "id": "ai4privacy-48000-141",
+                "expect": "allow",
+                "predicted": "block",
+                "types": [
+                  "PATIENT_IDENTITY"
+                ]
+              },
+              {
+                "id": "ai4privacy-48000-153",
+                "expect": "block",
+                "predicted": "allow",
+                "types": []
+              },
+              {
+                "id": "ai4privacy-48000-159",
+                "expect": "block",
+                "predicted": "allow",
+                "types": []
+              },
+              {
+                "id": "ai4privacy-97000-230",
+                "expect": "block",
+                "predicted": "allow",
+                "types": []
+              },
+              {
+                "id": "ai4privacy-97000-279",
+                "expect": "block",
+                "predicted": "allow",
+                "types": []
+              },
+              {
+                "id": "ai4privacy-143000-302",
+                "expect": "allow",
+                "predicted": "block",
+                "types": [
+                  "CUSTOMER_IDENTITY"
+                ]
+              },
+              {
+                "id": "ai4privacy-143000-309",
+                "expect": "block",
+                "predicted": "allow",
+                "types": []
+              },
+              {
+                "id": "ai4privacy-143000-396",
+                "expect": "block",
+                "predicted": "allow",
+                "types": []
+              },
+              {
+                "id": "ai4privacy-143000-397",
+                "expect": "block",
+                "predicted": "allow",
+                "types": []
+              },
+              {
+                "id": "ai4privacy-191000-417",
+                "expect": "block",
+                "predicted": "allow",
+                "types": []
+              },
+              {
+                "id": "ai4privacy-191000-439",
+                "expect": "block",
+                "predicted": "allow",
+                "types": []
+              },
+              {
+                "id": "ai4privacy-191000-443",
+                "expect": "block",
+                "predicted": "allow",
+                "types": []
+              },
+              {
+                "id": "ai4privacy-191000-454",
+                "expect": "block",
+                "predicted": "allow",
+                "types": []
+              },
+              {
+                "id": "ai4p-aug-006",
+                "expect": "block",
+                "predicted": "allow",
+                "types": []
+              },
+              {
+                "id": "ai4p-aug-020",
+                "expect": "block",
+                "predicted": "allow",
+                "types": []
+              },
+              {
+                "id": "ai4p-aug-027",
+                "expect": "block",
+                "predicted": "allow",
+                "types": []
+              },
+              {
+                "id": "ai4p-aug-048",
+                "expect": "block",
+                "predicted": "allow",
+                "types": []
+              },
+              {
+                "id": "ai4p-aug-062",
+                "expect": "block",
+                "predicted": "allow",
+                "types": []
+              },
+              {
+                "id": "ai4p-aug-076",
+                "expect": "block",
+                "predicted": "allow",
+                "types": []
+              },
+              {
+                "id": "ai4p-aug-083",
+                "expect": "block",
+                "predicted": "allow",
+                "types": []
+              }
+            ]
+          }
+        ]
+      }
+    },
+    "ettin32m-int8": {
+      "meta": {
+        "model": "kalyan-ks__ettin-32m-nemotron-pii",
+        "onnx": "model_int8.onnx",
+        "threads": 4,
+        "maxLen": 512,
+        "runtime": "onnxruntime 1.31.1 CPU",
+        "onnxMB": 32.6,
+        "quantization": {
+          "fp32MB": 128.5,
+          "int8MB": 32.6,
+          "mode": "per-channel",
+          "argmaxAgreement": 0.9144,
+          "tokens": 34386,
+          "maxLogitDrift": 13.5
+        }
+      },
+      "modelLatency": {
+        "edge": {
+          "p50": 4.47,
+          "p95": 22.953,
+          "tokensP50": 29
+        },
+        "enron": {
+          "p50": 24.716,
+          "p95": 119.305,
+          "tokensP50": 290
+        },
+        "presidio": {
+          "p50": 3.909,
+          "p95": 6.548,
+          "tokensP50": 20
+        },
+        "ai4privacy": {
+          "p50": 6.506,
+          "p95": 10.392,
+          "tokensP50": 54
+        }
+      },
+      "policies": {
+        "graph": [
+          {
+            "dataset": "edge",
+            "route": "B",
+            "startedAt": "2026-10-30T12:34:45.512Z",
+            "durationMs": 217.6982999999891,
+            "observations": 25,
+            "metrics": {
+              "tp": 17,
+              "fp": 0,
+              "tn": 8,
+              "fn": 0,
+              "n": 25,
+              "precision": 1,
+              "recall": 1,
+              "f1": 1,
+              "f2": 1,
+              "fpr": 0,
+              "accuracy": 1
+            },
+            "metricsSource": {
+              "tp": 17,
+              "fp": 0,
+              "tn": 8,
+              "fn": 0,
+              "n": 25,
+              "precision": 1,
+              "recall": 1,
+              "f1": 1,
+              "f2": 1,
+              "fpr": 0,
+              "accuracy": 1
+            },
+            "metricsAugmented": null,
+            "checksumInvalid": {
+              "n": 0,
+              "blocked": 0
+            },
+            "latency": {
+              "p50": 4.958099999988917,
+              "p95": 31.192399999999907,
+              "p99": 39.966400000004796,
+              "mean": 8.69835600000224
+            },
+            "tierP50": {
+              "tier1": 0.05770000000484288,
+              "tier3a": 0.017699999996693805,
+              "tier2": 0.0268999999971129,
+              "tier3b": 4.631099999998696
+            },
+            "categoryAgreement": 1,
+            "byPath": {
+              "math": 13,
+              "neural": 2,
+              "minhash": 2
+            },
+            "misclassified": []
+          },
+          {
+            "dataset": "enron",
+            "route": "B",
+            "startedAt": "2026-10-30T12:34:58.381Z",
+            "durationMs": 12866.81779999999,
+            "observations": 300,
+            "metrics": {
+              "tp": 1,
+              "fp": 0,
+              "tn": 299,
+              "fn": 0,
+              "n": 300,
+              "precision": 1,
+              "recall": 1,
+              "f1": 1,
+              "f2": 1,
+              "fpr": 0,
+              "accuracy": 1
+            },
+            "metricsSource": {
+              "tp": 1,
+              "fp": 0,
+              "tn": 299,
+              "fn": 0,
+              "n": 300,
+              "precision": 1,
+              "recall": 1,
+              "f1": 1,
+              "f2": 1,
+              "fpr": 0,
+              "accuracy": 1
+            },
+            "metricsAugmented": null,
+            "checksumInvalid": {
+              "n": 0,
+              "blocked": 0
+            },
+            "latency": {
+              "p50": 29.150800000003073,
+              "p95": 122.09600000001956,
+              "p99": 161.28229999999166,
+              "mean": 42.88001400000037
+            },
+            "tierP50": {
+              "tier1": 0.14489999998477288,
+              "tier3a": 0.3324000000138767,
+              "tier2": 0.8532000000122935,
+              "tier3b": 27.83430000001681
+            },
+            "categoryAgreement": 1,
+            "byPath": {
+              "math": 1
+            },
+            "misclassified": []
+          },
+          {
+            "dataset": "presidio",
+            "route": "B",
+            "startedAt": "2026-10-30T12:34:59.668Z",
+            "durationMs": 1285.4419000000053,
+            "observations": 488,
+            "metrics": {
+              "tp": 208,
+              "fp": 1,
+              "tn": 279,
+              "fn": 0,
+              "n": 488,
+              "precision": 0.9952153110047847,
+              "recall": 1,
+              "f1": 0.9976019184652278,
+              "f2": 0.9990393852065323,
+              "fpr": 0.0035714285714285713,
+              "accuracy": 0.9979508196721312
+            },
+            "metricsSource": {
+              "tp": 178,
+              "fp": 0,
+              "tn": 250,
+              "fn": 0,
+              "n": 428,
+              "precision": 1,
+              "recall": 1,
+              "f1": 1,
+              "f2": 1,
+              "fpr": 0,
+              "accuracy": 1
+            },
+            "metricsAugmented": {
+              "tp": 30,
+              "fp": 1,
+              "tn": 29,
+              "fn": 0,
+              "n": 60,
+              "precision": 0.967741935483871,
+              "recall": 1,
+              "f1": 0.9836065573770492,
+              "f2": 0.9933774834437086,
+              "fpr": 0.03333333333333333,
+              "accuracy": 0.9833333333333333
+            },
+            "checksumInvalid": {
+              "n": 0,
+              "blocked": 0
+            },
+            "latency": {
+              "p50": 3.05360000001383,
+              "p95": 7.082599999994272,
+              "p99": 11.392200000002049,
+              "mean": 2.629467622951302
+            },
+            "tierP50": {
+              "tier1": 0.03220000001601875,
+              "tier3a": 0.012600000016391277,
+              "tier2": 0.020700000022770837,
+              "tier3b": 0.508399999991525
+            },
+            "categoryAgreement": 1,
+            "byPath": {
+              "math": 196,
+              "neural": 13
+            },
+            "misclassified": [
+              {
+                "id": "presidio-aug-008",
+                "expect": "allow",
+                "predicted": "block",
+                "types": [
+                  "CUSTOMER_IDENTITY"
+                ]
+              }
+            ]
+          },
+          {
+            "dataset": "ai4privacy",
+            "route": "B",
+            "startedAt": "2026-10-30T12:35:04.301Z",
+            "durationMs": 4630.204200000007,
+            "observations": 584,
+            "metrics": {
+              "tp": 140,
+              "fp": 1,
+              "tn": 413,
+              "fn": 30,
+              "n": 584,
+              "precision": 0.9929078014184397,
+              "recall": 0.8235294117647058,
+              "f1": 0.9003215434083602,
+              "f2": 0.8526187576126673,
+              "fpr": 0.0024154589371980675,
+              "accuracy": 0.946917808219178
+            },
+            "metricsSource": {
+              "tp": 75,
+              "fp": 1,
+              "tn": 401,
+              "fn": 23,
+              "n": 500,
+              "precision": 0.9868421052631579,
+              "recall": 0.7653061224489796,
+              "f1": 0.8620689655172413,
+              "f2": 0.8012820512820513,
+              "fpr": 0.0024875621890547263,
+              "accuracy": 0.952
+            },
+            "metricsAugmented": {
+              "tp": 65,
+              "fp": 0,
+              "tn": 12,
+              "fn": 7,
+              "n": 84,
+              "precision": 1,
+              "recall": 0.9027777777777778,
+              "f1": 0.9489051094890512,
+              "f2": 0.9206798866855526,
+              "fpr": 0,
+              "accuracy": 0.9166666666666666
+            },
+            "checksumInvalid": {
+              "n": 27,
+              "blocked": 0
+            },
+            "latency": {
+              "p50": 8.095699999976205,
+              "p95": 14.95240000000922,
+              "p99": 20.987899999978254,
+              "mean": 7.921334075342737
+            },
+            "tierP50": {
+              "tier1": 0.05640000000130385,
+              "tier3a": 0.06979999999748543,
+              "tier2": 0.035700000007636845,
+              "tier3b": 7.64770000000135
+            },
+            "categoryAgreement": 1,
+            "byPath": {
+              "neural": 7,
+              "math": 136
+            },
+            "misclassified": [
+              {
+                "id": "ai4privacy-1000-23",
+                "expect": "block",
+                "predicted": "allow",
+                "types": []
+              },
+              {
+                "id": "ai4privacy-1000-44",
+                "expect": "block",
+                "predicted": "allow",
+                "types": []
+              },
+              {
+                "id": "ai4privacy-1000-62",
+                "expect": "block",
+                "predicted": "allow",
+                "types": []
+              },
+              {
+                "id": "ai4privacy-1000-69",
+                "expect": "allow",
+                "predicted": "block",
+                "types": [
+                  "PATIENT_IDENTITY"
+                ]
+              },
+              {
+                "id": "ai4privacy-1000-79",
+                "expect": "block",
+                "predicted": "allow",
+                "types": []
+              },
+              {
+                "id": "ai4privacy-1000-90",
+                "expect": "block",
+                "predicted": "allow",
+                "types": []
+              },
+              {
+                "id": "ai4privacy-1000-91",
+                "expect": "block",
+                "predicted": "allow",
+                "types": []
+              },
+              {
+                "id": "ai4privacy-48000-120",
+                "expect": "block",
+                "predicted": "allow",
+                "types": []
+              },
+              {
+                "id": "ai4privacy-48000-124",
+                "expect": "block",
+                "predicted": "allow",
+                "types": []
+              },
+              {
+                "id": "ai4privacy-48000-153",
+                "expect": "block",
+                "predicted": "allow",
+                "types": []
+              },
+              {
+                "id": "ai4privacy-48000-159",
+                "expect": "block",
+                "predicted": "allow",
+                "types": []
+              },
+              {
+                "id": "ai4privacy-97000-204",
+                "expect": "block",
+                "predicted": "allow",
+                "types": []
+              },
+              {
+                "id": "ai4privacy-97000-230",
+                "expect": "block",
+                "predicted": "allow",
+                "types": []
+              },
+              {
+                "id": "ai4privacy-97000-258",
+                "expect": "block",
+                "predicted": "allow",
+                "types": []
+              },
+              {
+                "id": "ai4privacy-97000-279",
+                "expect": "block",
+                "predicted": "allow",
+                "types": []
+              },
+              {
+                "id": "ai4privacy-143000-309",
+                "expect": "block",
+                "predicted": "allow",
+                "types": []
+              },
+              {
+                "id": "ai4privacy-143000-376",
+                "expect": "block",
+                "predicted": "allow",
+                "types": []
+              },
+              {
+                "id": "ai4privacy-143000-396",
+                "expect": "block",
+                "predicted": "allow",
+                "types": []
+              },
+              {
+                "id": "ai4privacy-143000-397",
+                "expect": "block",
+                "predicted": "allow",
+                "types": []
+              },
+              {
+                "id": "ai4privacy-191000-417",
+                "expect": "block",
+                "predicted": "allow",
+                "types": []
+              },
+              {
+                "id": "ai4privacy-191000-433",
+                "expect": "block",
+                "predicted": "allow",
+                "types": []
+              },
+              {
+                "id": "ai4privacy-191000-439",
+                "expect": "block",
+                "predicted": "allow",
+                "types": []
+              },
+              {
+                "id": "ai4privacy-191000-443",
+                "expect": "block",
+                "predicted": "allow",
+                "types": []
+              },
+              {
+                "id": "ai4privacy-191000-454",
+                "expect": "block",
+                "predicted": "allow",
+                "types": []
+              },
+              {
+                "id": "ai4p-aug-006",
+                "expect": "block",
+                "predicted": "allow",
+                "types": []
+              },
+              {
+                "id": "ai4p-aug-020",
+                "expect": "block",
+                "predicted": "allow",
+                "types": []
+              },
+              {
+                "id": "ai4p-aug-027",
+                "expect": "block",
+                "predicted": "allow",
+                "types": []
+              },
+              {
+                "id": "ai4p-aug-048",
+                "expect": "block",
+                "predicted": "allow",
+                "types": []
+              },
+              {
+                "id": "ai4p-aug-062",
+                "expect": "block",
+                "predicted": "allow",
+                "types": []
+              },
+              {
+                "id": "ai4p-aug-076",
+                "expect": "block",
+                "predicted": "allow",
+                "types": []
+              },
+              {
+                "id": "ai4p-aug-083",
+                "expect": "block",
+                "predicted": "allow",
+                "types": []
+              }
+            ]
+          }
+        ],
+        "graph+gov": [
+          {
+            "dataset": "edge",
+            "route": "B",
+            "startedAt": "2026-10-30T12:35:04.729Z",
+            "durationMs": 219.16909999999916,
+            "observations": 25,
+            "metrics": {
+              "tp": 17,
+              "fp": 0,
+              "tn": 8,
+              "fn": 0,
+              "n": 25,
+              "precision": 1,
+              "recall": 1,
+              "f1": 1,
+              "f2": 1,
+              "fpr": 0,
+              "accuracy": 1
+            },
+            "metricsSource": {
+              "tp": 17,
+              "fp": 0,
+              "tn": 8,
+              "fn": 0,
+              "n": 25,
+              "precision": 1,
+              "recall": 1,
+              "f1": 1,
+              "f2": 1,
+              "fpr": 0,
+              "accuracy": 1
+            },
+            "metricsAugmented": null,
+            "checksumInvalid": {
+              "n": 0,
+              "blocked": 0
+            },
+            "latency": {
+              "p50": 4.840700000000652,
+              "p95": 32.65639999997802,
+              "p99": 40.21439999999711,
+              "mean": 8.756627999999328
+            },
+            "tierP50": {
+              "tier1": 0.0595000000030268,
+              "tier3a": 0.017499999987194315,
+              "tier2": 0.027600000001257285,
+              "tier3b": 4.427700000000186
+            },
+            "categoryAgreement": 1,
+            "byPath": {
+              "math": 13,
+              "neural": 2,
+              "minhash": 2
+            },
+            "misclassified": []
+          },
+          {
+            "dataset": "enron",
+            "route": "B",
+            "startedAt": "2026-10-30T12:35:17.604Z",
+            "durationMs": 12872.8848,
+            "observations": 300,
+            "metrics": {
+              "tp": 1,
+              "fp": 9,
+              "tn": 290,
+              "fn": 0,
+              "n": 300,
+              "precision": 0.1,
+              "recall": 1,
+              "f1": 0.18181818181818182,
+              "f2": 0.35714285714285715,
+              "fpr": 0.030100334448160536,
+              "accuracy": 0.97
+            },
+            "metricsSource": {
+              "tp": 1,
+              "fp": 9,
+              "tn": 290,
+              "fn": 0,
+              "n": 300,
+              "precision": 0.1,
+              "recall": 1,
+              "f1": 0.18181818181818182,
+              "f2": 0.35714285714285715,
+              "fpr": 0.030100334448160536,
+              "accuracy": 0.97
+            },
+            "metricsAugmented": null,
+            "checksumInvalid": {
+              "n": 0,
+              "blocked": 0
+            },
+            "latency": {
+              "p50": 29.05649999997695,
+              "p95": 123.04870000001392,
+              "p99": 161.55280000000494,
+              "mean": 42.9002390000001
+            },
+            "tierP50": {
+              "tier1": 0.1419000000169035,
+              "tier3a": 0.3322000000043772,
+              "tier2": 0.860899999999674,
+              "tier3b": 27.943399999989197
+            },
+            "categoryAgreement": 1,
+            "byPath": {
+              "neural": 9,
+              "math": 1
+            },
+            "misclassified": [
+              {
+                "id": "enron-4000-27",
+                "expect": "allow",
+                "predicted": "block",
+                "types": [
+                  "GOV_ID"
+                ]
+              },
+              {
+                "id": "enron-61000-57",
+                "expect": "allow",
+                "predicted": "block",
+                "types": [
+                  "GOV_ID"
+                ]
+              },
+              {
+                "id": "enron-61000-58",
+                "expect": "allow",
+                "predicted": "block",
+                "types": [
+                  "GOV_ID"
+                ]
+              },
+              {
+                "id": "enron-133000-111",
+                "expect": "allow",
+                "predicted": "block",
+                "types": [
+                  "GOV_ID"
+                ]
+              },
+              {
+                "id": "enron-133000-120",
+                "expect": "allow",
+                "predicted": "block",
+                "types": [
+                  "GOV_ID"
+                ]
+              },
+              {
+                "id": "enron-207000-158",
+                "expect": "allow",
+                "predicted": "block",
+                "types": [
+                  "GOV_ID"
+                ]
+              },
+              {
+                "id": "enron-371000-265",
+                "expect": "allow",
+                "predicted": "block",
+                "types": [
+                  "GOV_ID"
+                ]
+              },
+              {
+                "id": "enron-371000-267",
+                "expect": "allow",
+                "predicted": "block",
+                "types": [
+                  "GOV_ID"
+                ]
+              },
+              {
+                "id": "enron-371000-285",
+                "expect": "allow",
+                "predicted": "block",
+                "types": [
+                  "GOV_ID"
+                ]
+              }
+            ]
+          },
+          {
+            "dataset": "presidio",
+            "route": "B",
+            "startedAt": "2026-10-30T12:35:18.898Z",
+            "durationMs": 1291.869399999996,
+            "observations": 488,
+            "metrics": {
+              "tp": 208,
+              "fp": 2,
+              "tn": 278,
+              "fn": 0,
+              "n": 488,
+              "precision": 0.9904761904761905,
+              "recall": 1,
+              "f1": 0.9952153110047847,
+              "f2": 0.998080614203455,
+              "fpr": 0.007142857142857143,
+              "accuracy": 0.9959016393442623
+            },
+            "metricsSource": {
+              "tp": 178,
+              "fp": 1,
+              "tn": 249,
+              "fn": 0,
+              "n": 428,
+              "precision": 0.994413407821229,
+              "recall": 1,
+              "f1": 0.9971988795518207,
+              "f2": 0.9988776655443322,
+              "fpr": 0.004,
+              "accuracy": 0.9976635514018691
+            },
+            "metricsAugmented": {
+              "tp": 30,
+              "fp": 1,
+              "tn": 29,
+              "fn": 0,
+              "n": 60,
+              "precision": 0.967741935483871,
+              "recall": 1,
+              "f1": 0.9836065573770492,
+              "f2": 0.9933774834437086,
+              "fpr": 0.03333333333333333,
+              "accuracy": 0.9833333333333333
+            },
+            "checksumInvalid": {
+              "n": 0,
+              "blocked": 0
+            },
+            "latency": {
+              "p50": 3.0666999999957625,
+              "p95": 6.975199999986216,
+              "p99": 11.802499999990687,
+              "mean": 2.6424477459011424
+            },
+            "tierP50": {
+              "tier1": 0.03299999999580905,
+              "tier3a": 0.012500000011641532,
+              "tier2": 0.02019999999902211,
+              "tier3b": 0.4584000000031665
+            },
+            "categoryAgreement": 1,
+            "byPath": {
+              "math": 196,
+              "neural": 14
+            },
+            "misclassified": [
+              {
+                "id": "presidio-0222",
+                "expect": "allow",
+                "predicted": "block",
+                "types": [
+                  "GOV_ID"
+                ]
+              },
+              {
+                "id": "presidio-aug-008",
+                "expect": "allow",
+                "predicted": "block",
+                "types": [
+                  "CUSTOMER_IDENTITY"
+                ]
+              }
+            ]
+          },
+          {
+            "dataset": "ai4privacy",
+            "route": "B",
+            "startedAt": "2026-10-30T12:35:23.571Z",
+            "durationMs": 4671.104200000002,
+            "observations": 584,
+            "metrics": {
+              "tp": 142,
+              "fp": 13,
+              "tn": 401,
+              "fn": 28,
+              "n": 584,
+              "precision": 0.9161290322580645,
+              "recall": 0.8352941176470589,
+              "f1": 0.8738461538461538,
+              "f2": 0.8502994011976048,
+              "fpr": 0.03140096618357488,
+              "accuracy": 0.9297945205479452
+            },
+            "metricsSource": {
+              "tp": 77,
+              "fp": 13,
+              "tn": 389,
+              "fn": 21,
+              "n": 500,
+              "precision": 0.8555555555555555,
+              "recall": 0.7857142857142857,
+              "f1": 0.8191489361702127,
+              "f2": 0.7987551867219916,
+              "fpr": 0.03233830845771144,
+              "accuracy": 0.932
+            },
+            "metricsAugmented": {
+              "tp": 65,
+              "fp": 0,
+              "tn": 12,
+              "fn": 7,
+              "n": 84,
+              "precision": 1,
+              "recall": 0.9027777777777778,
+              "f1": 0.9489051094890512,
+              "f2": 0.9206798866855526,
+              "fpr": 0,
+              "accuracy": 0.9166666666666666
+            },
+            "checksumInvalid": {
+              "n": 27,
+              "blocked": 1
+            },
+            "latency": {
+              "p50": 8.22839999999269,
+              "p95": 15.116599999979371,
+              "p99": 20.8975999999966,
+              "mean": 7.991327910957894
+            },
+            "tierP50": {
+              "tier1": 0.05640000000130385,
+              "tier3a": 0.07029999999213032,
+              "tier2": 0.03299999999580905,
+              "tier3b": 7.846799999999348
+            },
+            "categoryAgreement": 0.9929577464788732,
+            "byPath": {
+              "neural": 24,
+              "math": 136
+            },
+            "misclassified": [
+              {
+                "id": "ai4privacy-1000-23",
+                "expect": "block",
+                "predicted": "allow",
+                "types": []
+              },
+              {
+                "id": "ai4privacy-1000-37",
+                "expect": "allow",
+                "predicted": "block",
+                "types": [
+                  "GOV_ID"
+                ]
+              },
+              {
+                "id": "ai4privacy-1000-44",
+                "expect": "block",
+                "predicted": "allow",
+                "types": []
+              },
+              {
+                "id": "ai4privacy-1000-69",
+                "expect": "allow",
+                "predicted": "block",
+                "types": [
+                  "PATIENT_IDENTITY"
+                ]
+              },
+              {
+                "id": "ai4privacy-1000-79",
+                "expect": "block",
+                "predicted": "allow",
+                "types": []
+              },
+              {
+                "id": "ai4privacy-1000-90",
+                "expect": "block",
+                "predicted": "allow",
+                "types": []
+              },
+              {
+                "id": "ai4privacy-1000-91",
+                "expect": "block",
+                "predicted": "allow",
+                "types": []
+              },
+              {
+                "id": "ai4privacy-48000-105",
+                "expect": "allow",
+                "predicted": "block",
+                "types": [
+                  "GOV_ID"
+                ]
+              },
+              {
+                "id": "ai4privacy-48000-120",
+                "expect": "block",
+                "predicted": "allow",
+                "types": []
+              },
+              {
+                "id": "ai4privacy-48000-124",
+                "expect": "block",
+                "predicted": "allow",
+                "types": []
+              },
+              {
+                "id": "ai4privacy-48000-141",
+                "expect": "allow",
+                "predicted": "block",
+                "types": [
+                  "GOV_ID"
+                ]
+              },
+              {
+                "id": "ai4privacy-48000-153",
+                "expect": "block",
+                "predicted": "allow",
+                "types": []
+              },
+              {
+                "id": "ai4privacy-48000-159",
+                "expect": "block",
+                "predicted": "allow",
+                "types": []
+              },
+              {
+                "id": "ai4privacy-48000-169",
+                "expect": "allow",
+                "predicted": "block",
+                "types": [
+                  "GOV_ID"
+                ]
+              },
+              {
+                "id": "ai4privacy-48000-181",
+                "expect": "allow",
+                "predicted": "block",
+                "types": [
+                  "GOV_ID"
+                ]
+              },
+              {
+                "id": "ai4privacy-48000-186",
+                "expect": "allow",
+                "predicted": "block",
+                "types": [
+                  "GOV_ID"
+                ]
+              },
+              {
+                "id": "ai4privacy-97000-204",
+                "expect": "block",
+                "predicted": "allow",
+                "types": []
+              },
+              {
+                "id": "ai4privacy-97000-224",
+                "expect": "allow",
+                "predicted": "block",
+                "types": [
+                  "GOV_ID"
+                ]
+              },
+              {
+                "id": "ai4privacy-97000-230",
+                "expect": "block",
+                "predicted": "allow",
+                "types": []
+              },
+              {
+                "id": "ai4privacy-97000-258",
+                "expect": "block",
+                "predicted": "allow",
+                "types": []
+              },
+              {
+                "id": "ai4privacy-97000-274",
+                "expect": "allow",
+                "predicted": "block",
+                "types": [
+                  "GOV_ID"
+                ]
+              },
+              {
+                "id": "ai4privacy-97000-279",
+                "expect": "block",
+                "predicted": "allow",
+                "types": []
+              },
+              {
+                "id": "ai4privacy-143000-301",
+                "expect": "allow",
+                "predicted": "block",
+                "types": [
+                  "GOV_ID"
+                ]
+              },
+              {
+                "id": "ai4privacy-143000-309",
+                "expect": "block",
+                "predicted": "allow",
+                "types": []
+              },
+              {
+                "id": "ai4privacy-143000-376",
+                "expect": "block",
+                "predicted": "allow",
+                "types": []
+              },
+              {
+                "id": "ai4privacy-143000-396",
+                "expect": "block",
+                "predicted": "allow",
+                "types": []
+              },
+              {
+                "id": "ai4privacy-143000-397",
+                "expect": "block",
+                "predicted": "allow",
+                "types": []
+              },
+              {
+                "id": "ai4privacy-191000-408",
+                "expect": "allow",
+                "predicted": "block",
+                "types": [
+                  "GOV_ID"
+                ]
+              },
+              {
+                "id": "ai4privacy-191000-417",
+                "expect": "block",
+                "predicted": "allow",
+                "types": []
+              },
+              {
+                "id": "ai4privacy-191000-420",
+                "expect": "allow",
+                "predicted": "block",
+                "types": [
+                  "GOV_ID"
+                ]
+              },
+              {
+                "id": "ai4privacy-191000-433",
+                "expect": "block",
+                "predicted": "allow",
+                "types": []
+              },
+              {
+                "id": "ai4privacy-191000-439",
+                "expect": "block",
+                "predicted": "allow",
+                "types": []
+              },
+              {
+                "id": "ai4privacy-191000-454",
+                "expect": "block",
+                "predicted": "allow",
+                "types": []
+              },
+              {
+                "id": "ai4privacy-191000-460",
+                "expect": "allow",
+                "predicted": "block",
+                "types": [
+                  "GOV_ID"
+                ]
+              },
+              {
+                "id": "ai4p-aug-006",
+                "expect": "block",
+                "predicted": "allow",
+                "types": []
+              },
+              {
+                "id": "ai4p-aug-020",
+                "expect": "block",
+                "predicted": "allow",
+                "types": []
+              },
+              {
+                "id": "ai4p-aug-027",
+                "expect": "block",
+                "predicted": "allow",
+                "types": []
+              },
+              {
+                "id": "ai4p-aug-048",
+                "expect": "block",
+                "predicted": "allow",
+                "types": []
+              },
+              {
+                "id": "ai4p-aug-062",
+                "expect": "block",
+                "predicted": "allow",
+                "types": []
+              },
+              {
+                "id": "ai4p-aug-076",
+                "expect": "block",
+                "predicted": "allow",
+                "types": []
+              },
+              {
+                "id": "ai4p-aug-083",
+                "expect": "block",
+                "predicted": "allow",
+                "types": []
+              }
+            ]
+          }
+        ]
+      }
+    },
+    "ettin17m-int8": {
+      "meta": {
+        "model": "kalyan-ks__ettin-17m-nemotron-pii",
+        "onnx": "model_int8.onnx",
+        "threads": 4,
+        "maxLen": 512,
+        "runtime": "onnxruntime 1.31.1 CPU",
+        "onnxMB": 17.2,
+        "quantization": {
+          "fp32MB": 67.7,
+          "int8MB": 17.2,
+          "mode": "per-channel",
+          "argmaxAgreement": 0.8534,
+          "tokens": 34386,
+          "maxLogitDrift": 19.5
+        }
+      },
+      "modelLatency": {
+        "edge": {
+          "p50": 2.501,
+          "p95": 13.817,
+          "tokensP50": 29
+        },
+        "enron": {
+          "p50": 13.875,
+          "p95": 60.455,
+          "tokensP50": 290
+        },
+        "presidio": {
+          "p50": 2.255,
+          "p95": 3.615,
+          "tokensP50": 20
+        },
+        "ai4privacy": {
+          "p50": 3.301,
+          "p95": 5.088,
+          "tokensP50": 54
+        }
+      },
+      "policies": {
+        "graph": [
+          {
+            "dataset": "edge",
+            "route": "B",
+            "startedAt": "2026-10-30T12:35:23.984Z",
+            "durationMs": 214.18020000000251,
+            "observations": 25,
+            "metrics": {
+              "tp": 17,
+              "fp": 0,
+              "tn": 8,
+              "fn": 0,
+              "n": 25,
+              "precision": 1,
+              "recall": 1,
+              "f1": 1,
+              "f2": 1,
+              "fpr": 0,
+              "accuracy": 1
+            },
+            "metricsSource": {
+              "tp": 17,
+              "fp": 0,
+              "tn": 8,
+              "fn": 0,
+              "n": 25,
+              "precision": 1,
+              "recall": 1,
+              "f1": 1,
+              "f2": 1,
+              "fpr": 0,
+              "accuracy": 1
+            },
+            "metricsAugmented": null,
+            "checksumInvalid": {
+              "n": 0,
+              "blocked": 0
+            },
+            "latency": {
+              "p50": 4.652600000001257,
+              "p95": 31.347199999989243,
+              "p99": 39.2161999999953,
+              "mean": 8.558327999999747
+            },
+            "tierP50": {
+              "tier1": 0.05520000000251457,
+              "tier3a": 0.016899999987799674,
+              "tier2": 0.023100000020349398,
+              "tier3b": 4.31950000001234
+            },
+            "categoryAgreement": 1,
+            "byPath": {
+              "math": 13,
+              "neural": 2,
+              "minhash": 2
+            },
+            "misclassified": []
+          },
+          {
+            "dataset": "enron",
+            "route": "B",
+            "startedAt": "2026-10-30T12:35:36.791Z",
+            "durationMs": 12804.00529999999,
+            "observations": 300,
+            "metrics": {
+              "tp": 1,
+              "fp": 0,
+              "tn": 299,
+              "fn": 0,
+              "n": 300,
+              "precision": 1,
+              "recall": 1,
+              "f1": 1,
+              "f2": 1,
+              "fpr": 0,
+              "accuracy": 1
+            },
+            "metricsSource": {
+              "tp": 1,
+              "fp": 0,
+              "tn": 299,
+              "fn": 0,
+              "n": 300,
+              "precision": 1,
+              "recall": 1,
+              "f1": 1,
+              "f2": 1,
+              "fpr": 0,
+              "accuracy": 1
+            },
+            "metricsAugmented": null,
+            "checksumInvalid": {
+              "n": 0,
+              "blocked": 0
+            },
+            "latency": {
+              "p50": 29.35670000000391,
+              "p95": 117.1301000000094,
+              "p99": 162.1466000000073,
+              "mean": 42.6709990000005
+            },
+            "tierP50": {
+              "tier1": 0.14180000001215376,
+              "tier3a": 0.3343999999924563,
+              "tier2": 0.7811999999976251,
+              "tier3b": 28.333500000007916
+            },
+            "categoryAgreement": 1,
+            "byPath": {
+              "math": 1
+            },
+            "misclassified": []
+          },
+          {
+            "dataset": "presidio",
+            "route": "B",
+            "startedAt": "2026-10-30T12:35:38.076Z",
+            "durationMs": 1283.7370999999985,
+            "observations": 488,
+            "metrics": {
+              "tp": 208,
+              "fp": 0,
+              "tn": 280,
+              "fn": 0,
+              "n": 488,
+              "precision": 1,
+              "recall": 1,
+              "f1": 1,
+              "f2": 1,
+              "fpr": 0,
+              "accuracy": 1
+            },
+            "metricsSource": {
+              "tp": 178,
+              "fp": 0,
+              "tn": 250,
+              "fn": 0,
+              "n": 428,
+              "precision": 1,
+              "recall": 1,
+              "f1": 1,
+              "f2": 1,
+              "fpr": 0,
+              "accuracy": 1
+            },
+            "metricsAugmented": {
+              "tp": 30,
+              "fp": 0,
+              "tn": 30,
+              "fn": 0,
+              "n": 60,
+              "precision": 1,
+              "recall": 1,
+              "f1": 1,
+              "f2": 1,
+              "fpr": 0,
+              "accuracy": 1
+            },
+            "checksumInvalid": {
+              "n": 0,
+              "blocked": 0
+            },
+            "latency": {
+              "p50": 3.039099999994505,
+              "p95": 7.127100000012433,
+              "p99": 11.092899999988731,
+              "mean": 2.6260299180329207
+            },
+            "tierP50": {
+              "tier1": 0.03279999998630956,
+              "tier3a": 0.012399999977787957,
+              "tier2": 0.01880000001983717,
+              "tier3b": 2.6168999999936204
+            },
+            "categoryAgreement": 1,
+            "byPath": {
+              "math": 196,
+              "neural": 12
+            },
+            "misclassified": []
+          },
+          {
+            "dataset": "ai4privacy",
+            "route": "B",
+            "startedAt": "2026-10-30T12:35:42.759Z",
+            "durationMs": 4680.741399999999,
+            "observations": 584,
+            "metrics": {
+              "tp": 139,
+              "fp": 0,
+              "tn": 414,
+              "fn": 31,
+              "n": 584,
+              "precision": 1,
+              "recall": 0.8176470588235294,
+              "f1": 0.8996763754045307,
+              "f2": 0.8485958485958486,
+              "fpr": 0,
+              "accuracy": 0.946917808219178
+            },
+            "metricsSource": {
+              "tp": 74,
+              "fp": 0,
+              "tn": 402,
+              "fn": 24,
+              "n": 500,
+              "precision": 1,
+              "recall": 0.7551020408163265,
+              "f1": 0.8604651162790697,
+              "f2": 0.7939914163090128,
+              "fpr": 0,
+              "accuracy": 0.952
+            },
+            "metricsAugmented": {
+              "tp": 65,
+              "fp": 0,
+              "tn": 12,
+              "fn": 7,
+              "n": 84,
+              "precision": 1,
+              "recall": 0.9027777777777778,
+              "f1": 0.9489051094890512,
+              "f2": 0.9206798866855526,
+              "fpr": 0,
+              "accuracy": 0.9166666666666666
+            },
+            "checksumInvalid": {
+              "n": 27,
+              "blocked": 0
+            },
+            "latency": {
+              "p50": 8.084600000001956,
+              "p95": 15.312400000024354,
+              "p99": 21.4716999999946,
+              "mean": 8.007799143834434
+            },
+            "tierP50": {
+              "tier1": 0.05780000000959262,
+              "tier3a": 0.06969999999273568,
+              "tier2": 0.034099999989848584,
+              "tier3b": 7.706199999985984
+            },
+            "categoryAgreement": 1,
+            "byPath": {
+              "math": 136,
+              "neural": 4
+            },
+            "misclassified": [
+              {
+                "id": "ai4privacy-1000-3",
+                "expect": "block",
+                "predicted": "allow",
+                "types": []
+              },
+              {
+                "id": "ai4privacy-1000-23",
+                "expect": "block",
+                "predicted": "allow",
+                "types": []
+              },
+              {
+                "id": "ai4privacy-1000-44",
+                "expect": "block",
+                "predicted": "allow",
+                "types": []
+              },
+              {
+                "id": "ai4privacy-1000-62",
+                "expect": "block",
+                "predicted": "allow",
+                "types": []
+              },
+              {
+                "id": "ai4privacy-1000-79",
+                "expect": "block",
+                "predicted": "allow",
+                "types": []
+              },
+              {
+                "id": "ai4privacy-1000-90",
+                "expect": "block",
+                "predicted": "allow",
+                "types": []
+              },
+              {
+                "id": "ai4privacy-1000-91",
+                "expect": "block",
+                "predicted": "allow",
+                "types": []
+              },
+              {
+                "id": "ai4privacy-48000-120",
+                "expect": "block",
+                "predicted": "allow",
+                "types": []
+              },
+              {
+                "id": "ai4privacy-48000-124",
+                "expect": "block",
+                "predicted": "allow",
+                "types": []
+              },
+              {
+                "id": "ai4privacy-48000-153",
+                "expect": "block",
+                "predicted": "allow",
+                "types": []
+              },
+              {
+                "id": "ai4privacy-48000-159",
+                "expect": "block",
+                "predicted": "allow",
+                "types": []
+              },
+              {
+                "id": "ai4privacy-97000-204",
+                "expect": "block",
+                "predicted": "allow",
+                "types": []
+              },
+              {
+                "id": "ai4privacy-97000-230",
+                "expect": "block",
+                "predicted": "allow",
+                "types": []
+              },
+              {
+                "id": "ai4privacy-97000-258",
+                "expect": "block",
+                "predicted": "allow",
+                "types": []
+              },
+              {
+                "id": "ai4privacy-97000-279",
+                "expect": "block",
+                "predicted": "allow",
+                "types": []
+              },
+              {
+                "id": "ai4privacy-143000-309",
+                "expect": "block",
+                "predicted": "allow",
+                "types": []
+              },
+              {
+                "id": "ai4privacy-143000-376",
+                "expect": "block",
+                "predicted": "allow",
+                "types": []
+              },
+              {
+                "id": "ai4privacy-143000-396",
+                "expect": "block",
+                "predicted": "allow",
+                "types": []
+              },
+              {
+                "id": "ai4privacy-143000-397",
+                "expect": "block",
+                "predicted": "allow",
+                "types": []
+              },
+              {
+                "id": "ai4privacy-191000-417",
+                "expect": "block",
+                "predicted": "allow",
+                "types": []
+              },
+              {
+                "id": "ai4privacy-191000-433",
+                "expect": "block",
+                "predicted": "allow",
+                "types": []
+              },
+              {
+                "id": "ai4privacy-191000-439",
+                "expect": "block",
+                "predicted": "allow",
+                "types": []
+              },
+              {
+                "id": "ai4privacy-191000-443",
+                "expect": "block",
+                "predicted": "allow",
+                "types": []
+              },
+              {
+                "id": "ai4privacy-191000-454",
+                "expect": "block",
+                "predicted": "allow",
+                "types": []
+              },
+              {
+                "id": "ai4p-aug-006",
+                "expect": "block",
+                "predicted": "allow",
+                "types": []
+              },
+              {
+                "id": "ai4p-aug-020",
+                "expect": "block",
+                "predicted": "allow",
+                "types": []
+              },
+              {
+                "id": "ai4p-aug-027",
+                "expect": "block",
+                "predicted": "allow",
+                "types": []
+              },
+              {
+                "id": "ai4p-aug-048",
+                "expect": "block",
+                "predicted": "allow",
+                "types": []
+              },
+              {
+                "id": "ai4p-aug-062",
+                "expect": "block",
+                "predicted": "allow",
+                "types": []
+              },
+              {
+                "id": "ai4p-aug-076",
+                "expect": "block",
+                "predicted": "allow",
+                "types": []
+              },
+              {
+                "id": "ai4p-aug-083",
+                "expect": "block",
+                "predicted": "allow",
+                "types": []
+              }
+            ]
+          }
+        ],
+        "graph+gov": [
+          {
+            "dataset": "edge",
+            "route": "B",
+            "startedAt": "2026-10-30T12:35:43.168Z",
+            "durationMs": 216.0862999999954,
+            "observations": 25,
+            "metrics": {
+              "tp": 17,
+              "fp": 0,
+              "tn": 8,
+              "fn": 0,
+              "n": 25,
+              "precision": 1,
+              "recall": 1,
+              "f1": 1,
+              "f2": 1,
+              "fpr": 0,
+              "accuracy": 1
+            },
+            "metricsSource": {
+              "tp": 17,
+              "fp": 0,
+              "tn": 8,
+              "fn": 0,
+              "n": 25,
+              "precision": 1,
+              "recall": 1,
+              "f1": 1,
+              "f2": 1,
+              "fpr": 0,
+              "accuracy": 1
+            },
+            "metricsAugmented": null,
+            "checksumInvalid": {
+              "n": 0,
+              "blocked": 0
+            },
+            "latency": {
+              "p50": 4.605899999995017,
+              "p95": 31.672700000024633,
+              "p99": 42.080099999991944,
+              "mean": 8.63467199999839
+            },
+            "tierP50": {
+              "tier1": 0.05520000000251457,
+              "tier3a": 0.016499999997904524,
+              "tier2": 0.023799999995389953,
+              "tier3b": 4.252399999997579
+            },
+            "categoryAgreement": 1,
+            "byPath": {
+              "math": 13,
+              "neural": 2,
+              "minhash": 2
+            },
+            "misclassified": []
+          },
+          {
+            "dataset": "enron",
+            "route": "B",
+            "startedAt": "2026-10-30T12:35:55.933Z",
+            "durationMs": 12762.579300000012,
+            "observations": 300,
+            "metrics": {
+              "tp": 1,
+              "fp": 0,
+              "tn": 299,
+              "fn": 0,
+              "n": 300,
+              "precision": 1,
+              "recall": 1,
+              "f1": 1,
+              "f2": 1,
+              "fpr": 0,
+              "accuracy": 1
+            },
+            "metricsSource": {
+              "tp": 1,
+              "fp": 0,
+              "tn": 299,
+              "fn": 0,
+              "n": 300,
+              "precision": 1,
+              "recall": 1,
+              "f1": 1,
+              "f2": 1,
+              "fpr": 0,
+              "accuracy": 1
+            },
+            "metricsAugmented": null,
+            "checksumInvalid": {
+              "n": 0,
+              "blocked": 0
+            },
+            "latency": {
+              "p50": 29.499299999995856,
+              "p95": 119.74279999997816,
+              "p99": 156.79219999999623,
+              "mean": 42.532501000000146
+            },
+            "tierP50": {
+              "tier1": 0.1436999999859836,
+              "tier3a": 0.34100000001490116,
+              "tier2": 0.7491999999911059,
+              "tier3b": 28.176800000015646
+            },
+            "categoryAgreement": 1,
+            "byPath": {
+              "math": 1
+            },
+            "misclassified": []
+          },
+          {
+            "dataset": "presidio",
+            "route": "B",
+            "startedAt": "2026-10-30T12:35:57.219Z",
+            "durationMs": 1284.1693000000087,
+            "observations": 488,
+            "metrics": {
+              "tp": 208,
+              "fp": 0,
+              "tn": 280,
+              "fn": 0,
+              "n": 488,
+              "precision": 1,
+              "recall": 1,
+              "f1": 1,
+              "f2": 1,
+              "fpr": 0,
+              "accuracy": 1
+            },
+            "metricsSource": {
+              "tp": 178,
+              "fp": 0,
+              "tn": 250,
+              "fn": 0,
+              "n": 428,
+              "precision": 1,
+              "recall": 1,
+              "f1": 1,
+              "f2": 1,
+              "fpr": 0,
+              "accuracy": 1
+            },
+            "metricsAugmented": {
+              "tp": 30,
+              "fp": 0,
+              "tn": 30,
+              "fn": 0,
+              "n": 60,
+              "precision": 1,
+              "recall": 1,
+              "f1": 1,
+              "f2": 1,
+              "fpr": 0,
+              "accuracy": 1
+            },
+            "checksumInvalid": {
+              "n": 0,
+              "blocked": 0
+            },
+            "latency": {
+              "p50": 3.113100000016857,
+              "p95": 6.884299999976065,
+              "p99": 11.71239999998943,
+              "mean": 2.627043442622857
+            },
+            "tierP50": {
+              "tier1": 0.03239999999641441,
+              "tier3a": 0.012300000002142042,
+              "tier2": 0.016099999978905544,
+              "tier3b": 2.762799999996787
+            },
+            "categoryAgreement": 1,
+            "byPath": {
+              "math": 196,
+              "neural": 12
+            },
+            "misclassified": []
+          },
+          {
+            "dataset": "ai4privacy",
+            "route": "B",
+            "startedAt": "2026-10-30T12:36:01.855Z",
+            "durationMs": 4634.187200000015,
+            "observations": 584,
+            "metrics": {
+              "tp": 139,
+              "fp": 0,
+              "tn": 414,
+              "fn": 31,
+              "n": 584,
+              "precision": 1,
+              "recall": 0.8176470588235294,
+              "f1": 0.8996763754045307,
+              "f2": 0.8485958485958486,
+              "fpr": 0,
+              "accuracy": 0.946917808219178
+            },
+            "metricsSource": {
+              "tp": 74,
+              "fp": 0,
+              "tn": 402,
+              "fn": 24,
+              "n": 500,
+              "precision": 1,
+              "recall": 0.7551020408163265,
+              "f1": 0.8604651162790697,
+              "f2": 0.7939914163090128,
+              "fpr": 0,
+              "accuracy": 0.952
+            },
+            "metricsAugmented": {
+              "tp": 65,
+              "fp": 0,
+              "tn": 12,
+              "fn": 7,
+              "n": 84,
+              "precision": 1,
+              "recall": 0.9027777777777778,
+              "f1": 0.9489051094890512,
+              "f2": 0.9206798866855526,
+              "fpr": 0,
+              "accuracy": 0.9166666666666666
+            },
+            "checksumInvalid": {
+              "n": 27,
+              "blocked": 0
+            },
+            "latency": {
+              "p50": 7.972399999998743,
+              "p95": 14.939600000012433,
+              "p99": 20.588199999998324,
+              "mean": 7.928300856164304
+            },
+            "tierP50": {
+              "tier1": 0.0565000000060536,
+              "tier3a": 0.06919999999809079,
+              "tier2": 0.03229999999166466,
+              "tier3b": 7.733799999987241
+            },
+            "categoryAgreement": 1,
+            "byPath": {
+              "math": 136,
+              "neural": 4
+            },
+            "misclassified": [
+              {
+                "id": "ai4privacy-1000-3",
+                "expect": "block",
+                "predicted": "allow",
+                "types": []
+              },
+              {
+                "id": "ai4privacy-1000-23",
+                "expect": "block",
+                "predicted": "allow",
+                "types": []
+              },
+              {
+                "id": "ai4privacy-1000-44",
+                "expect": "block",
+                "predicted": "allow",
+                "types": []
+              },
+              {
+                "id": "ai4privacy-1000-62",
+                "expect": "block",
+                "predicted": "allow",
+                "types": []
+              },
+              {
+                "id": "ai4privacy-1000-79",
+                "expect": "block",
+                "predicted": "allow",
+                "types": []
+              },
+              {
+                "id": "ai4privacy-1000-90",
+                "expect": "block",
+                "predicted": "allow",
+                "types": []
+              },
+              {
+                "id": "ai4privacy-1000-91",
+                "expect": "block",
+                "predicted": "allow",
+                "types": []
+              },
+              {
+                "id": "ai4privacy-48000-120",
+                "expect": "block",
+                "predicted": "allow",
+                "types": []
+              },
+              {
+                "id": "ai4privacy-48000-124",
+                "expect": "block",
+                "predicted": "allow",
+                "types": []
+              },
+              {
+                "id": "ai4privacy-48000-153",
+                "expect": "block",
+                "predicted": "allow",
+                "types": []
+              },
+              {
+                "id": "ai4privacy-48000-159",
+                "expect": "block",
+                "predicted": "allow",
+                "types": []
+              },
+              {
+                "id": "ai4privacy-97000-204",
+                "expect": "block",
+                "predicted": "allow",
+                "types": []
+              },
+              {
+                "id": "ai4privacy-97000-230",
+                "expect": "block",
+                "predicted": "allow",
+                "types": []
+              },
+              {
+                "id": "ai4privacy-97000-258",
+                "expect": "block",
+                "predicted": "allow",
+                "types": []
+              },
+              {
+                "id": "ai4privacy-97000-279",
+                "expect": "block",
+                "predicted": "allow",
+                "types": []
+              },
+              {
+                "id": "ai4privacy-143000-309",
+                "expect": "block",
+                "predicted": "allow",
+                "types": []
+              },
+              {
+                "id": "ai4privacy-143000-376",
+                "expect": "block",
+                "predicted": "allow",
+                "types": []
+              },
+              {
+                "id": "ai4privacy-143000-396",
+                "expect": "block",
+                "predicted": "allow",
+                "types": []
+              },
+              {
+                "id": "ai4privacy-143000-397",
+                "expect": "block",
+                "predicted": "allow",
+                "types": []
+              },
+              {
+                "id": "ai4privacy-191000-417",
+                "expect": "block",
+                "predicted": "allow",
+                "types": []
+              },
+              {
+                "id": "ai4privacy-191000-433",
+                "expect": "block",
+                "predicted": "allow",
+                "types": []
+              },
+              {
+                "id": "ai4privacy-191000-439",
+                "expect": "block",
+                "predicted": "allow",
+                "types": []
+              },
+              {
+                "id": "ai4privacy-191000-443",
+                "expect": "block",
+                "predicted": "allow",
+                "types": []
+              },
+              {
+                "id": "ai4privacy-191000-454",
+                "expect": "block",
+                "predicted": "allow",
+                "types": []
+              },
+              {
+                "id": "ai4p-aug-006",
+                "expect": "block",
+                "predicted": "allow",
+                "types": []
+              },
+              {
+                "id": "ai4p-aug-020",
+                "expect": "block",
+                "predicted": "allow",
+                "types": []
+              },
+              {
+                "id": "ai4p-aug-027",
+                "expect": "block",
+                "predicted": "allow",
+                "types": []
+              },
+              {
+                "id": "ai4p-aug-048",
+                "expect": "block",
+                "predicted": "allow",
+                "types": []
+              },
+              {
+                "id": "ai4p-aug-062",
+                "expect": "block",
+                "predicted": "allow",
+                "types": []
+              },
+              {
+                "id": "ai4p-aug-076",
+                "expect": "block",
+                "predicted": "allow",
+                "types": []
+              },
+              {
+                "id": "ai4p-aug-083",
+                "expect": "block",
+                "predicted": "allow",
+                "types": []
+              }
+            ]
+          }
+        ]
+      }
+    },
+    "ettin17m-fp32": {
+      "meta": {
+        "model": "kalyan-ks__ettin-17m-nemotron-pii",
+        "onnx": "model.onnx",
+        "threads": 4,
+        "maxLen": 512,
+        "runtime": "onnxruntime 1.31.1 CPU",
+        "onnxMB": 67.7,
+        "quantization": null
+      },
+      "modelLatency": {
+        "edge": {
+          "p50": 2.884,
+          "p95": 15.926,
+          "tokensP50": 29
+        },
+        "enron": {
+          "p50": 18.416,
+          "p95": 82.274,
+          "tokensP50": 290
+        },
+        "presidio": {
+          "p50": 2.548,
+          "p95": 4.535,
+          "tokensP50": 20
+        },
+        "ai4privacy": {
+          "p50": 4.68,
+          "p95": 7.65,
+          "tokensP50": 54
+        }
+      },
+      "policies": {
+        "graph": [
+          {
+            "dataset": "edge",
+            "route": "B",
+            "startedAt": "2026-10-30T12:36:02.292Z",
+            "durationMs": 222.08239999998477,
+            "observations": 25,
+            "metrics": {
+              "tp": 17,
+              "fp": 0,
+              "tn": 8,
+              "fn": 0,
+              "n": 25,
+              "precision": 1,
+              "recall": 1,
+              "f1": 1,
+              "f2": 1,
+              "fpr": 0,
+              "accuracy": 1
+            },
+            "metricsSource": {
+              "tp": 17,
+              "fp": 0,
+              "tn": 8,
+              "fn": 0,
+              "n": 25,
+              "precision": 1,
+              "recall": 1,
+              "f1": 1,
+              "f2": 1,
+              "fpr": 0,
+              "accuracy": 1
+            },
+            "metricsAugmented": null,
+            "checksumInvalid": {
+              "n": 0,
+              "blocked": 0
+            },
+            "latency": {
+              "p50": 5.257699999987381,
+              "p95": 36.37289999998757,
+              "p99": 39.90409999998519,
+              "mean": 8.87389199999976
+            },
+            "tierP50": {
+              "tier1": 0.05560000002151355,
+              "tier3a": 0.018299999996088445,
+              "tier2": 0.02909999998519197,
+              "tier3b": 4.617800000007264
+            },
+            "categoryAgreement": 1,
+            "byPath": {
+              "math": 13,
+              "neural": 2,
+              "minhash": 2
+            },
+            "misclassified": []
+          },
+          {
+            "dataset": "enron",
+            "route": "B",
+            "startedAt": "2026-10-30T12:36:15.190Z",
+            "durationMs": 12895.452900000004,
+            "observations": 300,
+            "metrics": {
+              "tp": 1,
+              "fp": 1,
+              "tn": 298,
+              "fn": 0,
+              "n": 300,
+              "precision": 0.5,
+              "recall": 1,
+              "f1": 0.6666666666666666,
+              "f2": 0.8333333333333334,
+              "fpr": 0.0033444816053511705,
+              "accuracy": 0.9966666666666667
+            },
+            "metricsSource": {
+              "tp": 1,
+              "fp": 1,
+              "tn": 298,
+              "fn": 0,
+              "n": 300,
+              "precision": 0.5,
+              "recall": 1,
+              "f1": 0.6666666666666666,
+              "f2": 0.8333333333333334,
+              "fpr": 0.0033444816053511705,
+              "accuracy": 0.9966666666666667
+            },
+            "metricsAugmented": null,
+            "checksumInvalid": {
+              "n": 0,
+              "blocked": 0
+            },
+            "latency": {
+              "p50": 29.36600000000908,
+              "p95": 121.6362000000081,
+              "p99": 168.61079999999492,
+              "mean": 42.97560299999944
+            },
+            "tierP50": {
+              "tier1": 0.1449000000138767,
+              "tier3a": 0.3366000000096392,
+              "tier2": 0.942799999989802,
+              "tier3b": 28.129099999991013
+            },
+            "categoryAgreement": 1,
+            "byPath": {
+              "neural": 1,
+              "math": 1
+            },
+            "misclassified": [
+              {
+                "id": "enron-133000-128",
+                "expect": "allow",
+                "predicted": "block",
+                "types": [
+                  "CUSTOMER_IDENTITY"
+                ]
+              }
+            ]
+          },
+          {
+            "dataset": "presidio",
+            "route": "B",
+            "startedAt": "2026-10-30T12:36:16.519Z",
+            "durationMs": 1325.8642999999865,
+            "observations": 488,
+            "metrics": {
+              "tp": 208,
+              "fp": 1,
+              "tn": 279,
+              "fn": 0,
+              "n": 488,
+              "precision": 0.9952153110047847,
+              "recall": 1,
+              "f1": 0.9976019184652278,
+              "f2": 0.9990393852065323,
+              "fpr": 0.0035714285714285713,
+              "accuracy": 0.9979508196721312
+            },
+            "metricsSource": {
+              "tp": 178,
+              "fp": 0,
+              "tn": 250,
+              "fn": 0,
+              "n": 428,
+              "precision": 1,
+              "recall": 1,
+              "f1": 1,
+              "f2": 1,
+              "fpr": 0,
+              "accuracy": 1
+            },
+            "metricsAugmented": {
+              "tp": 30,
+              "fp": 1,
+              "tn": 29,
+              "fn": 0,
+              "n": 60,
+              "precision": 0.967741935483871,
+              "recall": 1,
+              "f1": 0.9836065573770492,
+              "f2": 0.9933774834437086,
+              "fpr": 0.03333333333333333,
+              "accuracy": 0.9833333333333333
+            },
+            "checksumInvalid": {
+              "n": 0,
+              "blocked": 0
+            },
+            "latency": {
+              "p50": 3.02379999999539,
+              "p95": 7.781300000002375,
+              "p99": 12.682100000005448,
+              "mean": 2.7121198770495183
+            },
+            "tierP50": {
+              "tier1": 0.03320000000530854,
+              "tier3a": 0.012099999992642552,
+              "tier2": 0.022600000025704503,
+              "tier3b": 0.5106000000087079
+            },
+            "categoryAgreement": 1,
+            "byPath": {
+              "math": 196,
+              "neural": 13
+            },
+            "misclassified": [
+              {
+                "id": "presidio-aug-008",
+                "expect": "allow",
+                "predicted": "block",
+                "types": [
+                  "CUSTOMER_IDENTITY"
+                ]
+              }
+            ]
+          },
+          {
+            "dataset": "ai4privacy",
+            "route": "B",
+            "startedAt": "2026-10-30T12:36:21.167Z",
+            "durationMs": 4646.152800000011,
+            "observations": 584,
+            "metrics": {
+              "tp": 141,
+              "fp": 3,
+              "tn": 411,
+              "fn": 29,
+              "n": 584,
+              "precision": 0.9791666666666666,
+              "recall": 0.8294117647058824,
+              "f1": 0.8980891719745223,
+              "f2": 0.8555825242718447,
+              "fpr": 0.007246376811594203,
+              "accuracy": 0.9452054794520548
+            },
+            "metricsSource": {
+              "tp": 76,
+              "fp": 3,
+              "tn": 399,
+              "fn": 22,
+              "n": 500,
+              "precision": 0.9620253164556962,
+              "recall": 0.7755102040816326,
+              "f1": 0.8587570621468926,
+              "f2": 0.8067940552016983,
+              "fpr": 0.007462686567164179,
+              "accuracy": 0.95
+            },
+            "metricsAugmented": {
+              "tp": 65,
+              "fp": 0,
+              "tn": 12,
+              "fn": 7,
+              "n": 84,
+              "precision": 1,
+              "recall": 0.9027777777777778,
+              "f1": 0.9489051094890512,
+              "f2": 0.9206798866855526,
+              "fpr": 0,
+              "accuracy": 0.9166666666666666
+            },
+            "checksumInvalid": {
+              "n": 27,
+              "blocked": 0
+            },
+            "latency": {
+              "p50": 8.130999999993946,
+              "p95": 14.38509999998496,
+              "p99": 19.963500000012573,
+              "mean": 7.948592808220046
+            },
+            "tierP50": {
+              "tier1": 0.056299999996554106,
+              "tier3a": 0.06840000001830049,
+              "tier2": 0.03960000001825392,
+              "tier3b": 7.75089999998454
+            },
+            "categoryAgreement": 1,
+            "byPath": {
+              "neural": 12,
+              "math": 136
+            },
+            "misclassified": [
+              {
+                "id": "ai4privacy-1000-44",
+                "expect": "block",
+                "predicted": "allow",
+                "types": []
+              },
+              {
+                "id": "ai4privacy-1000-62",
+                "expect": "block",
+                "predicted": "allow",
+                "types": []
+              },
+              {
+                "id": "ai4privacy-1000-69",
+                "expect": "allow",
+                "predicted": "block",
+                "types": [
+                  "PATIENT_IDENTITY"
+                ]
+              },
+              {
+                "id": "ai4privacy-1000-79",
+                "expect": "block",
+                "predicted": "allow",
+                "types": []
+              },
+              {
+                "id": "ai4privacy-1000-90",
+                "expect": "block",
+                "predicted": "allow",
+                "types": []
+              },
+              {
+                "id": "ai4privacy-1000-91",
+                "expect": "block",
+                "predicted": "allow",
+                "types": []
+              },
+              {
+                "id": "ai4privacy-48000-120",
+                "expect": "block",
+                "predicted": "allow",
+                "types": []
+              },
+              {
+                "id": "ai4privacy-48000-124",
+                "expect": "block",
+                "predicted": "allow",
+                "types": []
+              },
+              {
+                "id": "ai4privacy-48000-153",
+                "expect": "block",
+                "predicted": "allow",
+                "types": []
+              },
+              {
+                "id": "ai4privacy-48000-159",
+                "expect": "block",
+                "predicted": "allow",
+                "types": []
+              },
+              {
+                "id": "ai4privacy-97000-204",
+                "expect": "block",
+                "predicted": "allow",
+                "types": []
+              },
+              {
+                "id": "ai4privacy-97000-230",
+                "expect": "block",
+                "predicted": "allow",
+                "types": []
+              },
+              {
+                "id": "ai4privacy-97000-258",
+                "expect": "block",
+                "predicted": "allow",
+                "types": []
+              },
+              {
+                "id": "ai4privacy-97000-279",
+                "expect": "block",
+                "predicted": "allow",
+                "types": []
+              },
+              {
+                "id": "ai4privacy-143000-301",
+                "expect": "allow",
+                "predicted": "block",
+                "types": [
+                  "CUSTOMER_IDENTITY"
+                ]
+              },
+              {
+                "id": "ai4privacy-143000-309",
+                "expect": "block",
+                "predicted": "allow",
+                "types": []
+              },
+              {
+                "id": "ai4privacy-143000-376",
+                "expect": "block",
+                "predicted": "allow",
+                "types": []
+              },
+              {
+                "id": "ai4privacy-143000-396",
+                "expect": "block",
+                "predicted": "allow",
+                "types": []
+              },
+              {
+                "id": "ai4privacy-143000-397",
+                "expect": "block",
+                "predicted": "allow",
+                "types": []
+              },
+              {
+                "id": "ai4privacy-191000-417",
+                "expect": "block",
+                "predicted": "allow",
+                "types": []
+              },
+              {
+                "id": "ai4privacy-191000-433",
+                "expect": "block",
+                "predicted": "allow",
+                "types": []
+              },
+              {
+                "id": "ai4privacy-191000-439",
+                "expect": "block",
+                "predicted": "allow",
+                "types": []
+              },
+              {
+                "id": "ai4privacy-191000-443",
+                "expect": "block",
+                "predicted": "allow",
+                "types": []
+              },
+              {
+                "id": "ai4privacy-191000-454",
+                "expect": "block",
+                "predicted": "allow",
+                "types": []
+              },
+              {
+                "id": "ai4privacy-191000-493",
+                "expect": "allow",
+                "predicted": "block",
+                "types": [
+                  "CUSTOMER_IDENTITY"
+                ]
+              },
+              {
+                "id": "ai4p-aug-006",
+                "expect": "block",
+                "predicted": "allow",
+                "types": []
+              },
+              {
+                "id": "ai4p-aug-020",
+                "expect": "block",
+                "predicted": "allow",
+                "types": []
+              },
+              {
+                "id": "ai4p-aug-027",
+                "expect": "block",
+                "predicted": "allow",
+                "types": []
+              },
+              {
+                "id": "ai4p-aug-048",
+                "expect": "block",
+                "predicted": "allow",
+                "types": []
+              },
+              {
+                "id": "ai4p-aug-062",
+                "expect": "block",
+                "predicted": "allow",
+                "types": []
+              },
+              {
+                "id": "ai4p-aug-076",
+                "expect": "block",
+                "predicted": "allow",
+                "types": []
+              },
+              {
+                "id": "ai4p-aug-083",
+                "expect": "block",
+                "predicted": "allow",
+                "types": []
+              }
+            ]
+          }
+        ],
+        "graph+gov": [
+          {
+            "dataset": "edge",
+            "route": "B",
+            "startedAt": "2026-10-30T12:36:21.579Z",
+            "durationMs": 222.00410000002012,
+            "observations": 25,
+            "metrics": {
+              "tp": 17,
+              "fp": 0,
+              "tn": 8,
+              "fn": 0,
+              "n": 25,
+              "precision": 1,
+              "recall": 1,
+              "f1": 1,
+              "f2": 1,
+              "fpr": 0,
+              "accuracy": 1
+            },
+            "metricsSource": {
+              "tp": 17,
+              "fp": 0,
+              "tn": 8,
+              "fn": 0,
+              "n": 25,
+              "precision": 1,
+              "recall": 1,
+              "f1": 1,
+              "f2": 1,
+              "fpr": 0,
+              "accuracy": 1
+            },
+            "metricsAugmented": null,
+            "checksumInvalid": {
+              "n": 0,
+              "blocked": 0
+            },
+            "latency": {
+              "p50": 4.907600000005914,
+              "p95": 33.26350000000093,
+              "p99": 41.50710000001709,
+              "mean": 8.871108000002568
+            },
+            "tierP50": {
+              "tier1": 0.05659999998169951,
+              "tier3a": 0.017300000006798655,
+              "tier2": 0.026800000021466985,
+              "tier3b": 4.3224000000045635
+            },
+            "categoryAgreement": 1,
+            "byPath": {
+              "math": 13,
+              "neural": 2,
+              "minhash": 2
+            },
+            "misclassified": []
+          },
+          {
+            "dataset": "enron",
+            "route": "B",
+            "startedAt": "2026-10-30T12:36:34.394Z",
+            "durationMs": 12812.884099999996,
+            "observations": 300,
+            "metrics": {
+              "tp": 1,
+              "fp": 1,
+              "tn": 298,
+              "fn": 0,
+              "n": 300,
+              "precision": 0.5,
+              "recall": 1,
+              "f1": 0.6666666666666666,
+              "f2": 0.8333333333333334,
+              "fpr": 0.0033444816053511705,
+              "accuracy": 0.9966666666666667
+            },
+            "metricsSource": {
+              "tp": 1,
+              "fp": 1,
+              "tn": 298,
+              "fn": 0,
+              "n": 300,
+              "precision": 0.5,
+              "recall": 1,
+              "f1": 0.6666666666666666,
+              "f2": 0.8333333333333334,
+              "fpr": 0.0033444816053511705,
+              "accuracy": 0.9966666666666667
+            },
+            "metricsAugmented": null,
+            "checksumInvalid": {
+              "n": 0,
+              "blocked": 0
+            },
+            "latency": {
+              "p50": 29.34870000000228,
+              "p95": 118.74649999997928,
+              "p99": 170.97510000001057,
+              "mean": 42.700411000000024
+            },
+            "tierP50": {
+              "tier1": 0.13980000000447035,
+              "tier3a": 0.32529999999678694,
+              "tier2": 0.9250000000174623,
+              "tier3b": 28.186599999986356
+            },
+            "categoryAgreement": 1,
+            "byPath": {
+              "neural": 1,
+              "math": 1
+            },
+            "misclassified": [
+              {
+                "id": "enron-133000-128",
+                "expect": "allow",
+                "predicted": "block",
+                "types": [
+                  "CUSTOMER_IDENTITY"
+                ]
+              }
+            ]
+          },
+          {
+            "dataset": "presidio",
+            "route": "B",
+            "startedAt": "2026-10-30T12:36:35.699Z",
+            "durationMs": 1303.4956999999995,
+            "observations": 488,
+            "metrics": {
+              "tp": 208,
+              "fp": 1,
+              "tn": 279,
+              "fn": 0,
+              "n": 488,
+              "precision": 0.9952153110047847,
+              "recall": 1,
+              "f1": 0.9976019184652278,
+              "f2": 0.9990393852065323,
+              "fpr": 0.0035714285714285713,
+              "accuracy": 0.9979508196721312
+            },
+            "metricsSource": {
+              "tp": 178,
+              "fp": 0,
+              "tn": 250,
+              "fn": 0,
+              "n": 428,
+              "precision": 1,
+              "recall": 1,
+              "f1": 1,
+              "f2": 1,
+              "fpr": 0,
+              "accuracy": 1
+            },
+            "metricsAugmented": {
+              "tp": 30,
+              "fp": 1,
+              "tn": 29,
+              "fn": 0,
+              "n": 60,
+              "precision": 0.967741935483871,
+              "recall": 1,
+              "f1": 0.9836065573770492,
+              "f2": 0.9933774834437086,
+              "fpr": 0.03333333333333333,
+              "accuracy": 0.9833333333333333
+            },
+            "checksumInvalid": {
+              "n": 0,
+              "blocked": 0
+            },
+            "latency": {
+              "p50": 3.060300000011921,
+              "p95": 7.258399999991525,
+              "p99": 11.692399999999907,
+              "mean": 2.6662915983606132
+            },
+            "tierP50": {
+              "tier1": 0.0328999999910593,
+              "tier3a": 0.012400000006891787,
+              "tier2": 0.021500000002561137,
+              "tier3b": 0.5496999999741092
+            },
+            "categoryAgreement": 1,
+            "byPath": {
+              "math": 196,
+              "neural": 13
+            },
+            "misclassified": [
+              {
+                "id": "presidio-aug-008",
+                "expect": "allow",
+                "predicted": "block",
+                "types": [
+                  "CUSTOMER_IDENTITY"
+                ]
+              }
+            ]
+          },
+          {
+            "dataset": "ai4privacy",
+            "route": "B",
+            "startedAt": "2026-10-30T12:36:40.403Z",
+            "durationMs": 4701.714100000012,
+            "observations": 584,
+            "metrics": {
+              "tp": 141,
+              "fp": 3,
+              "tn": 411,
+              "fn": 29,
+              "n": 584,
+              "precision": 0.9791666666666666,
+              "recall": 0.8294117647058824,
+              "f1": 0.8980891719745223,
+              "f2": 0.8555825242718447,
+              "fpr": 0.007246376811594203,
+              "accuracy": 0.9452054794520548
+            },
+            "metricsSource": {
+              "tp": 76,
+              "fp": 3,
+              "tn": 399,
+              "fn": 22,
+              "n": 500,
+              "precision": 0.9620253164556962,
+              "recall": 0.7755102040816326,
+              "f1": 0.8587570621468926,
+              "f2": 0.8067940552016983,
+              "fpr": 0.007462686567164179,
+              "accuracy": 0.95
+            },
+            "metricsAugmented": {
+              "tp": 65,
+              "fp": 0,
+              "tn": 12,
+              "fn": 7,
+              "n": 84,
+              "precision": 1,
+              "recall": 0.9027777777777778,
+              "f1": 0.9489051094890512,
+              "f2": 0.9206798866855526,
+              "fpr": 0,
+              "accuracy": 0.9166666666666666
+            },
+            "checksumInvalid": {
+              "n": 27,
+              "blocked": 0
+            },
+            "latency": {
+              "p50": 8.130899999989197,
+              "p95": 15.253900000010617,
+              "p99": 21.066400000010617,
+              "mean": 8.043522089041364
+            },
+            "tierP50": {
+              "tier1": 0.056699999957345426,
+              "tier3a": 0.0684999999939464,
+              "tier2": 0.036899999977322295,
+              "tier3b": 7.7105000000447035
+            },
+            "categoryAgreement": 1,
+            "byPath": {
+              "neural": 12,
+              "math": 136
+            },
+            "misclassified": [
+              {
+                "id": "ai4privacy-1000-44",
+                "expect": "block",
+                "predicted": "allow",
+                "types": []
+              },
+              {
+                "id": "ai4privacy-1000-62",
+                "expect": "block",
+                "predicted": "allow",
+                "types": []
+              },
+              {
+                "id": "ai4privacy-1000-69",
+                "expect": "allow",
+                "predicted": "block",
+                "types": [
+                  "PATIENT_IDENTITY"
+                ]
+              },
+              {
+                "id": "ai4privacy-1000-79",
+                "expect": "block",
+                "predicted": "allow",
+                "types": []
+              },
+              {
+                "id": "ai4privacy-1000-90",
+                "expect": "block",
+                "predicted": "allow",
+                "types": []
+              },
+              {
+                "id": "ai4privacy-1000-91",
+                "expect": "block",
+                "predicted": "allow",
+                "types": []
+              },
+              {
+                "id": "ai4privacy-48000-120",
+                "expect": "block",
+                "predicted": "allow",
+                "types": []
+              },
+              {
+                "id": "ai4privacy-48000-124",
+                "expect": "block",
+                "predicted": "allow",
+                "types": []
+              },
+              {
+                "id": "ai4privacy-48000-153",
+                "expect": "block",
+                "predicted": "allow",
+                "types": []
+              },
+              {
+                "id": "ai4privacy-48000-159",
+                "expect": "block",
+                "predicted": "allow",
+                "types": []
+              },
+              {
+                "id": "ai4privacy-97000-204",
+                "expect": "block",
+                "predicted": "allow",
+                "types": []
+              },
+              {
+                "id": "ai4privacy-97000-230",
+                "expect": "block",
+                "predicted": "allow",
+                "types": []
+              },
+              {
+                "id": "ai4privacy-97000-258",
+                "expect": "block",
+                "predicted": "allow",
+                "types": []
+              },
+              {
+                "id": "ai4privacy-97000-279",
+                "expect": "block",
+                "predicted": "allow",
+                "types": []
+              },
+              {
+                "id": "ai4privacy-143000-301",
+                "expect": "allow",
+                "predicted": "block",
+                "types": [
+                  "CUSTOMER_IDENTITY"
+                ]
+              },
+              {
+                "id": "ai4privacy-143000-309",
+                "expect": "block",
+                "predicted": "allow",
+                "types": []
+              },
+              {
+                "id": "ai4privacy-143000-376",
+                "expect": "block",
+                "predicted": "allow",
+                "types": []
+              },
+              {
+                "id": "ai4privacy-143000-396",
+                "expect": "block",
+                "predicted": "allow",
+                "types": []
+              },
+              {
+                "id": "ai4privacy-143000-397",
+                "expect": "block",
+                "predicted": "allow",
+                "types": []
+              },
+              {
+                "id": "ai4privacy-191000-417",
+                "expect": "block",
+                "predicted": "allow",
+                "types": []
+              },
+              {
+                "id": "ai4privacy-191000-433",
+                "expect": "block",
+                "predicted": "allow",
+                "types": []
+              },
+              {
+                "id": "ai4privacy-191000-439",
+                "expect": "block",
+                "predicted": "allow",
+                "types": []
+              },
+              {
+                "id": "ai4privacy-191000-443",
+                "expect": "block",
+                "predicted": "allow",
+                "types": []
+              },
+              {
+                "id": "ai4privacy-191000-454",
+                "expect": "block",
+                "predicted": "allow",
+                "types": []
+              },
+              {
+                "id": "ai4privacy-191000-493",
+                "expect": "allow",
+                "predicted": "block",
+                "types": [
+                  "CUSTOMER_IDENTITY"
+                ]
+              },
+              {
+                "id": "ai4p-aug-006",
+                "expect": "block",
+                "predicted": "allow",
+                "types": []
+              },
+              {
+                "id": "ai4p-aug-020",
+                "expect": "block",
+                "predicted": "allow",
+                "types": []
+              },
+              {
+                "id": "ai4p-aug-027",
+                "expect": "block",
+                "predicted": "allow",
+                "types": []
+              },
+              {
+                "id": "ai4p-aug-048",
+                "expect": "block",
+                "predicted": "allow",
+                "types": []
+              },
+              {
+                "id": "ai4p-aug-062",
+                "expect": "block",
+                "predicted": "allow",
+                "types": []
+              },
+              {
+                "id": "ai4p-aug-076",
+                "expect": "block",
+                "predicted": "allow",
+                "types": []
+              },
+              {
+                "id": "ai4p-aug-083",
+                "expect": "block",
+                "predicted": "allow",
+                "types": []
+              }
+            ]
+          }
+        ]
+      }
+    }
+  }
+}

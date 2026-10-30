@@ -1,29 +1,29 @@
 {
   "mode": "auto (Path B allowed)",
-  "measuredAt": "2026-10-30T08:59:04.926Z",
+  "measuredAt": "2026-10-30T12:01:32.053Z",
   "offscreenMemory": {
-    "mb": 86.7,
+    "mb": 110.2,
     "method": "measureUserAgentSpecificMemory after forced GC (raw CDP, offscreen document)",
     "byType": {
-      "JavaScript @ Window:offscreen.html": 86.3,
-      "Shared @ ": 0.3
+      "JavaScript @ Window:offscreen.html": 109.8,
+      "Shared @ ": 0.4
     }
   },
   "pathBOutcome": {
-    "state": "evicted",
-    "reason": "Degraded → Path A: host memory 958 MB > 150 MB ceiling (measureUserAgentSpecificMemory) (remembered — choose Force WebGPU to retry)",
-    "loadMs": null,
-    "memoryMB": 70.43184185028076,
-    "memoryMethod": "performance.memory JS heap (floored at tracked model bytes)"
+    "state": "ready",
+    "reason": "aionix-pathb-6L (Multilingual-MiniLM, trimmed vocab, INT8) · CPU (ONNX Runtime wasm) · host 118 MB after load (measureUserAgentSpecificMemory)",
+    "loadMs": 220.69500000029802,
+    "memoryMB": 118.38310623168945,
+    "memoryMethod": "measureUserAgentSpecificMemory"
   },
   "engine": {
-    "route": "A",
+    "route": "B",
     "mode": "auto",
     "pathAReady": true,
-    "pathBState": "evicted",
-    "pathBReason": "Degraded → Path A: host memory 958 MB > 150 MB ceiling (measureUserAgentSpecificMemory) (remembered — choose Force WebGPU to retry)",
+    "pathBState": "ready",
+    "pathBReason": "aionix-pathb-6L (Multilingual-MiniLM, trimmed vocab, INT8) · CPU (ONNX Runtime wasm) · host 118 MB after load (measureUserAgentSpecificMemory)",
     "pathBProgress": null,
-    "pathBModel": null,
+    "pathBModel": "aionix-pathb-6L (Multilingual-MiniLM, trimmed vocab, INT8)",
     "hardware": {
       "webgpu": true,
       "eligible": true,
@@ -39,35 +39,35 @@
       "deviceMemoryGB": 32
     },
     "adapterSummary": "intel · gen-12lp",
-    "memoryMB": 86.72978973388672,
+    "memoryMB": 110.21379470825195,
     "memoryMethod": "measureUserAgentSpecificMemory",
     "memoryStale": true,
     "memoryByType": {
-      "Shared": 0.3,
+      "DOM": 0.1,
       "unattributed": 0,
-      "JavaScript @ Window:offscreen.html": 86.3,
-      "DOM": 0.1
+      "Shared": 0.4,
+      "JavaScript @ Window:offscreen.html": 109.8
     },
     "ceilingMB": 150,
-    "fstEntries": 54103,
-    "fstBytes": 3355096,
+    "fstEntries": 80984,
+    "fstBytes": 3626508,
     "edmVectors": 105,
     "edmFields": 250,
     "loadMs": {
-      "pathA": 416.6600000038743,
-      "pathB": null
+      "pathA": 820.9249999970198,
+      "pathB": 220.69500000029802
     }
   },
   "tier2": {
-    "p50": 6.5,
-    "p95": 9.58500000089407
+    "p50": 13.019999995827675,
+    "p95": 20.535000003874302
   },
   "tier3b": {
-    "p50": 0.26999999582767487,
-    "p95": 5.820000000298023
+    "p50": 0.26000000536441803,
+    "p95": 8.005000002682209
   },
   "routes": [
-    "A"
+    "B"
   ],
   "samples": 16
 }

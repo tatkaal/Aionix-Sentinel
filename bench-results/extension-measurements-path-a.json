@@ -1,63 +1,64 @@
 {
-  "mode": "path-a-only (GPU disabled)",
-  "measuredAt": "2026-10-30T08:42:58.612Z",
+  "mode": "path-a-only (Path B evicted, recycled document)",
+  "measuredAt": "2026-10-30T12:18:26.717Z",
   "offscreenMemory": {
-    "mb": 86.7,
+    "mb": 87,
     "method": "measureUserAgentSpecificMemory after forced GC (raw CDP, offscreen document)",
     "byType": {
-      "Shared @ ": 0.4,
-      "JavaScript @ Window:offscreen.html": 86.3
+      "JavaScript @ Window:offscreen.html": 86.6,
+      "Shared @ ": 0.3
     }
   },
+  "pathBOutcome": null,
   "engine": {
     "route": "A",
     "mode": "auto",
     "pathAReady": true,
-    "pathBState": "unavailable",
-    "pathBReason": "No WebGPU adapter available",
+    "pathBState": "evicted",
+    "pathBReason": "measurement: Path A only (remembered — choose Force Path B to retry)",
     "pathBProgress": null,
     "pathBModel": null,
     "hardware": {
-      "webgpu": false,
-      "eligible": false,
-      "reason": "No WebGPU adapter available",
-      "dtype": "q4",
-      "vendor": "",
-      "architecture": "",
+      "webgpu": true,
+      "eligible": true,
+      "reason": "intel gen-12lp · 2048 MB binding · q4f16",
+      "dtype": "q4f16",
+      "vendor": "intel",
+      "architecture": "gen-12lp",
       "description": "",
       "isFallbackAdapter": false,
-      "maxStorageBufferBindingSize": 0,
-      "maxBufferSize": 0,
-      "shaderF16": false,
+      "maxStorageBufferBindingSize": 2147483644,
+      "maxBufferSize": 2147483648,
+      "shaderF16": true,
       "deviceMemoryGB": 32
     },
-    "adapterSummary": "No WebGPU",
-    "memoryMB": 86.7232608795166,
+    "adapterSummary": "intel · gen-12lp",
+    "memoryMB": 86.99136161804199,
     "memoryMethod": "measureUserAgentSpecificMemory",
     "memoryStale": true,
     "memoryByType": {
-      "DOM": 0.1,
-      "JavaScript @ Window:offscreen.html": 86.3,
-      "Shared": 0.4,
-      "unattributed": 0
+      "JavaScript @ Window:offscreen.html": 86.6,
+      "unattributed": 0,
+      "Shared": 0.3,
+      "DOM": 0.1
     },
     "ceilingMB": 150,
-    "fstEntries": 54103,
-    "fstBytes": 3355096,
+    "fstEntries": 80984,
+    "fstBytes": 3626508,
     "edmVectors": 105,
     "edmFields": 250,
     "loadMs": {
-      "pathA": 711.0049999952316,
+      "pathA": 360.83000000566244,
       "pathB": null
     }
   },
   "tier2": {
-    "p50": 6.465000003576279,
-    "p95": 9.255000002682209
+    "p50": 7.169999994337559,
+    "p95": 9.524999998509884
   },
   "tier3b": {
-    "p50": 0.255000002682209,
-    "p95": 7.519999995827675
+    "p50": 0.24499999731779099,
+    "p95": 5.71000000089407
   },
   "routes": [
     "A"
