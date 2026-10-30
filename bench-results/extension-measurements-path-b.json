@@ -1,0 +1,73 @@
+{
+  "mode": "auto (Path B allowed)",
+  "measuredAt": "2026-10-30T08:59:04.926Z",
+  "offscreenMemory": {
+    "mb": 86.7,
+    "method": "measureUserAgentSpecificMemory after forced GC (raw CDP, offscreen document)",
+    "byType": {
+      "JavaScript @ Window:offscreen.html": 86.3,
+      "Shared @ ": 0.3
+    }
+  },
+  "pathBOutcome": {
+    "state": "evicted",
+    "reason": "Degraded → Path A: host memory 958 MB > 150 MB ceiling (measureUserAgentSpecificMemory) (remembered — choose Force WebGPU to retry)",
+    "loadMs": null,
+    "memoryMB": 70.43184185028076,
+    "memoryMethod": "performance.memory JS heap (floored at tracked model bytes)"
+  },
+  "engine": {
+    "route": "A",
+    "mode": "auto",
+    "pathAReady": true,
+    "pathBState": "evicted",
+    "pathBReason": "Degraded → Path A: host memory 958 MB > 150 MB ceiling (measureUserAgentSpecificMemory) (remembered — choose Force WebGPU to retry)",
+    "pathBProgress": null,
+    "pathBModel": null,
+    "hardware": {
+      "webgpu": true,
+      "eligible": true,
+      "reason": "intel gen-12lp · 2048 MB binding · q4f16",
+      "dtype": "q4f16",
+      "vendor": "intel",
+      "architecture": "gen-12lp",
+      "description": "",
+      "isFallbackAdapter": false,
+      "maxStorageBufferBindingSize": 2147483644,
+      "maxBufferSize": 2147483648,
+      "shaderF16": true,
+      "deviceMemoryGB": 32
+    },
+    "adapterSummary": "intel · gen-12lp",
+    "memoryMB": 86.72978973388672,
+    "memoryMethod": "measureUserAgentSpecificMemory",
+    "memoryStale": true,
+    "memoryByType": {
+      "Shared": 0.3,
+      "unattributed": 0,
+      "JavaScript @ Window:offscreen.html": 86.3,
+      "DOM": 0.1
+    },
+    "ceilingMB": 150,
+    "fstEntries": 54103,
+    "fstBytes": 3355096,
+    "edmVectors": 105,
+    "edmFields": 250,
+    "loadMs": {
+      "pathA": 416.6600000038743,
+      "pathB": null
+    }
+  },
+  "tier2": {
+    "p50": 6.5,
+    "p95": 9.58500000089407
+  },
+  "tier3b": {
+    "p50": 0.26999999582767487,
+    "p95": 5.820000000298023
+  },
+  "routes": [
+    "A"
+  ],
+  "samples": 16
+}

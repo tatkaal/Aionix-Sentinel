@@ -24,6 +24,8 @@
     "test:e2e": "playwright test",
     "bench": "tsx scripts/bench.ts",
     "bench:gate": "tsx scripts/bench.ts --gate",
+    "measure:ext": "tsx scripts/measure-extension.ts",
+    "report": "tsx scripts/report-results.ts",
     "data:models": "node scripts/fetch-models.mjs",
     "data:fst": "tsx scripts/build-medical-fst.ts",
     "data:vault": "tsx scripts/build-vault.ts",
