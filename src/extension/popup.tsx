@@ -1,7 +1,7 @@
 import { StrictMode, useCallback, useEffect, useState } from 'react';
 import { createRoot } from 'react-dom/client';
 import { CATEGORIES, type CategoryId } from '../engine/types';
-import { AonixLogo } from '../shared/brand/AonixLogo';
+import { AionixLogo } from '../shared/brand/AionixLogo';
 import { Badge, Button, Dot, Segmented } from '../workbench/components/ui';
 import type { BackgroundRequest, RouteMode, StatusResponse } from './messages';
 import './popup.css';
@@ -32,7 +32,7 @@ function Popup() {
     const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
     const a = document.createElement('a');
     a.href = URL.createObjectURL(blob);
-    a.download = `aonix-audit-${new Date().toISOString().slice(0, 10)}.json`;
+    a.download = `aionix-audit-${new Date().toISOString().slice(0, 10)}.json`;
     a.click();
     URL.revokeObjectURL(a.href);
   };
@@ -40,8 +40,8 @@ function Popup() {
   return (
     <div className="bg-obsidian text-alabaster">
       <header className="flex items-center gap-2.5 border-b border-hairline px-4 py-3">
-        <AonixLogo className="h-[22px] w-auto" />
-        <span className="font-display text-[15px] font-bold">Aonix Sentinel</span>
+        <AionixLogo className="h-[22px] w-auto" />
+        <span className="font-display text-[15px] font-bold">Aionix Sentinel</span>
         <Badge tone="emerald" className="ml-auto">
           <Dot tone="emerald" /> Protecting
         </Badge>

@@ -1,4 +1,4 @@
-# Aonix Sentinel — Architecture
+# Aionix Sentinel — Architecture
 
 ## 1. Runtime topology (Manifest V3)
 

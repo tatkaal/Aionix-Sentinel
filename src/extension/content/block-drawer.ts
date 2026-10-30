@@ -1,6 +1,6 @@
-// Aonix enforcement drawer — rendered in a closed Shadow DOM so portal CSS can't restyle it and
+// Aionix enforcement drawer — rendered in a closed Shadow DOM so portal CSS can't restyle it and
 // portal scripts can't read it. Dynamic values are written with textContent only (no HTML injection).
-import { aonixLogoMarkup } from '../../shared/brand/logo-paths';
+import { aionixLogoMarkup } from '../../shared/brand/logo-paths';
 import { BRAND, FONT_STACK } from '../../shared/brand/tokens';
 
 export interface DrawerItem {
@@ -91,7 +91,7 @@ export class BlockDrawer {
   show(state: DrawerState, handlers: DrawerHandlers): void {
     this.handlers = handlers;
     if (!this.host || !this.host.isConnected) {
-      this.host = document.createElement('aonix-sentinel-drawer');
+      this.host = document.createElement('aionix-sentinel-drawer');
       this.root = this.host.attachShadow({ mode: 'closed' });
       (document.body ?? document.documentElement).appendChild(this.host);
       document.addEventListener('keydown', this.keyHandler, true);
@@ -116,13 +116,13 @@ export class BlockDrawer {
 
     const wrap = el('div', 'wrap');
     wrap.setAttribute('role', state.mode === 'blocked' ? 'alertdialog' : 'status');
-    wrap.setAttribute('aria-labelledby', 'aonix-title');
+    wrap.setAttribute('aria-labelledby', 'aionix-title');
 
     const header = el('header');
     const brand = el('div', 'brand');
     const logo = el('span');
-    logo.innerHTML = aonixLogoMarkup(20); // static, trusted markup
-    brand.append(logo, text('span', 'Aonix Sentinel'));
+    logo.innerHTML = aionixLogoMarkup(20); // static, trusted markup
+    brand.append(logo, text('span', 'Aionix Sentinel'));
     const badge = text('span', state.mode === 'blocked' ? 'Send blocked' : 'Block lifted', `badge ${state.mode === 'blocked' ? 'block' : 'ok'}`);
     const close = el('button', 'x');
     close.setAttribute('aria-label', 'Close');
@@ -134,7 +134,7 @@ export class BlockDrawer {
     if (state.mode === 'lifted') {
       const s = el('div', 'summary');
       const h2 = text('h2', 'Flagged attachment removed');
-      h2.id = 'aonix-title';
+      h2.id = 'aionix-title';
       s.appendChild(h2);
       wrap.appendChild(s);
       wrap.appendChild(text('p', 'No high-risk data remains in this prompt. You can send it now.', 'lifted'));
@@ -145,7 +145,7 @@ export class BlockDrawer {
     const summary = el('div', 'summary');
     const n = state.items.length;
     const h2 = text('h2', `${n} high-risk item${n === 1 ? '' : 's'} stopped before reaching ${state.portalLabel}`);
-    h2.id = 'aonix-title';
+    h2.id = 'aionix-title';
     const p = el('p');
     p.append('Nothing was sent. Inspected locally in ', text('span', `${state.latencyMs.toFixed(1)} ms`, 'mono'), '.');
     summary.append(h2, p);

@@ -7,20 +7,20 @@ import { scanTier1 } from '../engine/tier1';
 import { CATEGORIES } from '../engine/types';
 import { ADAPTERS, adapterForHost, type PortalAdapter } from './content/adapters';
 
-declare const __AONIX_TEST_BUILD__: boolean;
+declare const __AIONIX_TEST_BUILD__: boolean;
 
 const VERIFIED_TTL_MS = 30_000;
 
-class AonixBlockedError extends TypeError {
+class AionixBlockedError extends TypeError {
   constructor() {
-    super('Aonix Sentinel blocked this request: high-risk data detected.');
+    super('Aionix Sentinel blocked this request: high-risk data detected.');
   }
 }
 
 function pickAdapter(): PortalAdapter | null {
   const a = adapterForHost(location.hostname);
   if (a) return a;
-  if (__AONIX_TEST_BUILD__ && location.hostname === 'localhost') {
+  if (__AIONIX_TEST_BUILD__ && location.hostname === 'localhost') {
     return ADAPTERS[location.pathname.split('/')[1] as keyof typeof ADAPTERS] ?? null;
   }
   return null;
@@ -30,7 +30,7 @@ const adapter = pickAdapter();
 
 if (adapter) {
   const verified = new Map<string, number>();
-  document.addEventListener('aonix:verified', (e) => {
+  document.addEventListener('aionix:verified', (e) => {
     const digest = (e as CustomEvent<unknown>).detail;
     if (typeof digest === 'string') verified.set(digest, Date.now() + VERIFIED_TTL_MS);
   });
@@ -48,7 +48,7 @@ if (adapter) {
       category: `Cat ${f.category} · ${CATEGORIES[f.category].label}`,
       masked: maskValue(prompt.slice(f.rawStart, f.rawEnd)),
     }));
-    document.dispatchEvent(new CustomEvent('aonix:backstop-block', { detail: JSON.stringify({ items }) }));
+    document.dispatchEvent(new CustomEvent('aionix:backstop-block', { detail: JSON.stringify({ items }) }));
     return true;
   };
 
@@ -63,11 +63,11 @@ if (adapter) {
   };
 
   const origFetch = window.fetch;
-  window.fetch = async function aonixFetch(this: unknown, input: RequestInfo | URL, init?: RequestInit) {
+  window.fetch = async function aionixFetch(this: unknown, input: RequestInfo | URL, init?: RequestInit) {
     const url = typeof input === 'string' ? input : input instanceof URL ? input.href : input.url;
     if (adapter.completionEndpoint.test(url)) {
       const body = await bodyText(input, init).catch(() => null);
-      if (body != null && inspect(body)) throw new AonixBlockedError();
+      if (body != null && inspect(body)) throw new AionixBlockedError();
     }
     return origFetch.call(this ?? window, input, init);
   } as typeof window.fetch;

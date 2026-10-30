@@ -7,7 +7,7 @@ export const geminiAdapter: PortalAdapter = {
   composerSelectors: ['rich-textarea div.ql-editor[contenteditable="true"][role="textbox"]', 'rich-textarea [contenteditable="true"]'],
   sendButtonSelectors: ['button.send-button', 'button[aria-label="Send message"]', 'button[aria-label*="Send" i]'],
   chipContainerSelectors: ['.file-preview-container', 'uploader-file-preview-container', '.input-area-container'],
-  chipSelectors: ['uploader-file-preview', '.file-preview', '[data-aonix-chip]'],
+  chipSelectors: ['uploader-file-preview', '.file-preview', '[data-aionix-chip]'],
   completionEndpoint: /\/BardFrontendService\/StreamGenerate\b/,
   extractPrompt(body) {
     // Form-encoded `f.req=[null,"<json>"]`; the inner JSON's first element starts with the prompt.

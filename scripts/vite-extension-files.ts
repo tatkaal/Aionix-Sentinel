@@ -45,7 +45,7 @@ function listFiles(root: string): ExtensionFileEntry[] {
 export function extensionFilesPlugin(extDir = 'dist-extension'): Plugin {
   let outDir = 'dist';
   return {
-    name: 'aonix-extension-files',
+    name: 'aionix-extension-files',
     configResolved(config) {
       outDir = config.build.outDir;
     },

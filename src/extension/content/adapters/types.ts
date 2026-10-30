@@ -29,7 +29,7 @@ export const GENERIC_COMPOSER_SELECTORS = [
 ];
 
 export const GENERIC_CHIP_SELECTORS = [
-  '[data-aonix-chip]',
+  '[data-aionix-chip]',
   '[data-testid*="thumbnail" i]',
   '[data-testid*="attachment" i]',
   '[data-testid*="file" i]',

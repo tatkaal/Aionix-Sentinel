@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { AonixLogo } from '../../shared/brand/AonixLogo';
+import { AionixLogo } from '../../shared/brand/AionixLogo';
 import { NAV_WORKSPACES, navigate, type WorkspaceId } from '../router';
 import { cx } from './ui';
 
@@ -23,8 +23,8 @@ export function TopBar({ active }: { active: WorkspaceId }) {
             go('sandbox');
           }}
         >
-          <AonixLogo className="h-[27px] w-auto" />
-          <span className="font-display text-[15px] font-bold tracking-tight text-alabaster">Aonix Sentinel</span>
+          <AionixLogo className="h-[27px] w-auto" />
+          <span className="font-display text-[15px] font-bold tracking-tight text-alabaster">Aionix Sentinel</span>
         </a>
 
         {/* Navigation */}

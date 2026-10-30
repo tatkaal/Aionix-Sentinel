@@ -7,7 +7,7 @@ export const claudeAdapter: PortalAdapter = {
   composerSelectors: ['div.ProseMirror[contenteditable="true"]', 'fieldset [contenteditable="true"][role="textbox"]'],
   sendButtonSelectors: ['button[aria-label="Send message"]', 'button[aria-label="Send Message"]', 'fieldset button[type="submit"]'],
   chipContainerSelectors: ['[data-testid="file-thumbnail-list"]', 'fieldset'],
-  chipSelectors: ['[data-testid="file-thumbnail"]', '[data-testid*="thumbnail" i]', '[data-aonix-chip]'],
+  chipSelectors: ['[data-testid="file-thumbnail"]', '[data-testid*="thumbnail" i]', '[data-aionix-chip]'],
   completionEndpoint: /\/api\/organizations\/[^/]+\/chat_conversations\/[^/]+\/(?:retry_)?completion\b/,
   extractPrompt(body) {
     try {

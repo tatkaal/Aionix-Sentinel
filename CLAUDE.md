@@ -1,6 +1,6 @@
-# CLAUDE.md — Aonix Sentinel agent guide
+# CLAUDE.md — Aionix Sentinel agent guide
 
-Aonix Sentinel is a Manifest V3 Chrome extension that inspects prompts on claude.ai, chatgpt.com and gemini.google.com and blocks high-risk corporate data before it leaves the browser. A React "Workbench" (6 workspaces) demonstrates, benchmarks and packages it. The design rationale lives in [docs/architecture.md](docs/architecture.md); read it before changing engine behaviour.
+Aionix Sentinel is a Manifest V3 Chrome extension that inspects prompts on claude.ai, chatgpt.com and gemini.google.com and blocks high-risk corporate data before it leaves the browser. A React "Workbench" (6 workspaces) demonstrates, benchmarks and packages it. The design rationale lives in [docs/architecture.md](docs/architecture.md); read it before changing engine behaviour.
 
 ## Commands
 
@@ -33,7 +33,7 @@ Aonix Sentinel is a Manifest V3 Chrome extension that inspects prompts on claude
 
 ## Brand
 
-- Logo: `src/shared/brand/logo-paths.ts` (exact 4-path `viewBox="0 0 327 255"` mark). React → `<AonixLogo/>`; Shadow DOM → `aonixLogoMarkup()`.
+- Logo: `src/shared/brand/logo-paths.ts` (exact 4-path `viewBox="0 0 327 255"` mark). React → `<AionixLogo/>`; Shadow DOM → `aionixLogoMarkup()`.
 - Palette (60-30-10): canvas `#090A10`; surfaces `#11131F` / `#181B2C`; text `#F8FAFC`; hairlines `rgba(149,83,251,.14)` / `rgba(255,255,255,.08)`; brand `#5921c3` (hover `#6b2ce0`) + `#9553fb` (active/focus); crimson `#EF4444` = high-risk block, amber `#F59E0B` = contextual/fallback, emerald `#10B981` = clean/gate pass.
 - Type: Plus Jakarta Sans (display 600/700, `text-wrap: balance`), DM Sans (body), JetBrains Mono + `tabular-nums` (metrics, hashes, latency, code).
 - Single-elevation surfaces: no nested cards, no `border-l-4` accent stripes.

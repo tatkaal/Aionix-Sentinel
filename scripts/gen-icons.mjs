@@ -1,10 +1,10 @@
-// Renders the official Aonix mark (assets/brand/aonix-mark.svg) into the MV3 icon sizes.
+// Renders the official Aionix mark (assets/brand/aionix-mark.svg) into the MV3 icon sizes.
 import { Resvg } from '@resvg/resvg-js';
 import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 
 const root = resolve(import.meta.dirname, '..');
-const mark = readFileSync(resolve(root, 'assets/brand/aonix-mark.svg'), 'utf8');
+const mark = readFileSync(resolve(root, 'assets/brand/aionix-mark.svg'), 'utf8');
 const inner = mark.replace(/^[\s\S]*?<svg[^>]*>/, '').replace(/<\/svg>\s*$/, '');
 const outDir = resolve(root, 'assets/icons');
 mkdirSync(outDir, { recursive: true });

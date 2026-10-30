@@ -5,7 +5,7 @@ import { emptyCounters, type BackgroundRequest, type Counters, type EngineStatus
 
 const OFFSCREEN_PATH = 'offscreen.html';
 const MAX_RECORDS = 500;
-const K = { counters: 'aonix.counters', records: 'aonix.records', salt: 'aonix.salt' } as const;
+const K = { counters: 'aionix.counters', records: 'aionix.records', salt: 'aionix.salt' } as const;
 
 let creating: Promise<void> | null = null;
 

@@ -3,7 +3,7 @@
 @import '@fontsource-variable/dm-sans';
 @import '@fontsource-variable/jetbrains-mono';
 
-/* Aonix brand tokens — 60% canvas / 30% surfaces / 10% accents. Mirrored in tokens.ts. */
+/* Aionix brand tokens — 60% canvas / 30% surfaces / 10% accents. Mirrored in tokens.ts. */
 @theme {
   --color-obsidian: #090A10;
   --color-graphite: #11131F;

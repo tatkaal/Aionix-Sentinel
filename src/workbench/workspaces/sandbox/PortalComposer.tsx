@@ -19,7 +19,7 @@ interface ComposerProps {
   portal: PortalId;
   chips: Chip[];
   onRemoveChip: (id: string) => void;
-  /** The portal's own send handler — only reached when Aonix lets the prompt through. */
+  /** The portal's own send handler — only reached when Aionix lets the prompt through. */
   onSend: () => void;
   /** Large pastes become pasted-content.txt chips, like the live portals. */
   onLargePaste: (text: string) => void;
@@ -46,7 +46,7 @@ function ChipRow({
   return (
     <div {...attrs} className={`${extraClass} flex flex-wrap gap-2 empty:hidden`}>
       {chips.map((c) => (
-        <div key={c.id} data-aonix-chip={c.id} className="flex items-center gap-2 rounded-lg border border-hairline bg-white/[0.03] px-2.5 py-1.5 text-xs">
+        <div key={c.id} data-aionix-chip={c.id} className="flex items-center gap-2 rounded-lg border border-hairline bg-white/[0.03] px-2.5 py-1.5 text-xs">
           <svg aria-hidden viewBox="0 0 16 16" className="size-4 text-muted" fill="none" stroke="currentColor" strokeWidth="1.4">
             <path d="M4 1.5h5L12.5 5v9.5h-8.5z M9 1.5V5h3.5" strokeLinejoin="round" />
           </svg>
@@ -55,7 +55,7 @@ function ChipRow({
           <button
             type="button"
             aria-label={`Remove ${c.name}`}
-            data-aonix-chip-remove
+            data-aionix-chip-remove
             onClick={() => onRemoveChip(c.id)}
             className="ml-1 rounded p-0.5 text-subtle hover:bg-white/10 hover:text-alabaster"
           >

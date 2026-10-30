@@ -1,6 +1,6 @@
 {
   "manifest_version": 3,
-  "name": "Aonix Sentinel",
+  "name": "Aionix Sentinel",
   "short_name": "Sentinel",
   "version": "0.1.0",
   "description": "Enterprise AI prompt guard: blocks high-risk corporate data on Claude, ChatGPT and Gemini before it leaves the browser.",
@@ -12,7 +12,7 @@
     "128": "icons/icon-128.png"
   },
   "action": {
-    "default_title": "Aonix Sentinel",
+    "default_title": "Aionix Sentinel",
     "default_popup": "popup.html",
     "default_icon": {
       "16": "icons/icon-16.png",

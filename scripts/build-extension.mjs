@@ -18,7 +18,7 @@ mkdirSync(outDir, { recursive: true });
 
 const define = {
   'process.env.NODE_ENV': JSON.stringify('production'),
-  __AONIX_TEST_BUILD__: JSON.stringify(isTest),
+  __AIONIX_TEST_BUILD__: JSON.stringify(isTest),
 };
 
 const base = {
@@ -42,7 +42,7 @@ for (const [name, entry] of iifeEntries) {
       emptyOutDir: false,
       minify: false,
       target: 'es2022',
-      lib: { entry, formats: ['iife'], name: `Aonix_${name.replace(/-/g, '_')}`, fileName: () => `${name}.js` },
+      lib: { entry, formats: ['iife'], name: `Aionix_${name.replace(/-/g, '_')}`, fileName: () => `${name}.js` },
     },
   });
 }

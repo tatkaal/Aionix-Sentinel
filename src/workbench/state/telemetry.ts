@@ -1,7 +1,7 @@
 import { create } from 'zustand';
 import type { ScanRecord } from '../../engine/telemetry';
 
-const KEY = 'aonix.workbench.telemetry.v1';
+const KEY = 'aionix.workbench.telemetry.v1';
 const MAX = 2000;
 
 function load(): ScanRecord[] {

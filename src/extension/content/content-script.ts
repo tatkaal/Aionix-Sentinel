@@ -10,12 +10,12 @@ import { BlockDrawer } from './block-drawer';
 import { PromptInterceptor } from './interceptor-core';
 import { loadVaultDetector } from './vault-loader';
 
-declare const __AONIX_TEST_BUILD__: boolean;
+declare const __AIONIX_TEST_BUILD__: boolean;
 
 function pickAdapter(): PortalAdapter | null {
   const byHost = adapterForHost(location.hostname);
   if (byHost) return byHost;
-  if (__AONIX_TEST_BUILD__ && location.hostname === 'localhost') {
+  if (__AIONIX_TEST_BUILD__ && location.hostname === 'localhost') {
     const id = location.pathname.split('/')[1] as keyof typeof ADAPTERS;
     return ADAPTERS[id] ?? null;
   }
@@ -81,7 +81,7 @@ if (adapter) {
         })().catch(() => undefined);
       },
       onVerified: (digest) => {
-        document.dispatchEvent(new CustomEvent('aonix:verified', { detail: digest }));
+        document.dispatchEvent(new CustomEvent('aionix:verified', { detail: digest }));
       },
     },
   });
@@ -90,7 +90,7 @@ if (adapter) {
   interceptor.install();
 
   // MAIN-world backstop reports requests it stopped (e.g. content that bypassed the composer).
-  document.addEventListener('aonix:backstop-block', (e) => {
+  document.addEventListener('aionix:backstop-block', (e) => {
     try {
       const detail = JSON.parse((e as CustomEvent<string>).detail) as { items: { label: string; category: string; masked: string }[] };
       drawer.show(

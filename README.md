@@ -1,14 +1,14 @@
 <p align="center">
-  <img src="assets/brand/aonix-mark.svg" alt="" height="56" />
+  <img src="assets/brand/aionix-mark.svg" alt="" height="56" />
 </p>
 
-<h1 align="center">Aonix Sentinel</h1>
+<h1 align="center">Aionix Sentinel</h1>
 
 <p align="center">Enterprise AI prompt guard: a Manifest V3 Chrome extension with a hardware-aware, 3-tier local DLP engine and an operational benchmarking workbench.</p>
 
 ---
 
-Aonix Sentinel inspects what employees type or paste into **Claude.ai**, **ChatGPT** and **Gemini**. It blocks high-risk corporate data before any byte leaves the browser. All inspection runs locally: there is no server round-trip and no remote code.
+Aionix Sentinel inspects what employees type or paste into **Claude.ai**, **ChatGPT** and **Gemini**. It blocks high-risk corporate data before any byte leaves the browser. All inspection runs locally: there is no server round-trip and no remote code.
 
 ## What's inside
 

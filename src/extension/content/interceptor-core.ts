@@ -174,7 +174,7 @@ export class PromptInterceptor {
               if (this.store.findByChip(chip)) continue;
               const att = this.store.bindNextUnbound(chip);
               if (att && this.flagged.has(att.id)) {
-                chip.setAttribute('data-aonix-flagged', 'true');
+                chip.setAttribute('data-aionix-flagged', 'true');
                 (chip as HTMLElement).style.outline = '2px solid #EF4444';
                 (chip as HTMLElement).style.outlineOffset = '2px';
               }
@@ -392,7 +392,7 @@ export class PromptInterceptor {
   private removeAttachment(attId: string) {
     const att = this.store.get(attId);
     const chip = att?.chip as HTMLElement | null | undefined;
-    const btn = chip?.querySelector<HTMLElement>('[data-aonix-chip-remove], button[aria-label*="Remove" i], button[aria-label*="Delete" i]');
+    const btn = chip?.querySelector<HTMLElement>('[data-aionix-chip-remove], button[aria-label*="Remove" i], button[aria-label*="Delete" i]');
     if (btn) {
       btn.click(); // the MutationObserver lifts the block once the chip leaves the DOM
       return;

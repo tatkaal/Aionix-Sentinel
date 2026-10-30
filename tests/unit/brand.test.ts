@@ -1,21 +1,21 @@
 import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { describe, expect, it } from 'vitest';
-import { AONIX_LOGO_PATHS, AONIX_LOGO_VIEWBOX, aonixLogoMarkup } from '../../src/shared/brand/logo-paths';
+import { AIONIX_LOGO_PATHS, AIONIX_LOGO_VIEWBOX, aionixLogoMarkup } from '../../src/shared/brand/logo-paths';
 import { BRAND } from '../../src/shared/brand/tokens';
 
 const root = resolve(import.meta.dirname, '../..');
 
-describe('Aonix mark', () => {
+describe('Aionix mark', () => {
   it('matches the official 4-path SVG asset exactly', () => {
-    const svg = readFileSync(resolve(root, 'assets/brand/aonix-mark.svg'), 'utf8');
+    const svg = readFileSync(resolve(root, 'assets/brand/aionix-mark.svg'), 'utf8');
     const paths = [...svg.matchAll(/<path d="([^"]+)" fill="([^"]+)"/g)].map((m) => ({ d: m[1], fill: m[2] }));
-    expect(svg).toContain(`viewBox="${AONIX_LOGO_VIEWBOX}"`);
-    expect(paths).toEqual(AONIX_LOGO_PATHS.map((p) => ({ d: p.d, fill: p.fill })));
+    expect(svg).toContain(`viewBox="${AIONIX_LOGO_VIEWBOX}"`);
+    expect(paths).toEqual(AIONIX_LOGO_PATHS.map((p) => ({ d: p.d, fill: p.fill })));
   });
 
   it('renders static markup with all four paths', () => {
-    const html = aonixLogoMarkup(24);
+    const html = aionixLogoMarkup(24);
     expect(html.match(/<path /g)).toHaveLength(4);
     expect(html).toContain('viewBox="0 0 327 255"');
   });

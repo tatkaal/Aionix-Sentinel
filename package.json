@@ -1,8 +1,12 @@
 {
-  "name": "aonix-sentinel",
+  "name": "aionix-sentinel",
   "version": "0.1.0",
   "private": true,
   "description": "Enterprise AI prompt guard (Manifest V3) with a hardware-aware 3-tier local DLP engine and benchmark workbench.",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/tatkaal/Aionix-Sentinel.git"
+  },
   "type": "module",
   "engines": {
     "node": ">=22"

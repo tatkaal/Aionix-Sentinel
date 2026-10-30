@@ -14,7 +14,7 @@ import { useTelemetry } from '../../state/telemetry';
 import { PORTALS, PortalComposer, type Chip, type PortalId } from './PortalComposer';
 import { SAMPLE_PROMPTS } from './samples';
 
-const SANDBOX_SALT = 'aonix-workbench-sandbox';
+const SANDBOX_SALT = 'aionix-workbench-sandbox';
 
 const STATUS_TONE: Record<InterceptorStatus, Tone> = {
   idle: 'neutral',

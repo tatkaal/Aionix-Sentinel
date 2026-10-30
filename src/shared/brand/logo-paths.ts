@@ -1,14 +1,14 @@
-// Official Aonix mark — the exact 4-path geometry from the brand blueprint.
-// Single source of truth for <AonixLogo/> (React) and aonixLogoMarkup() (Shadow DOM / plain HTML).
+// Official Aionix mark — the exact 4-path geometry from the brand blueprint.
+// Single source of truth for <AionixLogo/> (React) and aionixLogoMarkup() (Shadow DOM / plain HTML).
 
 export interface LogoPath {
   readonly d: string;
   readonly fill: string;
 }
 
-export const AONIX_LOGO_VIEWBOX = '0 0 327 255';
+export const AIONIX_LOGO_VIEWBOX = '0 0 327 255';
 
-export const AONIX_LOGO_PATHS: readonly LogoPath[] = [
+export const AIONIX_LOGO_PATHS: readonly LogoPath[] = [
   {
     d: 'M116.351 0.158727C135.061 -0.125523 154.212 0.0592222 172.953 0.0567222L192.256 0.0462241C195.651 0.0422241 200.301 -0.107775 203.538 0.155225C203.036 3.02323 199.918 7.99472 198.736 10.8995C190.731 30.555 180.898 49.4317 172.641 68.983C169.309 76.874 165.896 84.6835 162.241 92.433C161.919 93.135 161.887 93.4025 162.059 94.1102C161.179 95.2457 158.115 102.275 157.306 104.054L145.863 129.669C145.259 131.053 142.75 136.964 142.038 137.774L103.903 221.347C100.117 229.562 96.7472 238.034 92.7095 246.184C91.4032 248.822 90.2713 251.844 88.9103 254.417L22.3317 254.399C19.624 254.399 1.6245 254.662 0.134254 254.187L0 253.737L0.480247 253.084C2.705 248.432 4.568 243.932 6.7075 239.319L31.0013 186.342L77.9385 83.6795L103.032 29.003C107.458 19.467 112.198 9.80548 116.351 0.158727Z',
     fill: '#9554FB',
@@ -28,7 +28,7 @@ export const AONIX_LOGO_PATHS: readonly LogoPath[] = [
 ];
 
 /** Static SVG markup of the mark, for Shadow DOM and other non-React surfaces. */
-export function aonixLogoMarkup(height = 27): string {
-  const paths = AONIX_LOGO_PATHS.map((p) => `<path d="${p.d}" fill="${p.fill}"></path>`).join('');
-  return `<svg height="${height}" viewBox="${AONIX_LOGO_VIEWBOX}" fill="none" aria-hidden="true" style="width:auto;display:block">${paths}</svg>`;
+export function aionixLogoMarkup(height = 27): string {
+  const paths = AIONIX_LOGO_PATHS.map((p) => `<path d="${p.d}" fill="${p.fill}"></path>`).join('');
+  return `<svg height="${height}" viewBox="${AIONIX_LOGO_VIEWBOX}" fill="none" aria-hidden="true" style="width:auto;display:block">${paths}</svg>`;
 }
