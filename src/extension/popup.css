@@ -1,0 +1,8 @@
+@import '../shared/brand/tokens.css';
+@source '../workbench/components';
+@source '../shared';
+
+body {
+  width: 380px;
+  margin: 0;
+}
