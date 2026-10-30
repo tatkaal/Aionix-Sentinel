@@ -4,12 +4,14 @@ import { redactionTag, type Finding } from './types';
 export function maskValue(value: string): string {
   const v = value.trim();
   const digits = v.replace(/\D/g, '');
-  if (digits.length >= 8 && digits.length / v.replace(/\s/g, '').length > 0.7) {
-    // Numeric IDs: keep the first and last 4 digits, preserve grouping.
+  if (digits.length >= 6 && digits.length / v.replace(/\s/g, '').length > 0.5) {
+    // Numeric IDs: cards keep first/last 4 (PCI-style); shorter IDs reveal only the last 2 digits.
+    const head = digits.length >= 13 ? 4 : 0;
+    const tail = digits.length >= 13 ? 4 : 2;
     let seen = 0;
     return v.replace(/\d/g, (d) => {
       seen++;
-      return seen <= 4 || seen > digits.length - 4 ? d : '•';
+      return seen <= head || seen > digits.length - tail ? d : '•';
     });
   }
   if (v.length <= 6) return '•'.repeat(v.length);

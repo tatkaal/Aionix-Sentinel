@@ -2,6 +2,7 @@
 //  1. Salted SHA-256 hashes of structured CRM / registry fields (names, account numbers, IDs, MRNs).
 //  2. MiniLM embeddings of vault chunks in an in-memory Orama vector index (cosine > 0.95).
 import { create, insertMultiple, search, type AnyOrama } from '@orama/orama';
+import { chunkText } from '../chunk';
 import type { Embedder } from '../embed/minilm';
 import { sha256Hex } from '../telemetry';
 import type { CategoryId, Finding, FindingSource } from '../types';
@@ -93,53 +94,6 @@ function parseCsv(text: string): string[][] {
 }
 
 /** Text windows that get embedded for a document. */
-export interface TextChunk {
-  text: string;
-  start: number;
-  end: number;
-}
-
-const MIN_CHUNK_WORDS = 12;
-const MAX_CHUNK_WORDS = 120;
-const CSV_ROW = /^[^\n,]*(?:,[^\n,]*){4,}$/;
-
-/**
- * Paragraph-aligned chunking shared by indexing and querying, so a pasted paragraph or table row
- * lines up with the indexed chunk (a 0.95 cosine threshold does not survive misaligned windows).
- * CSV-like lines become one chunk per row; long paragraphs fall back to 90-word windows.
- */
-export function chunkText(text: string): TextChunk[] {
-  const out: TextChunk[] = [];
-  const paraRe = /[^\n]+(?:\n(?!\s*\n)[^\n]*)*/g;
-  for (let m = paraRe.exec(text); m; m = paraRe.exec(text)) {
-    const para = m[0];
-    const base = m.index;
-    const lines = para.split('\n');
-    if (lines.filter((l) => CSV_ROW.test(l)).length >= Math.max(1, lines.length / 2)) {
-      let off = base;
-      for (const line of lines) {
-        if (CSV_ROW.test(line)) out.push({ text: line.trim(), start: off, end: off + line.length });
-        off += line.length + 1;
-      }
-      continue;
-    }
-    const words: { start: number; end: number }[] = [];
-    const wr = /\S+/g;
-    for (let w = wr.exec(para); w; w = wr.exec(para)) words.push({ start: base + w.index, end: base + w.index + w[0].length });
-    if (words.length < MIN_CHUNK_WORDS) continue;
-    if (words.length <= MAX_CHUNK_WORDS) {
-      out.push({ text: text.slice(words[0]!.start, words.at(-1)!.end), start: words[0]!.start, end: words.at(-1)!.end });
-      continue;
-    }
-    for (let i = 0; i < words.length; i += 70) {
-      const last = words[Math.min(words.length, i + 90) - 1]!;
-      out.push({ text: text.slice(words[i]!.start, last.end), start: words[i]!.start, end: last.end });
-      if (i + 90 >= words.length) break;
-    }
-  }
-  return out;
-}
-
 export function chunkDocument(kind: AssetKind, text: string): string[] {
   if (kind === 'table') return text.split(/\r?\n/).slice(1).filter((l) => l.trim());
   if (kind === 'code') {

@@ -1,0 +1,27 @@
+# Common given names (curated, multi-regional). Used only together with capitalisation and a
+# following capitalised surname to form PERSON nodes in Tier 2 Path A. Whitespace-separated.
+aaliyah aaron abdul abigail abraham adam adebayo adele adrian agnes ahmed aiden aisha akira alan albert alejandro alex alexander alexandra alexis alfred ali alice alicia alison amanda amara amelia amir amit amy ana anand andre andrea andrew angela angus anika anil anita ann anna anne annie anthony antoine antonio anya arjun arnav arthur ashley ashok astrid aubrey audrey austin ava avery ayesha
+barbara beatrice beatrix bella ben benjamin bernard beth bethany bianca bill billy bob bonnie brandon brenda brendan brian bridget brittany brooke bruce bruno bryan
+caleb callum cameron camila carl carla carlos carmen carol caroline carolyn carter catherine cecilia chang charles charlie charlotte chen chloe chris christian christina christine christopher claire clara claudia colin connor constance craig cristina cynthia
+daisy dale damian daniel daniela danielle daniyal darius darren david dean deborah declan deepak deepika denise dennis derek desmond diana diane diego dimitri divya dominic donald donna doris dorothy douglas dylan
+edward eileen elena eli elijah elizabeth ella ellen eleanor elif eliza ellie elliot emil emily emma enrique eric erica erin esther ethan eugene eva evan evelyn ewan
+fabian faisal farah fatima felix fergus fernando fiona florence frances francesca francis francisco frank fred freya
+gabriel gabriela gareth gary gavin genevieve george georgia gerald gina giovanni giulia gloria gordon grace graham gregory guadalupe gustavo
+hamish hana hannah hans harold harper harriet harrison harry hassan hayden heather hector helen helena henry hiroshi holly hugo hunter
+ian ibrahim ifeoma ignatius imogen ines ingrid irene isaac isabel isabella isadora isla ivan
+jack jackson jacob jacqueline jade james jamie jan jane janet janice jasmine jason javier jayden jean jeffrey jennifer jeremy jessica jiro joan joanna joel john jonathan jordan jorge jose joseph josephine joshua joy juan judith julia julian julie june justin
+kaito kamal karen karim karina kate katherine kathleen kathryn katie kavya kayla keith kelly kenji kenneth kevin khalid kim kimberly kofi kristen kumar kwame kyle
+lachlan laila lakshmi larry laura lauren leah lee leila leo leon leonard liam lily linda lisa lola lorenzo louis louise lucas lucia lucinda lucy luis luke lydia
+madison maggie mahmoud margaret maria mariam marie marina mark marcus mario marta martha martin mary mason matilda matteo matthew maya megan mehmet mei melissa mia michael michelle miguel mikhail mila min mohamed mohammed molly monica morgan muhammad
+nadia naomi natalia natalie nathan neha neil nicholas nicole nikhil nina noah noor nora norah
+odette olga oliver olivia omar oscar owen
+pablo pamela patricia patrick paul paula pedro penelope peter philip phoebe pooja priya priyanka
+rachel rafael rahul raj rajesh ralph ramon rana raymond rebecca reza richard riley rita robert roberto robin rohan roman rosa rosalind rose ross ruby rupert russell ruth ryan
+sabrina sadia sakura sally samantha samir samuel sandra sara sarah saoirse scott sean sebastian selena seo serena sergei shanti sharon shauna sheila shirley shreya siddharth sienna simon sofia sophia sophie stella stephanie stephen steven sunil susan suzanne sylvia
+tamara tanvir tara taylor teresa terry theo theodore thomas tiffany timothy tom tomasz tony tracy trevor tyler
+uma usha
+valentina valeria vanessa vera veronica victor victoria vikram vincent viktor violet vivian
+walter wanda wei wendy william wilson
+xavier xin
+yasmin yi yuki yusuf yvonne
+zachary zainab zara zoe zoltan

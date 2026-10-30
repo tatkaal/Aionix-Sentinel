@@ -1,0 +1,85 @@
+# Lay and clinical condition terms added to the ICD-10-CM vocabulary (CONDITION class).
+diabetes
+type 1 diabetes
+type 2 diabetes
+cancer
+breast cancer
+lung cancer
+prostate cancer
+colon cancer
+skin cancer
+pancreatic cancer
+leukemia
+leukaemia
+lymphoma
+melanoma
+tumour
+tumor
+hiv
+aids
+hepatitis
+hepatitis b
+hepatitis c
+tuberculosis
+depression
+major depressive disorder
+anxiety disorder
+bipolar disorder
+schizophrenia
+ptsd
+adhd
+autism
+eating disorder
+anorexia
+bulimia
+alcoholism
+substance use disorder
+opioid dependence
+addiction
+asthma
+copd
+hypertension
+high blood pressure
+heart attack
+heart failure
+stroke
+epilepsy
+seizures
+dementia
+alzheimer's disease
+alzheimers
+parkinson's disease
+parkinsons
+multiple sclerosis
+crohn's disease
+ulcerative colitis
+celiac disease
+coeliac disease
+lupus
+rheumatoid arthritis
+psoriasis
+kidney failure
+chronic kidney disease
+dialysis
+cirrhosis
+sepsis
+pneumonia
+covid-19
+long covid
+chlamydia
+gonorrhea
+syphilis
+herpes
+hpv
+infertility
+miscarriage
+pregnancy
+chemotherapy
+radiotherapy
+immunotherapy
+mastectomy
+metastatic
+metastasis
+remission
+terminal illness
+palliative care

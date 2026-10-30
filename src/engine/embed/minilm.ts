@@ -88,11 +88,26 @@ export async function createMiniLmEmbedder(
       return vectors;
   };
 
+  // Tier 2's validator and Tier 3's EDM embed the same paragraph chunks, and re-scans after a
+  // redaction repeat most of them — a small LRU keeps each distinct text to one inference.
+  const cache = new Map<string, Float32Array>();
+  const CACHE_MAX = 256;
+
   return {
     dims: MINILM_DIMS,
     async embed(texts) {
       const out: Float32Array[] = [];
-      for (const t of texts) out.push(await embedOne(t));
+      for (const t of texts) {
+        let v = cache.get(t);
+        if (v) {
+          cache.delete(t);
+        } else {
+          v = await embedOne(t);
+          if (cache.size >= CACHE_MAX) cache.delete(cache.keys().next().value!);
+        }
+        cache.set(t, v);
+        out.push(v);
+      }
       return out;
     },
     async dispose() {

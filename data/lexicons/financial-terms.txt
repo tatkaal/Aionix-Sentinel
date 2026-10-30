@@ -1,0 +1,54 @@
+# Category 8 financial-record terms (FINANCIAL class in the FST). Lower-case phrases.
+account balance
+balance
+available balance
+closing balance
+cash balance
+loan balance
+margin loan
+margin call
+mortgage
+home loan
+personal loan
+credit limit
+credit card balance
+credit score
+credit rating
+overdraft
+outstanding balance
+arrears
+net worth
+portfolio
+portfolio value
+assets under management
+investment account
+brokerage account
+trading account
+superannuation
+super balance
+retirement account
+pension
+wire transfer
+bank transfer
+direct debit
+salary
+annual income
+income
+tax return
+taxable income
+dividends
+capital gains
+holdings
+debt
+liabilities
+loan
+repayments
+term deposit
+savings account
+cheque account
+checking account
+transaction history
+bank statement
+payslip
+inheritance
+trust account
