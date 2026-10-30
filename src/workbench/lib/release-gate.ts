@@ -1,0 +1,36 @@
+// GitHub Actions release gate. The same YAML is committed at .github/workflows/release-gate.yml;
+// the Benchmarks workspace offers it as a download.
+export const RELEASE_GATE_YAML = `name: Release gate
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+jobs:
+  gate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      # MiniLM INT8 + ONNX Runtime wasm, and datasets (AI4Privacy is fetched, not committed). The FST and
+      # vault indexes are committed build artefacts, so CI does not re-download ICD-10-CM / RxNorm.
+      - run: npm run data:models && npm run data:datasets
+      - run: npm run typecheck
+      - run: npm test
+      # Full cascade (Tier 1 + 3A + Tier 2 Path A + 3B) on every dataset; fails below bench-gate.json
+      - run: npm run bench:gate
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: bench-results
+          path: bench-results/
+      - run: npm run build
+      - run: npx playwright install --with-deps chromium
+      - run: npm run build:ext:test && npm run test:e2e
+`;

@@ -1,0 +1,10 @@
+/* Syntax colours for the source viewer (brand-tinted, readable on #090A10). */
+.hljs { color: #d6dbe6; }
+.hljs-keyword, .hljs-built_in, .hljs-literal, .hljs-meta .hljs-keyword { color: #c4a3ff; }
+.hljs-string, .hljs-regexp, .hljs-template-variable { color: #8be0bd; }
+.hljs-number, .hljs-symbol { color: #f5c76b; }
+.hljs-comment, .hljs-quote { color: #6e768c; font-style: italic; }
+.hljs-title, .hljs-title.function_, .hljs-title.class_ { color: #9cc8ff; }
+.hljs-attr, .hljs-attribute, .hljs-property { color: #b8c4ff; }
+.hljs-tag, .hljs-name { color: #c4a3ff; }
+.hljs-type, .hljs-params { color: #d6dbe6; }

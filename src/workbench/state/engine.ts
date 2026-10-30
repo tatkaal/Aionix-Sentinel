@@ -43,6 +43,8 @@ interface EngineState {
   init(): Promise<void>;
   refresh(): Promise<void>;
   setRouteMode(mode: RouteMode): void;
+  /** Applies a route in the worker and resolves with the resulting status (used by benchmarks). */
+  applyRoute(mode: RouteMode): Promise<EngineStatus | null>;
   loadPathB(): Promise<void>;
   scanTier2(text: string, route: 'A' | 'B'): Promise<{ findings: Finding[]; ms: number } | null>;
   addVaultDocument(doc: EdmSourceDoc): Promise<void>;
@@ -86,6 +88,15 @@ export const useEngine = create<EngineState>((set, get) => ({
     set({ routeMode: mode });
     void call<EngineStatus>({ type: 'set-route', mode }).then((status) => set({ status }));
     setTimeout(() => void get().refresh(), 300);
+  },
+  async applyRoute(mode) {
+    try {
+      const status = await call<EngineStatus>({ type: 'set-route', mode });
+      set({ status });
+      return status;
+    } catch {
+      return null;
+    }
   },
   async loadPathB() {
     const p = call<EngineStatus>({ type: 'load-b' }).then((status) => set({ status }));
