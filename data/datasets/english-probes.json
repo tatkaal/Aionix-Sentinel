@@ -1,0 +1,914 @@
+[
+  {
+    "id": "EP001",
+    "dataset": "probes",
+    "title": "OpenAI key pasted in a question",
+    "text": "Why does this fail? client = OpenAI(api_key=\"sk-proj-Qm8xT2vL9pR4kW7nZ1cB5yH3jF6dS0aE2gU8iO4t\")",
+    "expect": "block",
+    "categories": [
+      1
+    ]
+  },
+  {
+    "id": "EP002",
+    "dataset": "probes",
+    "title": "Unprefixed key, \"my api key is\"",
+    "text": "my api key is 9f8e7d6c5b4a39281706f5e4d3c2b1a0 but the request returns 401, any idea why?",
+    "expect": "block",
+    "categories": [
+      1
+    ]
+  },
+  {
+    "id": "EP003",
+    "dataset": "probes",
+    "title": "GitHub token in prose",
+    "text": "use this token to clone the repo: ghp_7Rk2Lm9Qx4Tz8Vb1Nc6Hd3Pw5Ys0Ja2Ge7Uf",
+    "expect": "block",
+    "categories": [
+      1
+    ]
+  },
+  {
+    "id": "EP004",
+    "dataset": "probes",
+    "title": "AWS secret key said in words",
+    "text": "The AWS secret key is wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY, can you check my IAM policy?",
+    "expect": "block",
+    "categories": [
+      1
+    ]
+  },
+  {
+    "id": "EP005",
+    "dataset": "probes",
+    "title": "Bearer JWT in a curl",
+    "text": "curl -H \"Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwicm9sZSI6ImFkbWluIn0.Xk3pQ8vR2mT9wL4nZ7cB1yH5jF0dS6aE\" https://api.internal/v1/users",
+    "expect": "block",
+    "categories": [
+      1
+    ]
+  },
+  {
+    "id": "EP006",
+    "dataset": "probes",
+    "title": "Access token \"is\"",
+    "text": "our slack access token is xoxb-2048-1793-Hq8vT2mR9pL4kW7nZ1cB5yH3 — why is the bot offline?",
+    "expect": "block",
+    "categories": [
+      1
+    ]
+  },
+  {
+    "id": "EP007",
+    "dataset": "probes",
+    "title": "How to rotate an API key",
+    "text": "How do I rotate my OpenAI API key safely without downtime?",
+    "expect": "allow",
+    "categories": []
+  },
+  {
+    "id": "EP008",
+    "dataset": "probes",
+    "title": "Where to find the key",
+    "text": "Where do I find my API key in the Stripe dashboard?",
+    "expect": "allow",
+    "categories": []
+  },
+  {
+    "id": "EP009",
+    "dataset": "probes",
+    "title": "Key handling advice",
+    "text": "Should the api key live in an environment variable or in a secrets manager?",
+    "expect": "allow",
+    "categories": []
+  },
+  {
+    "id": "EP010",
+    "dataset": "probes",
+    "title": "Stakeholder report: \"psw\"",
+    "text": "my current psw is Ohlalalala34%. can you suggest a better one?",
+    "expect": "block",
+    "categories": [
+      2
+    ]
+  },
+  {
+    "id": "EP011",
+    "dataset": "probes",
+    "title": "\"password is\" + low-entropy value",
+    "text": "my password is Ohlalalala34% — is it strong enough?",
+    "expect": "block",
+    "categories": [
+      2
+    ]
+  },
+  {
+    "id": "EP012",
+    "dataset": "probes",
+    "title": "\"pw is\"",
+    "text": "my pw is sunshine!2024, should I change it?",
+    "expect": "block",
+    "categories": [
+      2
+    ]
+  },
+  {
+    "id": "EP013",
+    "dataset": "probes",
+    "title": "\"pwd:\"",
+    "text": "pwd: Tr0ub4dor&3",
+    "expect": "block",
+    "categories": [
+      2
+    ]
+  },
+  {
+    "id": "EP014",
+    "dataset": "probes",
+    "title": "\"pass is\"",
+    "text": "the wifi pass is CoffeeShop2024, can you write it on the welcome card?",
+    "expect": "block",
+    "categories": [
+      2
+    ]
+  },
+  {
+    "id": "EP015",
+    "dataset": "probes",
+    "title": "Words between label and value",
+    "text": "the password for our office wifi is BlueHarbor88! — can you make a sign for the lobby?",
+    "expect": "block",
+    "categories": [
+      2
+    ]
+  },
+  {
+    "id": "EP016",
+    "dataset": "probes",
+    "title": "\"password I use for my bank is\"",
+    "text": "The password I use for my bank is Kangaroo#77. Is that safe?",
+    "expect": "block",
+    "categories": [
+      2
+    ]
+  },
+  {
+    "id": "EP017",
+    "dataset": "probes",
+    "title": "\"changed my password to\"",
+    "text": "I changed my password to Summer2024! yesterday, is that secure enough?",
+    "expect": "block",
+    "categories": [
+      2
+    ]
+  },
+  {
+    "id": "EP018",
+    "dataset": "probes",
+    "title": "\"set the password to\"",
+    "text": "I set the admin password to Qw3rty!Zx on the new router, please document it.",
+    "expect": "block",
+    "categories": [
+      2
+    ]
+  },
+  {
+    "id": "EP019",
+    "dataset": "probes",
+    "title": "Lowercase non-word password, owned",
+    "text": "my password is ohlalala",
+    "expect": "block",
+    "categories": [
+      2
+    ]
+  },
+  {
+    "id": "EP020",
+    "dataset": "probes",
+    "title": "Lower + digit password",
+    "text": "username: m.chen  password: hunter2",
+    "expect": "block",
+    "categories": [
+      2
+    ]
+  },
+  {
+    "id": "EP021",
+    "dataset": "probes",
+    "title": "Credentials pair with slash",
+    "text": "The admin credentials are admin / Xk9#pL2qRv for the staging box.",
+    "expect": "block",
+    "categories": [
+      2
+    ]
+  },
+  {
+    "id": "EP022",
+    "dataset": "probes",
+    "title": "Bank PIN",
+    "text": "my bank PIN is 4821, can you remind me to change it next month?",
+    "expect": "block",
+    "categories": [
+      2
+    ]
+  },
+  {
+    "id": "EP023",
+    "dataset": "probes",
+    "title": "PIN with colon",
+    "text": "Card PIN: 7390",
+    "expect": "block",
+    "categories": [
+      2
+    ]
+  },
+  {
+    "id": "EP024",
+    "dataset": "probes",
+    "title": "Door passcode",
+    "text": "the passcode for the server room door is 482913",
+    "expect": "block",
+    "categories": [
+      2
+    ]
+  },
+  {
+    "id": "EP025",
+    "dataset": "probes",
+    "title": "One-time code",
+    "text": "my one-time code is 739204, can you log in for me?",
+    "expect": "block",
+    "categories": [
+      2
+    ]
+  },
+  {
+    "id": "EP026",
+    "dataset": "probes",
+    "title": "Verification code",
+    "text": "verification code: 551938 — what do I do with it?",
+    "expect": "block",
+    "categories": [
+      2
+    ]
+  },
+  {
+    "id": "EP027",
+    "dataset": "probes",
+    "title": "Self-owned password question",
+    "text": "Can you check if Winter2025$ is a strong password? It is the one I use for my bank.",
+    "expect": "block",
+    "categories": [
+      2
+    ]
+  },
+  {
+    "id": "EP028",
+    "dataset": "probes",
+    "title": "\"creds\" with user / password pair",
+    "text": "here are my creds: jdoe / Summer2024!",
+    "expect": "block",
+    "categories": [
+      2
+    ]
+  },
+  {
+    "id": "EP029",
+    "dataset": "probes",
+    "title": "Juxtaposed \"password <value>\"",
+    "text": "password Summer2024! didn't work for the VPN, what else can I try?",
+    "expect": "block",
+    "categories": [
+      2
+    ]
+  },
+  {
+    "id": "EP030",
+    "dataset": "probes",
+    "title": "Service password",
+    "text": "my netflix password is Summer2024!, can my brother use it?",
+    "expect": "block",
+    "categories": [
+      2
+    ]
+  },
+  {
+    "id": "EP031",
+    "dataset": "probes",
+    "title": "Quoted passphrase",
+    "text": "my passphrase is 'correct horse battery staple'",
+    "expect": "block",
+    "categories": [
+      2
+    ]
+  },
+  {
+    "id": "EP032",
+    "dataset": "probes",
+    "title": "Wi-Fi key",
+    "text": "the wifi key is Sunflower2024 if guests ask",
+    "expect": "block",
+    "categories": [
+      2
+    ]
+  },
+  {
+    "id": "EP033",
+    "dataset": "probes",
+    "title": "WPA2 key with colon",
+    "text": "our WPA2 key: GreenTea!889",
+    "expect": "block",
+    "categories": [
+      2
+    ]
+  },
+  {
+    "id": "EP034",
+    "dataset": "probes",
+    "title": "Alarm code",
+    "text": "my alarm code is 4417, can you add it to the house notes?",
+    "expect": "block",
+    "categories": [
+      2
+    ]
+  },
+  {
+    "id": "EP035",
+    "dataset": "probes",
+    "title": "Gate code",
+    "text": "the gate code is 2580",
+    "expect": "block",
+    "categories": [
+      2
+    ]
+  },
+  {
+    "id": "EP036",
+    "dataset": "probes",
+    "title": "Safe combination",
+    "text": "safe combination: 12-34-56",
+    "expect": "block",
+    "categories": [
+      2
+    ]
+  },
+  {
+    "id": "EP037",
+    "dataset": "probes",
+    "title": "Password manager question",
+    "text": "What is a good password manager for a small team?",
+    "expect": "allow",
+    "categories": []
+  },
+  {
+    "id": "EP038",
+    "dataset": "probes",
+    "title": "\"password is too weak\"",
+    "text": "My password is too weak, how do I make a stronger one?",
+    "expect": "allow",
+    "categories": []
+  },
+  {
+    "id": "EP039",
+    "dataset": "probes",
+    "title": "Password policy",
+    "text": "The password must be at least 12 characters long and include a symbol.",
+    "expect": "allow",
+    "categories": []
+  },
+  {
+    "id": "EP040",
+    "dataset": "probes",
+    "title": "\"password is required\"",
+    "text": "Password is required for this field, but the form still submits without it.",
+    "expect": "allow",
+    "categories": []
+  },
+  {
+    "id": "EP041",
+    "dataset": "probes",
+    "title": "Forgot password",
+    "text": "I forgot my password, how do I reset it?",
+    "expect": "allow",
+    "categories": []
+  },
+  {
+    "id": "EP042",
+    "dataset": "probes",
+    "title": "\"password is stored in\"",
+    "text": "My password is stored in 1Password, so I never type it.",
+    "expect": "allow",
+    "categories": []
+  },
+  {
+    "id": "EP043",
+    "dataset": "probes",
+    "title": "PIN length question",
+    "text": "What is the default PIN length for most Australian bank cards?",
+    "expect": "allow",
+    "categories": []
+  },
+  {
+    "id": "EP044",
+    "dataset": "probes",
+    "title": "Reset PIN question",
+    "text": "How do I reset my PIN if the card is locked?",
+    "expect": "allow",
+    "categories": []
+  },
+  {
+    "id": "EP045",
+    "dataset": "probes",
+    "title": "Passcode email",
+    "text": "Did you get the passcode email from IT this morning?",
+    "expect": "allow",
+    "categories": []
+  },
+  {
+    "id": "EP046",
+    "dataset": "probes",
+    "title": "Verification code prose",
+    "text": "The verification code expires after ten minutes, so enter it quickly.",
+    "expect": "allow",
+    "categories": []
+  },
+  {
+    "id": "EP047",
+    "dataset": "probes",
+    "title": "Gate code instruction",
+    "text": "Enter the gate code at the door and wait for the green light.",
+    "expect": "allow",
+    "categories": []
+  },
+  {
+    "id": "EP048",
+    "dataset": "probes",
+    "title": "Network key UI",
+    "text": "The network key icon is greyed out in Windows settings.",
+    "expect": "allow",
+    "categories": []
+  },
+  {
+    "id": "EP049",
+    "dataset": "probes",
+    "title": "Wi-Fi key naming",
+    "text": "What is the wifi key for guests usually called on a router?",
+    "expect": "allow",
+    "categories": []
+  },
+  {
+    "id": "EP050",
+    "dataset": "probes",
+    "title": "Passphrase advice",
+    "text": "Use a passphrase like four random words instead of a short password.",
+    "expect": "allow",
+    "categories": []
+  },
+  {
+    "id": "EP051",
+    "dataset": "probes",
+    "title": "Password hygiene",
+    "text": "What does password hygiene mean for a small business?",
+    "expect": "allow",
+    "categories": []
+  },
+  {
+    "id": "EP052",
+    "dataset": "probes",
+    "title": "SSN with dashes",
+    "text": "my SSN is 536-28-1947, can you fill in the W-4 for me?",
+    "expect": "block",
+    "categories": [
+      3
+    ]
+  },
+  {
+    "id": "EP053",
+    "dataset": "probes",
+    "title": "SSN spaced, spelled out label",
+    "text": "my social security number is 536 28 1947",
+    "expect": "block",
+    "categories": [
+      3
+    ]
+  },
+  {
+    "id": "EP054",
+    "dataset": "probes",
+    "title": "SSN no separators",
+    "text": "SSN 536281947 — is this on the form?",
+    "expect": "block",
+    "categories": [
+      3
+    ]
+  },
+  {
+    "id": "EP055",
+    "dataset": "probes",
+    "title": "Passport \"no is\"",
+    "text": "my passport no is N8473629, does it need a visa for Japan?",
+    "expect": "block",
+    "categories": [
+      3
+    ]
+  },
+  {
+    "id": "EP056",
+    "dataset": "probes",
+    "title": "Passport number",
+    "text": "Passport number: PA1234567, expiry 2031.",
+    "expect": "block",
+    "categories": [
+      3
+    ]
+  },
+  {
+    "id": "EP057",
+    "dataset": "probes",
+    "title": "Driver licence",
+    "text": "my driver's license number is D1234-5678-9012",
+    "expect": "block",
+    "categories": [
+      3
+    ]
+  },
+  {
+    "id": "EP058",
+    "dataset": "probes",
+    "title": "Passport renewal",
+    "text": "What documents do I need to renew my passport?",
+    "expect": "allow",
+    "categories": []
+  },
+  {
+    "id": "EP059",
+    "dataset": "probes",
+    "title": "SSN timing",
+    "text": "How long does a new SSN application usually take?",
+    "expect": "allow",
+    "categories": []
+  },
+  {
+    "id": "EP060",
+    "dataset": "probes",
+    "title": "TFN \"is\"",
+    "text": "my TFN is 436 612 687, can you check my tax return?",
+    "expect": "block",
+    "categories": [
+      4
+    ]
+  },
+  {
+    "id": "EP061",
+    "dataset": "probes",
+    "title": "Tax file number, no separators",
+    "text": "tax file number: 436612687",
+    "expect": "block",
+    "categories": [
+      4
+    ]
+  },
+  {
+    "id": "EP062",
+    "dataset": "probes",
+    "title": "TFN declaration timing",
+    "text": "When is the TFN declaration due for a new employee?",
+    "expect": "allow",
+    "categories": []
+  },
+  {
+    "id": "EP063",
+    "dataset": "probes",
+    "title": "Card with expiry and CVV",
+    "text": "my card number is 4167 5985 1520 9041, exp 09/27, cvv 123",
+    "expect": "block",
+    "categories": [
+      5
+    ]
+  },
+  {
+    "id": "EP064",
+    "dataset": "probes",
+    "title": "Card dashed in prose",
+    "text": "charge it to 4167-5985-1520-9041 please",
+    "expect": "block",
+    "categories": [
+      5
+    ]
+  },
+  {
+    "id": "EP065",
+    "dataset": "probes",
+    "title": "BSB and account \"is\"",
+    "text": "my account number is 12345678 and the BSB is 062-000",
+    "expect": "block",
+    "categories": [
+      5
+    ]
+  },
+  {
+    "id": "EP066",
+    "dataset": "probes",
+    "title": "BSB + acc abbreviated",
+    "text": "bsb 062-000 acc 1234 5678",
+    "expect": "block",
+    "categories": [
+      5
+    ]
+  },
+  {
+    "id": "EP067",
+    "dataset": "probes",
+    "title": "IBAN spaced",
+    "text": "Please wire it to IBAN GB82 WEST 1234 5698 7654 32.",
+    "expect": "block",
+    "categories": [
+      5
+    ]
+  },
+  {
+    "id": "EP068",
+    "dataset": "probes",
+    "title": "Routing + account \"is\"",
+    "text": "my routing number is 021000021 and my account number is 123456789",
+    "expect": "block",
+    "categories": [
+      5
+    ]
+  },
+  {
+    "id": "EP069",
+    "dataset": "probes",
+    "title": "BSB vs account",
+    "text": "What is the difference between a BSB and an account number?",
+    "expect": "allow",
+    "categories": []
+  },
+  {
+    "id": "EP070",
+    "dataset": "probes",
+    "title": "Test card",
+    "text": "For the sandbox, use the test card 4242 4242 4242 4242 with any future expiry.",
+    "expect": "allow",
+    "categories": []
+  },
+  {
+    "id": "EP071",
+    "dataset": "probes",
+    "title": "Card acceptance",
+    "text": "Do you take Visa and Mastercard at the front desk?",
+    "expect": "allow",
+    "categories": []
+  },
+  {
+    "id": "EP072",
+    "dataset": "probes",
+    "title": "ABN with entity",
+    "text": "our ABN is 31 687 250 518 for Corvane Logistics Pty Ltd",
+    "expect": "block",
+    "categories": [
+      6
+    ]
+  },
+  {
+    "id": "EP073",
+    "dataset": "probes",
+    "title": "Indian PAN",
+    "text": "my PAN is ABCPE1234F, is it linked to my bank?",
+    "expect": "block",
+    "categories": [
+      6
+    ]
+  },
+  {
+    "id": "EP074",
+    "dataset": "probes",
+    "title": "Aadhaar",
+    "text": "my aadhaar is 9118 7448 6470",
+    "expect": "block",
+    "categories": [
+      6
+    ]
+  },
+  {
+    "id": "EP075",
+    "dataset": "probes",
+    "title": "ABN application",
+    "text": "How do I apply for an ABN as a sole trader?",
+    "expect": "allow",
+    "categories": []
+  },
+  {
+    "id": "EP076",
+    "dataset": "probes",
+    "title": "Postgres URI",
+    "text": "it fails to connect: postgres://admin:S3cr3tPass!@db.internal:5432/prod",
+    "expect": "block",
+    "categories": [
+      7
+    ]
+  },
+  {
+    "id": "EP077",
+    "dataset": "probes",
+    "title": "Mongo SRV URI",
+    "text": "MONGO_URL=mongodb+srv://svc:Pa55w0rd99@cluster0.example.net/app",
+    "expect": "block",
+    "categories": [
+      7
+    ]
+  },
+  {
+    "id": "EP078",
+    "dataset": "probes",
+    "title": "ADO.NET string",
+    "text": "Server=sql01;Database=crm;User Id=sa;Password=Winter2025!;",
+    "expect": "block",
+    "categories": [
+      7
+    ]
+  },
+  {
+    "id": "EP079",
+    "dataset": "probes",
+    "title": "mysql -p on the command line",
+    "text": "I run mysql -u root -pS3cr3tPass42 crm_prod and get access denied",
+    "expect": "block",
+    "categories": [
+      7
+    ]
+  },
+  {
+    "id": "EP080",
+    "dataset": "probes",
+    "title": "Database password in prose",
+    "text": "the prod database password is Xk9#pL2qRv, why can my app not log in?",
+    "expect": "block",
+    "categories": [
+      2
+    ]
+  },
+  {
+    "id": "EP081",
+    "dataset": "probes",
+    "title": "Connection-string question",
+    "text": "How do I write a postgres connection string for a local database?",
+    "expect": "allow",
+    "categories": []
+  },
+  {
+    "id": "EP082",
+    "dataset": "probes",
+    "title": "Placeholder URI",
+    "text": "The format is postgres://user:password@host:5432/dbname",
+    "expect": "allow",
+    "categories": []
+  },
+  {
+    "id": "EP083",
+    "dataset": "probes",
+    "title": "Named client with balances",
+    "text": "Client Daniel Whitford — account balance $1,284,500.00, margin loan outstanding $310,000. Write a portfolio review.",
+    "expect": "block",
+    "categories": [
+      8
+    ]
+  },
+  {
+    "id": "EP084",
+    "dataset": "probes",
+    "title": "Mortgage arrears",
+    "text": "Sarah Mitchell owes $412,000 on her mortgage and has missed two repayments. Draft a hardship letter.",
+    "expect": "block",
+    "categories": [
+      8
+    ]
+  },
+  {
+    "id": "EP085",
+    "dataset": "probes",
+    "title": "Savings + account number",
+    "text": "My customer Priya Nair has $87,250 in her savings account (account 30471298). Suggest a term deposit.",
+    "expect": "block",
+    "categories": [
+      8
+    ]
+  },
+  {
+    "id": "EP086",
+    "dataset": "probes",
+    "title": "Market statistic",
+    "text": "What is the average mortgage balance in Australia right now?",
+    "expect": "allow",
+    "categories": []
+  },
+  {
+    "id": "EP087",
+    "dataset": "probes",
+    "title": "Public figure wealth",
+    "text": "What is Warren Buffett's net worth, and how much of his portfolio is in Apple?",
+    "expect": "allow",
+    "categories": []
+  },
+  {
+    "id": "EP088",
+    "dataset": "probes",
+    "title": "Named person, no financial facts",
+    "text": "Draft a memo reminding Sarah Jones that the portfolio review moved to Thursday.",
+    "expect": "allow",
+    "categories": []
+  },
+  {
+    "id": "EP089",
+    "dataset": "probes",
+    "title": "Patient with MRN and diagnosis",
+    "text": "Summarise for the referral: patient Margaret Okafor (MRN 00482913) was diagnosed with type 2 diabetes mellitus and started metformin 500 mg twice daily.",
+    "expect": "block",
+    "categories": [
+      9
+    ]
+  },
+  {
+    "id": "EP090",
+    "dataset": "probes",
+    "title": "Named person, condition and drug",
+    "text": "John Davies is on warfarin 5 mg for atrial fibrillation; can you write his care plan?",
+    "expect": "block",
+    "categories": [
+      9
+    ]
+  },
+  {
+    "id": "EP091",
+    "dataset": "probes",
+    "title": "Sick note for a named person",
+    "text": "Write a sick note for Emily Clarke, who has major depressive disorder and needs two weeks off.",
+    "expect": "block",
+    "categories": [
+      9
+    ]
+  },
+  {
+    "id": "EP092",
+    "dataset": "probes",
+    "title": "Symptom question",
+    "text": "What are the early symptoms of type 2 diabetes?",
+    "expect": "allow",
+    "categories": []
+  },
+  {
+    "id": "EP093",
+    "dataset": "probes",
+    "title": "Drug interaction question",
+    "text": "Is it safe to take ibuprofen while on warfarin?",
+    "expect": "allow",
+    "categories": []
+  },
+  {
+    "id": "EP094",
+    "dataset": "probes",
+    "title": "Self cold",
+    "text": "I have a cold, any tips to sleep better?",
+    "expect": "allow",
+    "categories": []
+  },
+  {
+    "id": "EP095",
+    "dataset": "probes",
+    "title": "15-line excerpt of the proprietary router",
+    "text": "Can you optimise this?\n\nconst MAX_VENUE_PARTICIPATION = 0.143;\nconst ADVERSE_SELECTION_PENALTY_BPS = 2.7;\n\ninterface VenueScore {\n  venue: Venue;\n  fillProbability: number;\n  expectedSlippageBps: number;\n  toxicity: number;\n  composite: number;\n}\n\nexport class AlphaLiquidityRouter extends EventEmitter {\n  private readonly toxicityByVenue = new Map<string, number>();\n  private readonly lastFillAt = new Map<string, number>();\n  private inventorySkew = 0;",
+    "expect": "block",
+    "categories": [
+      10
+    ]
+  },
+  {
+    "id": "EP096",
+    "dataset": "probes",
+    "title": "Paragraph from the confidential memo",
+    "text": "Rewrite this for the board deck:\n\nManagement recommends that the Board authorise a non-binding indicative offer for 100% of Corvane Logistics Group at an enterprise value of AUD 1.86 billion, representing 9.4x trailing EBITDA and a 31% premium to the thirty-day volume weighted average price. Funding would combine a AUD 900 million syndicated term loan, a AUD 450 million institutional placement and existing cash reserves. We propose that the offer be delivered to the Target chair no later than 14 October, ahead of the Target's scheduled investor day.",
+    "expect": "block",
+    "categories": [
+      10
+    ]
+  },
+  {
+    "id": "EP097",
+    "dataset": "probes",
+    "title": "Row copied from the CRM export",
+    "text": "Is this client a good fit for the new fund?\ncustomer_id,full_name,email,account_number,bsb,portfolio_aum_aud,cash_balance_aud,margin_loan_aud,risk_profile,relationship_manager,last_review\nHNW-10426,Priyanka Haddad,priyanka.haddad@clientmail.example,965681027,062-000,48801000,174726.39,0,High Growth,S. Okafor,2026-07-04",
+    "expect": "block",
+    "categories": [
+      8
+    ]
+  },
+  {
+    "id": "EP098",
+    "dataset": "probes",
+    "title": "Generic code question",
+    "text": "How do I debounce a function in TypeScript without a library?",
+    "expect": "allow",
+    "categories": []
+  }
+]

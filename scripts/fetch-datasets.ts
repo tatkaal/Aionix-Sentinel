@@ -1,5 +1,6 @@
 // Builds the four benchmark datasets in data/datasets/ (see docs/datasets.md):
 //   edge-cases.json   24 stakeholder scenarios (generated, committed)
+//   english-probes.json  English disclosure probes, Cat 1–10 + near-misses (generated, committed)
 //   enron.jsonl       LLM-PBE/enron-email sample, labelled allow + manual adjudications (committed)
 //   presidio.jsonl    presidio-research synth_dataset_v2 sample + labelled augmentation (committed)
 //   ai4privacy.jsonl  ai4privacy/pii-masking-200k sample + obfuscation augmentation (gitignored:
@@ -11,6 +12,7 @@ import type { BenchSample } from '../src/engine/bench/types';
 import { ibanValid, luhnValid } from '../src/engine/tier1/checksums';
 import type { CategoryId } from '../src/engine/types';
 import { buildEdgeCases } from './datasets/edge-cases';
+import { buildEnglishProbes } from './datasets/english-probes';
 import {
   CONDITIONS,
   DRUGS,
@@ -50,6 +52,9 @@ async function hfRows(dataset: string, offset: number, length: number): Promise<
 const edge = buildEdgeCases(root);
 writeFileSync(resolve(outDir, 'edge-cases.json'), JSON.stringify(edge, null, 2) + '\n');
 console.log(`edge-cases.json   ${edge.length} scenarios`);
+const probes = buildEnglishProbes(root);
+writeFileSync(resolve(outDir, 'english-probes.json'), JSON.stringify(probes, null, 2) + '\n');
+console.log(`english-probes.json ${probes.length} probes`);
 
 // ── Shared augmentation (labelled; reported separately) ──────────────────────
 function augmentation(r: Rand, prefix: string, n: number): BenchSample[] {

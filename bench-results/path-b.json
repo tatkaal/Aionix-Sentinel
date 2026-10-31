@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-10-30T12:11:06.618Z",
+  "generatedAt": "2026-10-31T12:45:44.261Z",
   "runtime": {
     "kind": "node",
     "node": "v22.14.0",
@@ -8,8 +8,8 @@
   },
   "route": "B",
   "engine": {
-    "fstEntries": 80984,
-    "fstBytes": 3626508,
+    "fstEntries": 81984,
+    "fstBytes": 3632884,
     "edmVectors": 105,
     "edmFields": 250,
     "pathB": "aionix-pathb-6L (Multilingual-MiniLM, trimmed vocab, INT8) · CPU (ONNX Runtime wasm) · host 26 MB after load (tracked model buffers only (lower bound))",
@@ -19,8 +19,8 @@
     {
       "dataset": "edge",
       "route": "B",
-      "startedAt": "2026-10-30T12:10:12.064Z",
-      "durationMs": 527.7618000000002,
+      "startedAt": "2026-10-31T12:44:50.859Z",
+      "durationMs": 518.6418000000012,
       "observations": 25,
       "metrics": {
         "tp": 17,
@@ -54,16 +54,16 @@
         "blocked": 0
       },
       "latency": {
-        "p50": 9.719600000000355,
-        "p95": 56.36620000000039,
-        "p99": 186.89580000000024,
-        "mean": 21.075388000000167
+        "p50": 9.341599999999744,
+        "p95": 51.96930000000066,
+        "p99": 181.53799999999865,
+        "mean": 20.71017600000021
       },
       "tierP50": {
-        "tier1": 0.21630000000004657,
-        "tier3a": 0.06040000000029977,
-        "tier2": 3.6344000000008236,
-        "tier3b": 5.257300000001123
+        "tier1": 0.22159999999894353,
+        "tier3a": 0.06409999999959837,
+        "tier2": 3.7008999999998196,
+        "tier3b": 4.88720000000103
       },
       "categoryAgreement": 1,
       "byPath": {
@@ -74,10 +74,67 @@
       "misclassified": []
     },
     {
+      "dataset": "probes",
+      "route": "B",
+      "startedAt": "2026-10-31T12:44:51.268Z",
+      "durationMs": 406.16079999999965,
+      "observations": 98,
+      "metrics": {
+        "tp": 64,
+        "fp": 0,
+        "tn": 34,
+        "fn": 0,
+        "n": 98,
+        "precision": 1,
+        "recall": 1,
+        "f1": 1,
+        "f2": 1,
+        "fpr": 0,
+        "accuracy": 1
+      },
+      "metricsSource": {
+        "tp": 64,
+        "fp": 0,
+        "tn": 34,
+        "fn": 0,
+        "n": 98,
+        "precision": 1,
+        "recall": 1,
+        "f1": 1,
+        "f2": 1,
+        "fpr": 0,
+        "accuracy": 1
+      },
+      "metricsAugmented": null,
+      "checksumInvalid": {
+        "n": 0,
+        "blocked": 0
+      },
+      "latency": {
+        "p50": 2.578800000001138,
+        "p95": 9.356900000000678,
+        "p99": 23.77059999999983,
+        "mean": 4.134731632653043
+      },
+      "tierP50": {
+        "tier1": 0.06040000000029977,
+        "tier3a": 0.023699999999735155,
+        "tier2": 2.008299999999508,
+        "tier3b": 0.1628999999993539
+      },
+      "categoryAgreement": 1,
+      "byPath": {
+        "math": 55,
+        "neural": 6,
+        "minhash": 3
+      },
+      "misclassified": []
+    },
+    {
       "dataset": "enron",
       "route": "B",
-      "startedAt": "2026-10-30T12:10:32.563Z",
-      "durationMs": 20494.6264,
+      "startedAt": "2026-10-31T12:45:11.229Z",
+      "durationMs": 19958.3693,
       "observations": 300,
       "metrics": {
         "tp": 1,
@@ -111,16 +168,16 @@
         "blocked": 0
       },
       "latency": {
-        "p50": 45.477100000000064,
-        "p95": 189.85919999999896,
-        "p99": 271.0532000000021,
-        "mean": 68.30072099999984
+        "p50": 43.602600000001985,
+        "p95": 186.64400000000023,
+        "p99": 264.2677999999978,
+        "mean": 66.51470266666651
       },
       "tierP50": {
-        "tier1": 0.1602999999995518,
-        "tier3a": 0.1647000000011758,
-        "tier2": 14.92450000000099,
-        "tier3b": 28.980200000001787
+        "tier1": 0.17849999999816646,
+        "tier3a": 0.1621000000013737,
+        "tier2": 14.992299999998068,
+        "tier3b": 27.558199999999488
       },
       "categoryAgreement": 1,
       "byPath": {
@@ -141,8 +198,8 @@
     {
       "dataset": "presidio",
       "route": "B",
-      "startedAt": "2026-10-30T12:10:35.156Z",
-      "durationMs": 2590.7307,
+      "startedAt": "2026-10-31T12:45:13.747Z",
+      "durationMs": 2516.798499999997,
       "observations": 488,
       "metrics": {
         "tp": 208,
@@ -188,16 +245,16 @@
         "blocked": 0
       },
       "latency": {
-        "p50": 5.653500000000349,
-        "p95": 11.088499999998021,
-        "p99": 17.246899999998277,
-        "mean": 5.2970266393443675
+        "p50": 5.544399999998859,
+        "p95": 10.655900000005204,
+        "p99": 17.02730000000156,
+        "mean": 5.146529918032952
       },
       "tierP50": {
-        "tier1": 0.049099999996542465,
-        "tier3a": 0.01569999999628635,
-        "tier2": 2.3801000000021304,
-        "tier3b": 0.6494999999995343
+        "tier1": 0.05350000000180444,
+        "tier3a": 0.018599999995785765,
+        "tier2": 2.3870999999999185,
+        "tier3b": 0.6342000000004191
       },
       "categoryAgreement": 1,
       "byPath": {
@@ -209,8 +266,8 @@
     {
       "dataset": "ai4privacy",
       "route": "B",
-      "startedAt": "2026-10-30T12:10:42.034Z",
-      "durationMs": 6875.6932000000015,
+      "startedAt": "2026-10-31T12:45:20.430Z",
+      "durationMs": 6679.7307999999975,
       "observations": 584,
       "metrics": {
         "tp": 143,
@@ -256,16 +313,16 @@
         "blocked": 0
       },
       "latency": {
-        "p50": 12.067699999999604,
-        "p95": 20.130899999996473,
-        "p99": 27.52780000000348,
-        "mean": 11.759582191780769
+        "p50": 11.53570000000036,
+        "p95": 19.468800000002375,
+        "p99": 26.47490000000107,
+        "mean": 11.425393835616413
       },
       "tierP50": {
-        "tier1": 0.07250000000203727,
-        "tier3a": 0.04039999999804422,
-        "tier2": 3.8035999999992782,
-        "tier3b": 7.9649999999965075
+        "tier1": 0.07200000000011642,
+        "tier3a": 0.04439999999885913,
+        "tier2": 3.839700000004086,
+        "tier3b": 7.5438000000067404
       },
       "categoryAgreement": 1,
       "byPath": {
@@ -456,8 +513,8 @@
     {
       "dataset": "enron-holdout",
       "route": "B",
-      "startedAt": "2026-10-30T12:11:00.059Z",
-      "durationMs": 18015.0207,
+      "startedAt": "2026-10-31T12:45:37.958Z",
+      "durationMs": 17512.653600000005,
       "observations": 300,
       "metrics": {
         "tp": 1,
@@ -491,16 +548,16 @@
         "blocked": 0
       },
       "latency": {
-        "p50": 41.42349999999715,
-        "p95": 164.66369999999733,
-        "p99": 249.0263999999952,
-        "mean": 60.03355800000022
+        "p50": 40.32069999999658,
+        "p95": 160.11450000000332,
+        "p99": 236.96160000000236,
+        "mean": 58.36101833333353
       },
       "tierP50": {
-        "tier1": 0.1422999999995227,
-        "tier3a": 0.15060000000084983,
-        "tier2": 13.669300000001385,
-        "tier3b": 27.770799999998417
+        "tier1": 0.15529999999853317,
+        "tier3a": 0.1595999999990454,
+        "tier2": 13.639400000000023,
+        "tier3b": 26.691100000003644
       },
       "categoryAgreement": 1,
       "byPath": {
@@ -561,34 +618,34 @@
     {
       "dataset": "ai4privacy-holdout",
       "route": "B",
-      "startedAt": "2026-10-30T12:11:06.617Z",
-      "durationMs": 6556.051199999994,
+      "startedAt": "2026-10-31T12:45:44.259Z",
+      "durationMs": 6298.873099999997,
       "observations": 500,
       "metrics": {
         "tp": 59,
-        "fp": 7,
-        "tn": 411,
+        "fp": 8,
+        "tn": 410,
         "fn": 23,
         "n": 500,
-        "precision": 0.8939393939393939,
+        "precision": 0.8805970149253731,
         "recall": 0.7195121951219512,
-        "f1": 0.7972972972972974,
-        "f2": 0.748730964467005,
-        "fpr": 0.01674641148325359,
-        "accuracy": 0.94
+        "f1": 0.7919463087248323,
+        "f2": 0.7468354430379747,
+        "fpr": 0.019138755980861243,
+        "accuracy": 0.938
       },
       "metricsSource": {
         "tp": 59,
-        "fp": 7,
-        "tn": 411,
+        "fp": 8,
+        "tn": 410,
         "fn": 23,
         "n": 500,
-        "precision": 0.8939393939393939,
+        "precision": 0.8805970149253731,
         "recall": 0.7195121951219512,
-        "f1": 0.7972972972972974,
-        "f2": 0.748730964467005,
-        "fpr": 0.01674641148325359,
-        "accuracy": 0.94
+        "f1": 0.7919463087248323,
+        "f2": 0.7468354430379747,
+        "fpr": 0.019138755980861243,
+        "accuracy": 0.938
       },
       "metricsAugmented": null,
       "checksumInvalid": {
@@ -596,20 +653,20 @@
         "blocked": 0
       },
       "latency": {
-        "p50": 12.465199999998731,
-        "p95": 20.68279999999504,
-        "p99": 24.95539999999164,
-        "mean": 13.096289600000192
+        "p50": 11.953999999997905,
+        "p95": 19.9201999999932,
+        "p99": 23.578800000002957,
+        "mean": 12.58304400000033
       },
       "tierP50": {
-        "tier1": 0.07110000000102445,
-        "tier3a": 0.04019999999582069,
-        "tier2": 3.989800000003015,
-        "tier3b": 8.314799999992829
+        "tier1": 0.07499999999708962,
+        "tier3a": 0.04469999999855645,
+        "tier2": 3.91990000000078,
+        "tier3b": 7.831500000000233
       },
       "categoryAgreement": 0.9830508474576272,
       "byPath": {
-        "math": 58,
+        "math": 59,
         "neural": 12
       },
       "misclassified": [
@@ -788,6 +845,14 @@
           "types": []
         },
         {
+          "id": "ai4privacy-holdout-205000-451",
+          "expect": "allow",
+          "predicted": "block",
+          "types": [
+            "PASSWORD"
+          ]
+        },
+        {
           "id": "ai4privacy-holdout-205000-481",
           "expect": "block",
           "predicted": "allow",
@@ -809,5 +874,211 @@
         }
       ]
     }
-  ]
+  ],
+  "english": {
+    "ai4privacy": {
+      "dataset": "ai4privacy",
+      "route": "B",
+      "startedAt": "2026-10-31T12:45:20.432Z",
+      "durationMs": 0,
+      "observations": 100,
+      "metrics": {
+        "tp": 18,
+        "fp": 1,
+        "tn": 76,
+        "fn": 5,
+        "n": 100,
+        "precision": 0.9473684210526315,
+        "recall": 0.782608695652174,
+        "f1": 0.8571428571428571,
+        "f2": 0.8108108108108107,
+        "fpr": 0.012987012987012988,
+        "accuracy": 0.94
+      },
+      "metricsSource": {
+        "tp": 18,
+        "fp": 1,
+        "tn": 76,
+        "fn": 5,
+        "n": 100,
+        "precision": 0.9473684210526315,
+        "recall": 0.782608695652174,
+        "f1": 0.8571428571428571,
+        "f2": 0.8108108108108107,
+        "fpr": 0.012987012987012988,
+        "accuracy": 0.94
+      },
+      "metricsAugmented": null,
+      "checksumInvalid": {
+        "n": 3,
+        "blocked": 0
+      },
+      "latency": {
+        "p50": 9.95219999999972,
+        "p95": 16.366000000001804,
+        "p99": 20.872500000004948,
+        "mean": 10.53092500000006
+      },
+      "tierP50": {
+        "tier1": 0.07259999999951106,
+        "tier3a": 0.04439999999885913,
+        "tier2": 3.76409999999305,
+        "tier3b": 6.062300000005052
+      },
+      "categoryAgreement": 1,
+      "byPath": {
+        "neural": 6,
+        "math": 15
+      },
+      "misclassified": [
+        {
+          "id": "ai4privacy-1000-23",
+          "expect": "block",
+          "predicted": "allow",
+          "types": []
+        },
+        {
+          "id": "ai4privacy-1000-62",
+          "expect": "block",
+          "predicted": "allow",
+          "types": []
+        },
+        {
+          "id": "ai4privacy-1000-69",
+          "expect": "allow",
+          "predicted": "block",
+          "types": [
+            "PATIENT_IDENTITY"
+          ]
+        },
+        {
+          "id": "ai4privacy-1000-79",
+          "expect": "block",
+          "predicted": "allow",
+          "types": []
+        },
+        {
+          "id": "ai4privacy-1000-90",
+          "expect": "block",
+          "predicted": "allow",
+          "types": []
+        },
+        {
+          "id": "ai4privacy-1000-91",
+          "expect": "block",
+          "predicted": "allow",
+          "types": []
+        }
+      ]
+    },
+    "ai4privacy-holdout": {
+      "dataset": "ai4privacy-holdout",
+      "route": "B",
+      "startedAt": "2026-10-31T12:45:44.260Z",
+      "durationMs": 0,
+      "observations": 100,
+      "metrics": {
+        "tp": 14,
+        "fp": 2,
+        "tn": 78,
+        "fn": 6,
+        "n": 100,
+        "precision": 0.875,
+        "recall": 0.7,
+        "f1": 0.7777777777777777,
+        "f2": 0.7291666666666666,
+        "fpr": 0.025,
+        "accuracy": 0.92
+      },
+      "metricsSource": {
+        "tp": 14,
+        "fp": 2,
+        "tn": 78,
+        "fn": 6,
+        "n": 100,
+        "precision": 0.875,
+        "recall": 0.7,
+        "f1": 0.7777777777777777,
+        "f2": 0.7291666666666666,
+        "fpr": 0.025,
+        "accuracy": 0.92
+      },
+      "metricsAugmented": null,
+      "checksumInvalid": {
+        "n": 2,
+        "blocked": 0
+      },
+      "latency": {
+        "p50": 9.957000000002154,
+        "p95": 16.40160000000469,
+        "p99": 18.284599999999045,
+        "mean": 10.314871000000275
+      },
+      "tierP50": {
+        "tier1": 0.07590000000345754,
+        "tier3a": 0.04379999999946449,
+        "tier2": 3.731899999998859,
+        "tier3b": 5.78179999999702
+      },
+      "categoryAgreement": 1,
+      "byPath": {
+        "math": 14,
+        "neural": 5
+      },
+      "misclassified": [
+        {
+          "id": "ai4privacy-holdout-25000-19",
+          "expect": "block",
+          "predicted": "allow",
+          "types": []
+        },
+        {
+          "id": "ai4privacy-holdout-25000-26",
+          "expect": "block",
+          "predicted": "allow",
+          "types": []
+        },
+        {
+          "id": "ai4privacy-holdout-25000-29",
+          "expect": "allow",
+          "predicted": "block",
+          "types": [
+            "SECRET"
+          ]
+        },
+        {
+          "id": "ai4privacy-holdout-25000-33",
+          "expect": "block",
+          "predicted": "allow",
+          "types": []
+        },
+        {
+          "id": "ai4privacy-holdout-25000-43",
+          "expect": "block",
+          "predicted": "allow",
+          "types": []
+        },
+        {
+          "id": "ai4privacy-holdout-25000-66",
+          "expect": "block",
+          "predicted": "allow",
+          "types": []
+        },
+        {
+          "id": "ai4privacy-holdout-25000-82",
+          "expect": "allow",
+          "predicted": "block",
+          "types": [
+            "SECRET"
+          ]
+        },
+        {
+          "id": "ai4privacy-holdout-25000-97",
+          "expect": "block",
+          "predicted": "allow",
+          "types": []
+        }
+      ]
+    }
+  }
 }

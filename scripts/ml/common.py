@@ -14,7 +14,7 @@ MODELS = CACHE / "models"
 DATASETS = ROOT / "data" / "datasets"
 
 # Benchmark splits a model may be *selected* on. Held-out splits are scored once, at the end.
-DEV_SPLITS = {"edge": "edge-cases.json", "enron": "enron.jsonl", "presidio": "presidio.jsonl", "ai4privacy": "ai4privacy.jsonl"}
+DEV_SPLITS = {"edge": "edge-cases.json", "probes": "english-probes.json", "enron": "enron.jsonl", "presidio": "presidio.jsonl", "ai4privacy": "ai4privacy.jsonl"}
 HOLDOUT_SPLITS = {"enron-holdout": "enron-holdout.jsonl", "ai4privacy-holdout": "ai4privacy-holdout.jsonl"}
 
 LABELS = json.loads((ROOT / "src" / "engine" / "tier2" / "neural-labels.json").read_text(encoding="utf-8"))
