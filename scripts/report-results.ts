@@ -12,7 +12,7 @@ import { DATASETS } from '../src/engine/bench/types';
 const root = resolve(import.meta.dirname, '..');
 const read = <T,>(file: string): T | null => (existsSync(resolve(root, file)) ? (JSON.parse(readFileSync(resolve(root, file), 'utf8')) as T) : null);
 
-type NodeRun = { generatedAt: string; runtime: { node: string; cpu: string }; engine: { pathBModel?: string | null }; summaries: RunSummary[] };
+type NodeRun = { generatedAt: string; runtime: { node: string; cpu: string }; engine: { pathBModel?: string | null }; summaries: RunSummary[]; english?: Record<string, RunSummary> };
 type Browser = { recordedAt: string; hardware: Record<string, string>; runs: Record<string, { summary: RunSummary; hardware: string }> };
 const nodeA = read<NodeRun>('bench-results/path-a.json')!;
 const nodeB = read<NodeRun>('bench-results/path-b.json');
@@ -47,6 +47,23 @@ for (const [label, run] of [['Path A', nodeA], ['Path B', nodeB]] as const) {
   lines.push(`Blueprint targets (F2 ≥ 0.978, FPR < 0.02%) on ${label}: met on ${rows.filter((x) => meets(x.s!)).map((x) => x.d.label).join(', ') || 'none'}; **not met on ${rows.filter((x) => !meets(x.s!)).map((x) => x.d.label).join(', ') || 'none'}.**`);
 }
 lines.push('');
+
+// English priority: AI4Privacy is mostly French/German/Italian; its English rows are reported on their own.
+const engRows = (['ai4privacy', 'ai4privacy-holdout'] as const).filter((id) => nodeA.english?.[id]);
+if (engRows.length) {
+  lines.push('**English only.** AI4Privacy rows the dataset annotates as English. Enron, Presidio, the edge cases and the probes are English throughout.', '');
+  lines.push('| Subset | n | Path A P / R | Path A F2 | Path A FPR | Path B P / R | Path B F2 | Path B FPR |');
+  lines.push('|---|---:|---:|---:|---:|---:|---:|---:|');
+  for (const id of engRows) {
+    const a = nodeA.english![id]!;
+    const b = nodeB?.english?.[id];
+    const split = id.endsWith('holdout') ? 'held-out' : 'dev';
+    lines.push(
+      `| AI4Privacy ${split} · English | ${a.observations} | ${f3(a.metrics.precision)} / ${f3(a.metrics.recall)} | ${f3(a.metrics.f2)} | ${pct(a.metrics.fpr)} | ${b ? `${f3(b.metrics.precision)} / ${f3(b.metrics.recall)}` : '—'} | ${f3(b?.metrics.f2)} | ${pct(b?.metrics.fpr)} |`,
+    );
+  }
+  lines.push('');
+}
 
 const ha = find(nodeA, 'ai4privacy-holdout');
 const hb = find(nodeB, 'ai4privacy-holdout');
@@ -86,12 +103,17 @@ for (const route of ['a', 'b']) {
 }
 
 type Bakeoff = {
+  generatedAt: string;
   pathA: RunSummary[];
   candidates: Record<string, { meta: { onnxMB?: number; quantization?: { argmaxAgreement: number } | null; onnx: string }; modelLatency: Record<string, { p50: number | null; p95: number | null }>; policies: Record<string, RunSummary[]> }>;
 };
 const bake = read<Bakeoff>('bench-results/bakeoff-dev.json');
 if (bake) {
-  lines.push('', '**Path B bake-off** (dev splits only, `graph` policy, full cascade; tagger latency is ONNX Runtime CPU with 4 threads, per text):', '');
+  lines.push(
+    '',
+    `**Path B bake-off** (model selection, ${bake.generatedAt.slice(0, 10)}). Dev splits only, \`graph\` policy, full cascade. Recorded before the English Tier 1 fixes, which changed both paths equally. Tagger latency is ONNX Runtime CPU with 4 threads, per text.`,
+    '',
+  );
   lines.push('| Candidate | Weights | INT8 vs fp32 token agreement | AI4Privacy dev F2 / FPR | Enron dev FPR | Presidio dev F2 | Tagger p50 / p95 on Enron |');
   lines.push('|---|---:|---:|---:|---:|---:|---:|');
   const at = (xs: RunSummary[], id: string) => xs.find((s) => s.dataset === id);

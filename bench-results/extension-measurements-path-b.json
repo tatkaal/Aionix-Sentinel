@@ -1,19 +1,19 @@
 {
   "mode": "auto (Path B allowed)",
-  "measuredAt": "2026-10-30T12:01:32.053Z",
+  "measuredAt": "2026-10-31T12:47:50.343Z",
   "offscreenMemory": {
-    "mb": 110.2,
+    "mb": 110.3,
     "method": "measureUserAgentSpecificMemory after forced GC (raw CDP, offscreen document)",
     "byType": {
-      "JavaScript @ Window:offscreen.html": 109.8,
-      "Shared @ ": 0.4
+      "Shared @ ": 0.3,
+      "JavaScript @ Window:offscreen.html": 109.9
     }
   },
   "pathBOutcome": {
     "state": "ready",
     "reason": "aionix-pathb-6L (Multilingual-MiniLM, trimmed vocab, INT8) · CPU (ONNX Runtime wasm) · host 118 MB after load (measureUserAgentSpecificMemory)",
-    "loadMs": 220.69500000029802,
-    "memoryMB": 118.38310623168945,
+    "loadMs": 172.5,
+    "memoryMB": 118.36941432952881,
     "memoryMethod": "measureUserAgentSpecificMemory"
   },
   "engine": {
@@ -39,32 +39,32 @@
       "deviceMemoryGB": 32
     },
     "adapterSummary": "intel · gen-12lp",
-    "memoryMB": 110.21379470825195,
+    "memoryMB": 110.27749633789062,
     "memoryMethod": "measureUserAgentSpecificMemory",
     "memoryStale": true,
     "memoryByType": {
-      "DOM": 0.1,
       "unattributed": 0,
-      "Shared": 0.4,
-      "JavaScript @ Window:offscreen.html": 109.8
+      "DOM": 0.1,
+      "Shared": 0.3,
+      "JavaScript @ Window:offscreen.html": 109.9
     },
     "ceilingMB": 150,
-    "fstEntries": 80984,
-    "fstBytes": 3626508,
+    "fstEntries": 81984,
+    "fstBytes": 3632884,
     "edmVectors": 105,
     "edmFields": 250,
     "loadMs": {
-      "pathA": 820.9249999970198,
-      "pathB": 220.69500000029802
+      "pathA": 677.9749999940395,
+      "pathB": 172.5
     }
   },
   "tier2": {
-    "p50": 13.019999995827675,
-    "p95": 20.535000003874302
+    "p50": 13.379999995231628,
+    "p95": 17.915000021457672
   },
   "tier3b": {
-    "p50": 0.26000000536441803,
-    "p95": 8.005000002682209
+    "p50": 0.23499998450279236,
+    "p95": 6.129999995231628
   },
   "routes": [
     "B"

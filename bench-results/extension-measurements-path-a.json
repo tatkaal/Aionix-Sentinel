@@ -1,12 +1,12 @@
 {
   "mode": "path-a-only (Path B evicted, recycled document)",
-  "measuredAt": "2026-10-30T12:18:26.717Z",
+  "measuredAt": "2026-10-31T12:49:56.993Z",
   "offscreenMemory": {
-    "mb": 87,
+    "mb": 87.1,
     "method": "measureUserAgentSpecificMemory after forced GC (raw CDP, offscreen document)",
     "byType": {
-      "JavaScript @ Window:offscreen.html": 86.6,
-      "Shared @ ": 0.3
+      "Shared @ ": 0.4,
+      "JavaScript @ Window:offscreen.html": 86.6
     }
   },
   "pathBOutcome": null,
@@ -33,32 +33,32 @@
       "deviceMemoryGB": 32
     },
     "adapterSummary": "intel · gen-12lp",
-    "memoryMB": 86.99136161804199,
+    "memoryMB": 87.05915927886963,
     "memoryMethod": "measureUserAgentSpecificMemory",
     "memoryStale": true,
     "memoryByType": {
+      "DOM": 0.1,
       "JavaScript @ Window:offscreen.html": 86.6,
       "unattributed": 0,
-      "Shared": 0.3,
-      "DOM": 0.1
+      "Shared": 0.4
     },
     "ceilingMB": 150,
-    "fstEntries": 80984,
-    "fstBytes": 3626508,
+    "fstEntries": 81984,
+    "fstBytes": 3632884,
     "edmVectors": 105,
     "edmFields": 250,
     "loadMs": {
-      "pathA": 360.83000000566244,
+      "pathA": 347.72499999403954,
       "pathB": null
     }
   },
   "tier2": {
-    "p50": 7.169999994337559,
-    "p95": 9.524999998509884
+    "p50": 6.149999976158142,
+    "p95": 9.270000010728836
   },
   "tier3b": {
-    "p50": 0.24499999731779099,
-    "p95": 5.71000000089407
+    "p50": 0.24500000476837158,
+    "p95": 5.800000011920929
   },
   "routes": [
     "A"
