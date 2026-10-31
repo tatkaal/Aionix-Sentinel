@@ -21,7 +21,7 @@ function pickAdapter(): PortalAdapter | null {
   const a = adapterForHost(location.hostname);
   if (a) return a;
   if (__AIONIX_TEST_BUILD__ && location.hostname === 'localhost') {
-    return ADAPTERS[location.pathname.split('/')[1] as keyof typeof ADAPTERS] ?? null;
+    return ADAPTERS[location.pathname.split('/')[1]!.replace(/-anon$/, '') as keyof typeof ADAPTERS] ?? null;
   }
   return null;
 }

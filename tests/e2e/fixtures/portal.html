@@ -18,6 +18,7 @@
     <div id="log"></div>
     <button id="direct-api" type="button">Send via API directly</button>
     <script>
+      // `chatgpt-anon` replicates signed-out ChatGPT (textarea + form-encoded `prompt`, verified live 2026-10-31).
       const portal = location.pathname.split('/')[1];
       const mount = document.getElementById('mount');
       const layouts = {
@@ -27,6 +28,9 @@
         chatgpt: `<form class="composer"><div class="chips" data-testid="composer-attachments"></div>
           <div id="prompt-textarea" class="ProseMirror editor" contenteditable="true"></div>
           <button type="button" data-testid="send-button" id="composer-submit-button">Send</button></form>`,
+        'chatgpt-anon': `<form class="composer"><div class="chips" data-testid="composer-attachments"></div>
+          <textarea id="mobile-composer-prompt" name="prompt" class="editor" aria-label="Chat with ChatGPT" rows="3" style="width:100%;background:transparent;color:inherit;border:0;font:inherit"></textarea>
+          <button type="submit" aria-label="Send message">Send</button></form>`,
         gemini: `<div class="composer"><div class="chips file-preview-container"></div>
           <rich-textarea><div class="ql-editor editor" contenteditable="true" role="textbox"></div></rich-textarea>
           <button type="button" class="send-button" aria-label="Send message">Send</button></div>`,
@@ -34,10 +38,11 @@
       const endpoints = {
         claude: '/api/organizations/org/chat_conversations/conv/completion',
         chatgpt: '/backend-api/conversation',
+        'chatgpt-anon': '/unauth-mweb/conversation/updates',
         gemini: '/_/BardChatUi/data/assistant.lamda.BardFrontendService/StreamGenerate',
       };
       mount.innerHTML = layouts[portal];
-      const editor = mount.querySelector('[contenteditable]');
+      const editor = mount.querySelector('[contenteditable], textarea');
       const chips = mount.querySelector('.chips');
       const sendBtn = mount.querySelector('button');
       const log = (msg) => { const p = document.createElement('p'); p.className = 'sent'; p.textContent = msg; document.getElementById('log').append(p); };
@@ -46,10 +51,11 @@
       const body = (text) =>
         portal === 'claude' ? JSON.stringify({ prompt: text, attachments: pastes.map((c) => ({ extracted_content: c })) })
         : portal === 'chatgpt' ? JSON.stringify({ messages: [{ content: { parts: [text, ...pastes] } }] })
+        : portal === 'chatgpt-anon' ? new URLSearchParams({ conversationState: '{"messages":[]}', prompt: [text, ...pastes].join('\n\n'), proofToken: 'fixture' }).toString()
         : 'f.req=' + encodeURIComponent(JSON.stringify([null, JSON.stringify([[text]])]));
 
       async function send() {
-        const text = editor.innerText.trim();
+        const text = (editor.value ?? editor.innerText).trim();
         if (!text && !pastes.length) return;
         try {
           await fetch(endpoints[portal], { method: 'POST', body: body(text) });
@@ -57,11 +63,12 @@
         } catch (e) {
           log(`FETCH-ERROR:${e.message}`);
         }
-        editor.textContent = '';
+        if ('value' in editor) editor.value = ''; else editor.textContent = '';
         chips.innerHTML = '';
         pastes.length = 0;
       }
-      sendBtn.addEventListener('click', send);
+      sendBtn.addEventListener('click', (e) => { e.preventDefault(); send(); });
+      mount.querySelector('form')?.addEventListener('submit', (e) => { e.preventDefault(); send(); });
       editor.addEventListener('keydown', (e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); send(); } });
       editor.addEventListener('paste', (e) => {
         const text = e.clipboardData.getData('text/plain');
