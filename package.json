@@ -29,9 +29,10 @@
     "data:models": "node scripts/fetch-models.mjs",
     "data:fst": "tsx scripts/build-medical-fst.ts",
     "data:vault": "tsx scripts/build-vault.ts",
+    "data:test-kit": "tsx scripts/build-test-kit.ts",
     "data:datasets": "tsx scripts/fetch-datasets.ts",
     "data:icons": "node scripts/gen-icons.mjs",
-    "setup": "npm run data:models && npm run data:fst && npm run data:vault && npm run data:datasets && npm run data:icons"
+    "setup": "npm run data:models && npm run data:fst && npm run data:vault && npm run data:test-kit && npm run data:datasets && npm run data:icons"
   },
   "dependencies": {
     "@fontsource-variable/dm-sans": "^5.3.0",

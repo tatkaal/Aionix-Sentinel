@@ -1,0 +1,9 @@
+@import '../shared/brand/tokens.css';
+@source '../workbench/components';
+@source '../shared';
+@source './options.tsx';
+
+body {
+  margin: 0;
+  min-height: 100vh;
+}

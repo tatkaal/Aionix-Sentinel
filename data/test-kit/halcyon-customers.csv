@@ -1,0 +1,6 @@
+customer_id,full_name,email,account_number,facility_limit_aud,overdue_aud
+HAL-20431,Imogen Thistlewood,imogen.thistlewood@halcyon-demo.example,483920175,2500000,0
+HAL-20447,Bartholomew Quayle,b.quayle@halcyon-demo.example,509318462,1250000,48210
+HAL-20452,Saoirse Delacroix-Vane,saoirse.dv@halcyon-demo.example,621047398,900000,0
+HAL-20468,Tobias Wrenfield,tobias.wrenfield@halcyon-demo.example,738204615,4100000,312500
+HAL-20473,Marisol Achterberg,marisol.a@halcyon-demo.example,842615309,650000,12000

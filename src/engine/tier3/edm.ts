@@ -1,7 +1,7 @@
 // Tier 3 Path B — Exact Data Match. Two signals, both computed without shipping document text:
 //  1. Salted SHA-256 hashes of structured CRM / registry fields (names, account numbers, IDs, MRNs).
 //  2. MiniLM embeddings of vault chunks in an in-memory Orama vector index (cosine > 0.95).
-import { create, insertMultiple, search, type AnyOrama } from '@orama/orama';
+import { create, insertMultiple, removeMultiple, search, type AnyOrama } from '@orama/orama';
 import { chunkText } from '../chunk';
 import type { Embedder } from '../embed/minilm';
 import { sha256Hex } from '../telemetry';
@@ -202,6 +202,12 @@ export function extractCandidates(text: string): Candidate[] {
 export interface EdmDetector {
   scan(text: string, source: FindingSource): Promise<Finding[]>;
   addDocument(doc: EdmSourceDoc): Promise<void>;
+  /** Indexes a document and returns its fingerprints (vectors + salted hashes) for persistence. */
+  indexDocument(doc: EdmSourceDoc): Promise<EdmIndexData>;
+  /** Restores fingerprints produced by `indexDocument` (same salt), e.g. after a restart. */
+  importData(part: EdmIndexData): Promise<void>;
+  removeAsset(assetId: string): Promise<void>;
+  hasAsset(assetId: string): boolean;
   readonly vectorCount: number;
   readonly fieldCount: number;
 }
@@ -211,11 +217,13 @@ export async function createEdmDetector(data: EdmIndexData, embedder: Embedder):
     schema: { assetId: 'string', title: 'string', category: 'number', embedding: `vector[${data.dims}]` } as const,
   });
   let vectorCount = 0;
+  const idsByAsset = new Map<string, string[]>();
   const insertChunks = async (chunks: EdmChunk[]) => {
-    await insertMultiple(
+    const ids = await insertMultiple(
       db,
       chunks.map((c) => ({ assetId: c.assetId, title: c.title, category: c.category, embedding: Array.from(c.vector) })),
     );
+    chunks.forEach((c, i) => idsByAsset.set(c.assetId, [...(idsByAsset.get(c.assetId) ?? []), ids[i]!]));
     vectorCount += chunks.length;
   };
   await insertChunks(data.chunks);
@@ -230,6 +238,23 @@ export async function createEdmDetector(data: EdmIndexData, embedder: Embedder):
   };
   indexFields(data.fieldHashes);
 
+  const indexDocument = async (doc: EdmSourceDoc): Promise<EdmIndexData> => {
+    const parts = chunkDocument(doc.kind, doc.text);
+    const vecs = parts.length ? await embedder.embed(parts) : [];
+    const chunks = vecs.map((v) => ({ assetId: doc.id, title: doc.title, category: doc.category, vector: v }));
+    const fieldHashes = doc.kind === 'table' ? await tableFieldHashes(doc, data.salt) : [];
+    const part = { dims: data.dims, salt: data.salt, chunks, fieldHashes };
+    await importData(part);
+    return part;
+  };
+
+  const importData = async (part: EdmIndexData) => {
+    if (part.salt !== data.salt || part.dims !== data.dims) throw new Error('EDM fingerprints were built with a different salt or model');
+    if (part.chunks.length) await insertChunks(part.chunks);
+    data.fieldHashes.push(...part.fieldHashes);
+    indexFields(part.fieldHashes);
+  };
+
   return {
     get vectorCount() {
       return vectorCount;
@@ -238,13 +263,21 @@ export async function createEdmDetector(data: EdmIndexData, embedder: Embedder):
       return data.fieldHashes.length;
     },
     async addDocument(doc) {
-      const parts = chunkDocument(doc.kind, doc.text);
-      const vecs = await embedder.embed(parts);
-      await insertChunks(vecs.map((v) => ({ assetId: doc.id, title: doc.title, category: doc.category, vector: v })));
-      if (doc.kind === 'table') {
-        const hashes = await tableFieldHashes(doc, data.salt);
-        data.fieldHashes.push(...hashes);
-        indexFields(hashes);
+      await indexDocument(doc);
+    },
+    indexDocument,
+    importData,
+    hasAsset: (assetId) => idsByAsset.has(assetId) || data.fieldHashes.some((h) => h.assetId === assetId),
+    async removeAsset(assetId) {
+      const ids = idsByAsset.get(assetId) ?? [];
+      if (ids.length) await removeMultiple(db, ids);
+      vectorCount -= ids.length;
+      idsByAsset.delete(assetId);
+      data.fieldHashes = data.fieldHashes.filter((h) => h.assetId !== assetId);
+      for (const [hash, list] of fieldIndex) {
+        const kept = list.filter((h) => h.assetId !== assetId);
+        if (kept.length) fieldIndex.set(hash, kept);
+        else fieldIndex.delete(hash);
       }
     },
     async scan(text, source) {

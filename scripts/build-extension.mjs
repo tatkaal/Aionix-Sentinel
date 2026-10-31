@@ -63,6 +63,7 @@ await build({
     rollupOptions: {
       input: {
         popup: resolve(extSrc, 'popup.html'),
+        options: resolve(extSrc, 'options.html'),
         'offscreen-onnx-worker': resolve(extSrc, 'offscreen.html'),
         'background-sw': resolve(extSrc, 'background-sw.ts'),
       },

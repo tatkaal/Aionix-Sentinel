@@ -7,6 +7,7 @@ import type { BackgroundRequest, RouteMode, StatusResponse } from './messages';
 import './popup.css';
 
 const send = <T,>(msg: BackgroundRequest) => chrome.runtime.sendMessage(msg) as Promise<T>;
+const PORTAL_LABEL: Record<string, string> = { claude: 'Claude', chatgpt: 'ChatGPT', gemini: 'Gemini', workbench: 'Workbench' };
 
 function Popup() {
   const [status, setStatus] = useState<StatusResponse | null>(null);
@@ -55,7 +56,7 @@ function Popup() {
               {engine ? (engine.route === 'B' ? 'Path B · Neural tagger (CPU)' : 'Path A · Lexicon FST (CPU)') : 'Starting…'}
             </div>
           </div>
-          {engine && <Badge tone={engine.route === 'B' ? 'brand' : 'amber'}>{engine.route === 'B' ? 'GPU' : 'CPU'}</Badge>}
+          {engine && <Badge tone={engine.route === 'B' ? 'brand' : 'amber'}>{engine.route === 'B' ? 'Neural' : 'Lexicon'}</Badge>}
         </div>
         {engine?.pathBReason && <p className="text-xs text-subtle">{engine.pathBReason}</p>}
         <div>
@@ -107,7 +108,7 @@ function Popup() {
             .map((r) => (
               <li key={r.id} className="flex items-center gap-2 text-xs">
                 <span className="metric w-11 shrink-0 text-subtle">{new Date(r.ts).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
-                <span className="w-14 shrink-0 capitalize text-muted">{r.portal}</span>
+                <span className="w-16 shrink-0 text-muted">{PORTAL_LABEL[r.portal] ?? r.portal}</span>
                 <span className="truncate">
                   {[...new Set(r.findings.map((f) => CATEGORIES[f.category as CategoryId].short))].join(', ')}
                 </span>
@@ -115,9 +116,14 @@ function Popup() {
             ))}
           {!status?.recent.some((r) => r.blocked) && <li className="text-xs text-subtle">No blocks yet.</li>}
         </ul>
-        <Button size="sm" className="mt-3 w-full" onClick={() => void exportAudit()}>
-          Export zero-knowledge audit log
-        </Button>
+        <div className="mt-3 grid grid-cols-2 gap-2">
+          <Button size="sm" onClick={() => void chrome.runtime.openOptionsPage()}>
+            Protected data & test kit
+          </Button>
+          <Button size="sm" onClick={() => void exportAudit()}>
+            Export audit log
+          </Button>
+        </div>
       </section>
     </div>
   );

@@ -6,8 +6,10 @@ import { EngineHost } from '../engine/host';
 import { createOrtWebEmbedder } from '../engine/runtime/ort-web-embedder';
 import { createOrtWebTagger } from '../engine/runtime/ort-web-tagger';
 import { DEFAULT_NEURAL_POLICY } from '../engine/tier2/neural-path';
+import { fromBase64, toBase64 } from '../engine/tier3/custom-vault';
+import { decodeEdm } from '../engine/tier3/edm';
 import { probeHardware } from '../engine/tier2/hardware-probe';
-import type { OffscreenRequest } from './messages';
+import type { IndexedEdm, OffscreenRequest, ProtectedEdm } from './messages';
 
 const base = chrome.runtime.getURL('');
 // Versioned per Path B model: an eviction of the earlier privacy-filter must not block the tagger.
@@ -50,7 +52,13 @@ const host = new EngineHost({
   },
 });
 
-void host.init();
+const syncProtected = (items: ProtectedEdm[]) => host.syncProtected(items.map((i) => ({ id: i.id, edm: i.edm ? fromBase64(i.edm) : null })));
+
+// Restore protected data added in the options page (fingerprints persisted by the background).
+void host.init().then(async () => {
+  const items = (await chrome.runtime.sendMessage({ target: 'background', type: 'vault-custom' }).catch(() => [])) as ProtectedEdm[];
+  if (Array.isArray(items) && items.length) await syncProtected(items);
+});
 
 async function handle(msg: OffscreenRequest): Promise<unknown> {
   switch (msg.type) {
@@ -68,6 +76,15 @@ async function handle(msg: OffscreenRequest): Promise<unknown> {
       await host.setRouteMode(msg.mode);
       return host.status();
     case 'status':
+      return host.status();
+    case 'edm-index': {
+      // The text is embedded and hashed here, then dropped; only fingerprints go back.
+      const bytes = await host.indexProtected(msg.doc);
+      const part = decodeEdm(bytes);
+      return { edm: toBase64(bytes), vectors: part.chunks.length, fieldHashes: part.fieldHashes.length } satisfies IndexedEdm;
+    }
+    case 'edm-sync':
+      await syncProtected(msg.items);
       return host.status();
   }
 }

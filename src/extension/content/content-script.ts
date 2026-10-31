@@ -1,8 +1,10 @@
 // Isolated-world content script (run_at: document_start).
 // Tier 1 + Tier 3 Path A run synchronously here; Tier 2 + Tier 3 Path B are delegated to the
 // offscreen document through the background service worker.
-import type { AsyncScanner, SyncDetector } from '../../engine/pipeline';
+import type { AsyncScanner } from '../../engine/pipeline';
 import { toScanRecord, type PortalName } from '../../engine/telemetry';
+import { CUSTOM_VAULT_KEY, decodeCustomAsset, type CustomVaultRecord } from '../../engine/tier3/custom-vault';
+import { createVaultDetector, type VaultDetector } from '../../engine/tier3/minhash-detector';
 import type { Finding, ScanInput, ScanResult } from '../../engine/types';
 import type { BackgroundRequest, ScanAsyncResponse } from '../messages';
 import { ADAPTERS, adapterForHost, type PortalAdapter } from './adapters';
@@ -16,7 +18,7 @@ function pickAdapter(): PortalAdapter | null {
   const byHost = adapterForHost(location.hostname);
   if (byHost) return byHost;
   if (__AIONIX_TEST_BUILD__ && location.hostname === 'localhost') {
-    const id = location.pathname.split('/')[1] as keyof typeof ADAPTERS;
+    const id = location.pathname.split('/')[1]!.replace(/-anon$/, '') as keyof typeof ADAPTERS;
     return ADAPTERS[id] ?? null;
   }
   return null;
@@ -47,8 +49,32 @@ if (adapter) {
   let salt: string | null = null;
   const getSalt = async () => (salt ??= await send<string>({ target: 'background', type: 'salt' }));
 
-  let tier3a: SyncDetector | null = null;
-  void loadVaultDetector(chrome.runtime.getURL('engine/corporate-vault.bin')).then((d) => (tier3a = d));
+  // Tier 3 Path A: the bundled vault plus protected data added in the options page (fingerprints only).
+  let tier3a: VaultDetector | null = null;
+  const customIds = new Set<string>();
+  const applyCustom = (records: CustomVaultRecord[]) => {
+    if (!tier3a) return;
+    const wanted = new Set(records.map((r) => r.id));
+    for (const id of [...customIds]) {
+      if (wanted.has(id)) continue;
+      tier3a.removeAsset(id);
+      customIds.delete(id);
+    }
+    for (const r of records) {
+      const asset = customIds.has(r.id) ? null : decodeCustomAsset(r);
+      if (!asset) continue;
+      tier3a.addAsset(asset);
+      customIds.add(r.id);
+    }
+  };
+  const readCustom = async () => ((await chrome.storage.local.get(CUSTOM_VAULT_KEY))[CUSTOM_VAULT_KEY] as CustomVaultRecord[] | undefined) ?? [];
+  void loadVaultDetector(chrome.runtime.getURL('engine/corporate-vault.bin')).then(async (d) => {
+    tier3a = d ?? createVaultDetector([]);
+    applyCustom(await readCustom());
+  });
+  chrome.storage.onChanged.addListener((changes, area) => {
+    if (area === 'local' && changes[CUSTOM_VAULT_KEY]) applyCustom((changes[CUSTOM_VAULT_KEY].newValue as CustomVaultRecord[] | undefined) ?? []);
+  });
 
   const asyncScanner: AsyncScanner = {
     async scanAsync(input: ScanInput) {

@@ -10,7 +10,7 @@ import type { HardwareReport } from './tier2/hardware-probe';
 import { createLexiconPath } from './tier2/lexicon-path';
 import { createNeuralPath, type NeuralPolicy } from './tier2/neural-path';
 import { createWebGpuPath, type NeuralNer } from './tier2/webgpu-path';
-import { createEdmDetector, decodeEdm, type EdmDetector, type EdmSourceDoc } from './tier3/edm';
+import { createEdmDetector, decodeEdm, encodeEdm, type EdmDetector, type EdmSourceDoc } from './tier3/edm';
 import type { Finding, FindingSource, ScanInput } from './types';
 
 export type RouteMode = 'auto' | 'force-a' | 'force-b';
@@ -86,6 +86,8 @@ export class EngineHost {
   private pathBLoad: Promise<void> | null = null;
   private loadMs: EngineStatus['loadMs'] = { pathA: null, pathB: null };
   private initPromise: Promise<void> | null = null;
+  /** Protected items added inside the extension (options page), by id. */
+  private readonly customIds = new Set<string>();
   private readonly memory = createMemoryProbe(() => this.trackedBytes);
 
   constructor(private readonly deps: HostDeps) {}
@@ -273,6 +275,34 @@ export class EngineHost {
   async addVaultDocument(doc: EdmSourceDoc): Promise<void> {
     await this.init();
     await this.edm!.addDocument(doc);
+  }
+
+  /**
+   * Indexes protected data for Tier 3 Path B and returns its fingerprints (MiniLM vectors + salted
+   * field hashes, encoded) for the caller to persist. The text itself is not kept.
+   */
+  async indexProtected(doc: EdmSourceDoc): Promise<Uint8Array> {
+    await this.init();
+    if (this.edm!.hasAsset(doc.id)) await this.edm!.removeAsset(doc.id);
+    const part = await this.edm!.indexDocument(doc);
+    this.customIds.add(doc.id);
+    return encodeEdm(part);
+  }
+
+  /** Makes the custom part of the EDM index match the persisted list (add on restart, remove on delete). */
+  async syncProtected(items: { id: string; edm: Uint8Array | null }[]): Promise<void> {
+    await this.init();
+    const wanted = new Set(items.map((i) => i.id));
+    for (const id of [...this.customIds]) {
+      if (wanted.has(id)) continue;
+      await this.edm!.removeAsset(id);
+      this.customIds.delete(id);
+    }
+    for (const it of items) {
+      if (this.customIds.has(it.id) || !it.edm) continue;
+      await this.edm!.importData(decodeEdm(it.edm));
+      this.customIds.add(it.id);
+    }
   }
 
   async status(): Promise<EngineStatus> {

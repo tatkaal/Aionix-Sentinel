@@ -1,0 +1,595 @@
+{
+  "version": 1,
+  "categories": [
+    {
+      "id": 1,
+      "title": "API keys & access tokens",
+      "how": "Tier 1 (content script, synchronous): vendor token formats (AWS, GitHub, OpenAI, Anthropic, Slack, Stripe, Google, JWT, private keys) and labelled keys with an entropy check.",
+      "prompts": [
+        {
+          "title": "OpenAI key in code",
+          "text": "Why does this fail? client = OpenAI(api_key=\"sk-proj-Qm8xT2vL9pR4kW7nZ1cB5yH3jF6dS0aE2gU8iO4t\")",
+          "expect": "block",
+          "note": "Tier 1 (content script, synchronous) · OPENAI_API_KEY format"
+        },
+        {
+          "title": "\"my api key is …\"",
+          "text": "my api key is 9f8e7d6c5b4a39281706f5e4d3c2b1a0 but the request returns 401, any idea why?",
+          "expect": "block",
+          "note": "Tier 1 (content script, synchronous) · labelled key + entropy"
+        },
+        {
+          "title": "AWS credentials file",
+          "text": "I'm getting AccessDenied from S3 — here is my config:\n[default]\naws_access_key_id = AKI\u0041Q3EGTRBX4M7PZK2N\naws_secret_access_key = 9fJ2kLq8Xz/Rt5Vw+Yb3Nc7Hd1Pm6Gs0Ea4Ui8Ro\nregion = ap-southeast-2",
+          "expect": "block",
+          "note": "Tier 1 (content script, synchronous) · AWS key id + secret"
+        },
+        {
+          "title": "Key-rotation question",
+          "text": "How do I rotate my OpenAI API key safely without downtime?",
+          "expect": "allow",
+          "note": "No credential value — must pass"
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "title": "Passwords & secrets",
+      "how": "Tier 1 (content script, synchronous): labelled passwords (incl. psw / pw / pass, \"password for X is\", \"changed my password to\"), PINs, one-time and access codes, credential cues near password-shaped tokens, unlabelled high-entropy secrets.",
+      "prompts": [
+        {
+          "title": "Stakeholder report (\"psw\")",
+          "text": "my current psw is Ohlalalala34%. can you suggest a better one?",
+          "expect": "block",
+          "note": "Tier 1 (content script, synchronous) · short label \"psw\" + value"
+        },
+        {
+          "title": "\"changed my password to\"",
+          "text": "I changed my password to Summer2024! yesterday, is that secure enough?",
+          "expect": "block",
+          "note": "Tier 1 (content script, synchronous) · change verb + \"to\" connector"
+        },
+        {
+          "title": "Unlabelled secret near a login cue",
+          "text": "use this to log in: K9#vQ2!xLm7$Tz4@",
+          "expect": "block",
+          "note": "Tier 1 (content script, synchronous) · high-entropy token"
+        },
+        {
+          "title": "Bank PIN",
+          "text": "my bank PIN is 4821, can you remind me to change it next month?",
+          "expect": "block",
+          "note": "Tier 1 (content script, synchronous) · labelled PIN"
+        },
+        {
+          "title": "Password advice",
+          "text": "My password is too weak, how do I make a stronger one?",
+          "expect": "allow",
+          "note": "\"too\" is prose, not a value — must pass"
+        },
+        {
+          "title": "Typed password field (code)",
+          "text": "interface User { email: string; password: string; }",
+          "expect": "allow",
+          "note": "A type, not a password — must pass"
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "title": "Government IDs",
+      "how": "Tier 1 (content script, synchronous): SSN structure (3-2-4 or labelled), labelled passport / driver licence / national IDs, UK NINO, Swiss AHV.",
+      "prompts": [
+        {
+          "title": "SSN with dashes",
+          "text": "my SSN is 536-28-1947, can you fill in the W-4 for me?",
+          "expect": "block",
+          "note": "Tier 1 (content script, synchronous) · SSN structure"
+        },
+        {
+          "title": "Passport number",
+          "text": "my passport no is N8473629, does it need a visa for Japan?",
+          "expect": "block",
+          "note": "Tier 1 (content script, synchronous) · labelled passport"
+        },
+        {
+          "title": "Passport renewal question",
+          "text": "What documents do I need to renew my passport?",
+          "expect": "allow",
+          "note": "No identifier — must pass"
+        }
+      ]
+    },
+    {
+      "id": 4,
+      "title": "Australian Tax File Number",
+      "how": "Tier 1 (content script, synchronous): 9 digits in 3-3-3 or labelled, Mod-11 checksum (weights 1,4,3,7,5,8,6,9,10).",
+      "prompts": [
+        {
+          "title": "Valid TFN",
+          "text": "my TFN is 687 043 098, can you check my tax return?",
+          "expect": "block",
+          "note": "Tier 1 (content script, synchronous) · Mod-11 valid"
+        },
+        {
+          "title": "Invalid-checksum TFN",
+          "text": "my TFN is 123 456 789",
+          "expect": "allow",
+          "note": "Fails Mod-11 — must pass"
+        }
+      ]
+    },
+    {
+      "id": 5,
+      "title": "Payment cards & bank accounts",
+      "how": "Tier 1 (content script, synchronous): Luhn-valid cards (test cards exempt), IBAN mod-97, BSB + account, ABA routing + account.",
+      "prompts": [
+        {
+          "title": "Card with expiry and CVV",
+          "text": "my card number is 4072 7708 1887 4011, exp 09/27, cvv 123",
+          "expect": "block",
+          "note": "Tier 1 (content script, synchronous) · Luhn valid"
+        },
+        {
+          "title": "BSB and account",
+          "text": "my account number is 12345678 and the BSB is 062-000",
+          "expect": "block",
+          "note": "Tier 1 (content script, synchronous) · BSB + account"
+        },
+        {
+          "title": "IBAN",
+          "text": "Please wire it to IBAN GB82 WEST 1234 5698 7654 32.",
+          "expect": "block",
+          "note": "Tier 1 (content script, synchronous) · mod-97 valid"
+        },
+        {
+          "title": "Stripe test card",
+          "text": "For the sandbox, use the test card 4242 4242 4242 4242 with any future expiry.",
+          "expect": "allow",
+          "note": "Known test card — must pass"
+        },
+        {
+          "title": "Order number failing Luhn",
+          "text": "Order #1234 5678 9012 3457 has shipped.",
+          "expect": "allow",
+          "note": "Fails Luhn — must pass"
+        }
+      ]
+    },
+    {
+      "id": 6,
+      "title": "Business & national IDs (ABN, PAN, Aadhaar)",
+      "how": "Tier 1 (content script, synchronous): ABN Mod-89 with entity context, Indian PAN structure, Aadhaar Verhoeff.",
+      "prompts": [
+        {
+          "title": "ABN with entity",
+          "text": "our ABN is 80 019 921 254 for Corvane Logistics Pty Ltd",
+          "expect": "block",
+          "note": "Tier 1 (content script, synchronous) · Mod-89 + entity"
+        },
+        {
+          "title": "Indian PAN",
+          "text": "my PAN is ABCPE1234F, is it linked to my bank?",
+          "expect": "block",
+          "note": "Tier 1 (content script, synchronous) · PAN structure"
+        },
+        {
+          "title": "Aadhaar",
+          "text": "my aadhaar is 4770 9648 3043",
+          "expect": "block",
+          "note": "Tier 1 (content script, synchronous) · Verhoeff valid"
+        },
+        {
+          "title": "ABN question",
+          "text": "How do I apply for an ABN as a sole trader?",
+          "expect": "allow",
+          "note": "No identifier — must pass"
+        }
+      ]
+    },
+    {
+      "id": 7,
+      "title": "Database credentials",
+      "how": "Tier 1 (content script, synchronous): connection URIs with inline user:password, ADO/ODBC strings with Password=, mysql -p<password>.",
+      "prompts": [
+        {
+          "title": "Postgres URI",
+          "text": "it fails to connect: postgres://admin:S3cr3tPass!@db.internal:5432/prod",
+          "expect": "block",
+          "note": "Tier 1 (content script, synchronous) · URI with credentials"
+        },
+        {
+          "title": "ADO.NET connection string",
+          "text": "Server=sql01;Database=crm;User Id=sa;Password=Winter2025!;",
+          "expect": "block",
+          "note": "Tier 1 (content script, synchronous) · Password="
+        },
+        {
+          "title": "Placeholder URI",
+          "text": "The format is postgres://user:password@host:5432/dbname",
+          "expect": "allow",
+          "note": "Placeholder password — must pass"
+        }
+      ]
+    },
+    {
+      "id": 8,
+      "title": "Customer financial records",
+      "how": "Tier 2 (offscreen: person ↔ sensitive-term graph + MiniLM validator) for a named, non-public person tied to an account or to an amount + financial attribute; Tier 3 Path B (offscreen: salted field hashes + MiniLM vectors) for exact rows of protected customer data.",
+      "prompts": [
+        {
+          "title": "Named client with balances (context)",
+          "text": "Client Daniel Whitford — account balance $1,284,500.00, margin loan outstanding $310,000. Write a portfolio review.",
+          "expect": "block",
+          "note": "Tier 2 (offscreen: person ↔ sensitive-term graph + MiniLM validator) · no setup needed"
+        },
+        {
+          "title": "Mortgage arrears (context)",
+          "text": "Sarah Mitchell owes $412,000 on her mortgage and has missed two repayments. Draft a hardship letter.",
+          "expect": "block",
+          "note": "Tier 2 (offscreen: person ↔ sensitive-term graph + MiniLM validator) · no setup needed"
+        },
+        {
+          "title": "Row from the bundled demo CRM",
+          "text": "Is Eleanor Ashworth (account 637260938) eligible for the new fund?",
+          "expect": "block",
+          "note": "Tier 3 Path B (offscreen: salted field hashes + MiniLM vectors) · salted hash of name + account",
+          "needs": "demo-vault"
+        },
+        {
+          "title": "Customer from your protected CSV",
+          "text": "Can you write to Tobias Wrenfield about account 738204615?",
+          "expect": "block",
+          "note": "Tier 3 Path B (offscreen: salted field hashes + MiniLM vectors) · after protecting the sample customer CSV",
+          "needs": "sample:halcyon-customers"
+        },
+        {
+          "title": "Public figure",
+          "text": "What is Warren Buffett's net worth, and how much of his portfolio is in Apple?",
+          "expect": "allow",
+          "note": "Public figure — must pass"
+        },
+        {
+          "title": "Market statistic",
+          "text": "What is the average mortgage balance in Australia right now?",
+          "expect": "allow",
+          "note": "No identifiable person — must pass"
+        }
+      ]
+    },
+    {
+      "id": 9,
+      "title": "Medical records",
+      "how": "Tier 2 (offscreen: person ↔ sensitive-term graph + MiniLM validator) for a named, non-public person tied to an ICD-10-CM condition, RxNorm drug or dosage; Tier 3 Path B (offscreen: salted field hashes + MiniLM vectors) for exact rows of protected patient data.",
+      "prompts": [
+        {
+          "title": "Patient with MRN and diagnosis (context)",
+          "text": "Summarise for the referral: patient Margaret Okafor (MRN 00482913) was diagnosed with type 2 diabetes mellitus and started metformin 500 mg twice daily.",
+          "expect": "block",
+          "note": "Tier 2 (offscreen: person ↔ sensitive-term graph + MiniLM validator) · no setup needed"
+        },
+        {
+          "title": "Named person, condition and drug (context)",
+          "text": "John Davies is on warfarin 5 mg for atrial fibrillation; can you write his care plan?",
+          "expect": "block",
+          "note": "Tier 2 (offscreen: person ↔ sensitive-term graph + MiniLM validator) · no setup needed"
+        },
+        {
+          "title": "Row from the bundled demo registry",
+          "text": "Book a follow-up for Rafael Fairbanks, MRN 60095252.",
+          "expect": "block",
+          "note": "Tier 3 Path B (offscreen: salted field hashes + MiniLM vectors) · salted hash of name + MRN",
+          "needs": "demo-vault"
+        },
+        {
+          "title": "Patient from your protected CSV",
+          "text": "Please reschedule Ignatius Holloway (MRN 81547302) to Thursday.",
+          "expect": "block",
+          "note": "Tier 3 Path B (offscreen: salted field hashes + MiniLM vectors) · after protecting the sample patient CSV",
+          "needs": "sample:halcyon-patients"
+        },
+        {
+          "title": "Symptom question",
+          "text": "What are the early symptoms of type 2 diabetes?",
+          "expect": "allow",
+          "note": "General question — must pass"
+        }
+      ]
+    },
+    {
+      "id": 10,
+      "title": "Corporate IP & documents",
+      "how": "Tier 3 Path A (content script: Bloom + MinHash fingerprints) for copied excerpts (≥ 10 consecutive 5-gram hits) and near-duplicates (MinHash J ≥ 0.5); Tier 3 Path B (offscreen: salted field hashes + MiniLM vectors) for semantically identical paragraphs (cosine > 0.95).",
+      "prompts": [
+        {
+          "title": "15 lines of the bundled proprietary router",
+          "text": "Can you optimise this?\n\nconst MAX_VENUE_PARTICIPATION = 0.143;\nconst ADVERSE_SELECTION_PENALTY_BPS = 2.7;\n\ninterface VenueScore {\n  venue: Venue;\n  fillProbability: number;\n  expectedSlippageBps: number;\n  toxicity: number;\n  composite: number;\n}\n\nexport class AlphaLiquidityRouter extends EventEmitter {\n  private readonly toxicityByVenue = new Map<string, number>();\n  private readonly lastFillAt = new Map<string, number>();\n  private inventorySkew = 0;",
+          "expect": "block",
+          "note": "Tier 3 Path A (content script: Bloom + MinHash fingerprints)",
+          "needs": "demo-vault"
+        },
+        {
+          "title": "Paragraph from the bundled board memo",
+          "text": "Rewrite this for the board deck:\n\nManagement recommends that the Board authorise a non-binding indicative offer for 100% of Corvane Logistics Group at an enterprise value of AUD 1.86 billion, representing 9.4x trailing EBITDA and a 31% premium to the thirty-day volume weighted average price. Funding would combine a AUD 900 million syndicated term loan, a AUD 450 million institutional placement and existing cash reserves. We propose that the offer be delivered to the Target chair no later than 14 October, ahead of the Target's scheduled investor day.",
+          "expect": "block",
+          "note": "Tier 3 Path A (content script: Bloom + MinHash fingerprints) + Tier 3 Path B (offscreen: salted field hashes + MiniLM vectors)",
+          "needs": "demo-vault"
+        },
+        {
+          "title": "Large paste → pasted-content chip",
+          "text": "Summarise the attached memo for my team in five bullet points.",
+          "paste": "Management recommends that the Board authorise a non-binding indicative offer for 100% of Corvane Logistics Group at an enterprise value of AUD 1.86 billion, representing 9.4x trailing EBITDA and a 31% premium to the thirty-day volume weighted average price. Funding would combine a AUD 900 million syndicated term loan, a AUD 450 million institutional placement and existing cash reserves. We propose that the offer be delivered to the Target chair no later than 14 October, ahead of the Target's scheduled investor day.\n\n## 2. Strategic rationale\n\nCorvane operates fourteen cold-chain distribution centres along the eastern seaboard and holds long-term service contracts with three of the four largest grocery retailers. Combining Corvane's network with our existing freight-forwarding platform eliminates duplicated linehaul capacity on the Brisbane to Melbourne corridor and gives us an immediate position in pharmaceutical cold-chain logistics, a segment our own growth plan did not expect to enter until FY28. Management estimates run-rate cost synergies of AUD 74 million by the end of the second full year, of which approximately 60 percent relates to network consolidation and the balance to procurement and shared corporate services.\n\n## 3. Valuation and negotiation strategy",
+          "expect": "block",
+          "note": "Tier 3 Path A (content script: Bloom + MinHash fingerprints) on the attachment; removing the chip lifts the block",
+          "needs": "demo-vault"
+        },
+        {
+          "title": "Excerpt of your protected code",
+          "text": "Refactor this for readability:\n\nexport function netObligations(obligations: Obligation[], fxMidRates: Map<string, Decimal>): Map<string, Decimal> {\n  const net = new Map<string, Decimal>();\n  for (const ob of obligations) {\n    const rate = fxMidRates.get(`${ob.currency}AUD`) ?? Decimal.one();\n    const audValue = ob.amount.times(rate).roundHalfEven(2);\n    const prior = net.get(ob.counterpartyId) ?? Decimal.zero();\n    net.set(ob.counterpartyId, prior.plus(audValue));\n  }\n  for (const [cp, value] of net) {\n    const buffered = value.isNegative() ? value.times(Decimal.of(1 + LIQUIDITY_BUFFER_BPS / 10_000)) : value;\n    net.set(cp, buffered.roundHalfEven(2));\n  }\n  return net;\n}\n",
+          "expect": "block",
+          "note": "Tier 3 Path A (content script: Bloom + MinHash fingerprints) · after protecting the sample code",
+          "needs": "sample:settlement-netting-engine"
+        },
+        {
+          "title": "Paragraph of your protected document",
+          "text": "Make this sound friendlier:\n\nThe repricing assumes that the three largest clients, which together account for 41 percent of facility revenue, accept a twelve-month lock-in in exchange for a 9 percent rebate. If two of the three decline, the model projects a revenue shortfall of AUD 6.4 million in the first year, which the committee proposes to recover through the new overnight sweep product launching in the second quarter.",
+          "expect": "block",
+          "note": "Tier 3 Path A (content script: Bloom + MinHash fingerprints) + Tier 3 Path B (offscreen: salted field hashes + MiniLM vectors) · after protecting the sample memo",
+          "needs": "sample:halcyon-pricing-memo"
+        },
+        {
+          "title": "Generic code question",
+          "text": "How do I debounce a function in TypeScript without a library?",
+          "expect": "allow",
+          "note": "Not in the vault — must pass"
+        }
+      ]
+    }
+  ],
+  "edgeCases": [
+    {
+      "id": "EC01",
+      "title": "AWS access key pair in a debugging question",
+      "expect": "block",
+      "categories": [
+        1
+      ],
+      "text": "I'm getting AccessDenied from S3 — here is my config:\n[default]\naws_access_key_id = AKI\u0041Q3EGTRBX4M7PZK2N\naws_secret_access_key = 9fJ2kLq8Xz/Rt5Vw+Yb3Nc7Hd1Pm6Gs0Ea4Ui8Ro\nregion = ap-southeast-2"
+    },
+    {
+      "id": "EC02",
+      "title": "OpenAI and GitHub tokens inside a code block",
+      "expect": "block",
+      "categories": [
+        1
+      ],
+      "text": "Why does this script 401?\n```python\nclient = OpenAI(api_key=\"sk-proj-Qm3x9Rf2Lp7Tz4Wc8Vn1Hb6Kd0Sy5Ge2Ja7Uo4Xi\")\nrepo = Github(\"ghp_A1b2C3d4E5f6G7h8I9j0K1l2M3n4O5p6Q7r8\")\n```"
+    },
+    {
+      "id": "EC03",
+      "title": "Labelled password in a config snippet",
+      "expect": "block",
+      "categories": [
+        2
+      ],
+      "text": "Here's the staging config, why won't the reporting job connect?\nhost: reports.staging.internal\nuser: svc_reporting\npassword: Tr0ub4dor&3x!"
+    },
+    {
+      "id": "EC04",
+      "title": "Non-English credential labels",
+      "expect": "block",
+      "categories": [
+        2
+      ],
+      "text": "Notas del turno: la contraseña del servidor es Gato#Negro2024. Für das Backup: Passwort: Sommer!2024xY. 测试环境 密码是Xq7#mP2v9L"
+    },
+    {
+      "id": "EC05",
+      "title": "Unlabelled high-entropy password",
+      "expect": "block",
+      "categories": [
+        2
+      ],
+      "text": "Can you check why login fails with K9#vQ2!xLm7$Tz4@ for the svc account? It worked yesterday."
+    },
+    {
+      "id": "EC06",
+      "title": "Code declaring empty password fields",
+      "expect": "allow",
+      "categories": [],
+      "text": "Review this TypeScript:\n```ts\ninterface Credentials { username: string; password: string; }\nconst password = \"\";\nif (!password) throw new Error(\"password is required\");\n```"
+    },
+    {
+      "id": "EC07",
+      "title": "SSN and passport number",
+      "expect": "block",
+      "categories": [
+        3
+      ],
+      "text": "Complete the background check form: SSN 524-71-9036, passport number N4829173, start date next Monday."
+    },
+    {
+      "id": "EC08",
+      "title": "Spaced valid AU TFN",
+      "expect": "block",
+      "categories": [
+        4
+      ],
+      "text": "Payroll asked me to confirm my TFN: 123 456 782 — can you draft a short reply?"
+    },
+    {
+      "id": "EC09",
+      "title": "9-digit number failing the TFN checksum",
+      "expect": "allow",
+      "categories": [],
+      "text": "Is 123 456 789 a valid tax file number format, or is the checksum wrong?"
+    },
+    {
+      "id": "EC10",
+      "title": "Luhn-valid card written with dashes",
+      "expect": "block",
+      "categories": [
+        5
+      ],
+      "text": "Please refund the duplicate charge on card 4532-0151-1283-0366 and confirm by email."
+    },
+    {
+      "id": "EC11",
+      "title": "Benign test card 4242 4242 4242 4242",
+      "expect": "allow",
+      "categories": [],
+      "text": "Our checkout tests use 4242 4242 4242 4242 with any future expiry. Why does 3-D Secure not trigger?"
+    },
+    {
+      "id": "EC12",
+      "title": "16-digit order number failing Luhn",
+      "expect": "allow",
+      "categories": [],
+      "text": "Where is order 4716 3920 5124 8763? The tracking page shows nothing."
+    },
+    {
+      "id": "EC13",
+      "title": "IBAN in a payment instruction",
+      "expect": "block",
+      "categories": [
+        5
+      ],
+      "text": "Please wire EUR 12,500 to IBAN DE89 3704 0044 0532 0130 00 for the supplier invoice."
+    },
+    {
+      "id": "EC14",
+      "title": "ABN next to an entity name",
+      "expect": "block",
+      "categories": [
+        6
+      ],
+      "text": "Invoice from Brightline Analytics Pty Ltd (ABN 51 824 753 556) is 30 days overdue — draft a reminder."
+    },
+    {
+      "id": "EC15",
+      "title": "Verhoeff-valid Aadhaar and Indian PAN",
+      "expect": "block",
+      "categories": [
+        6
+      ],
+      "text": "KYC documents for the vendor: Aadhaar 2463 9953 7396 and PAN ABCPE1234F. Summarise what is still missing."
+    },
+    {
+      "id": "EC16",
+      "title": "Postgres connection string with credentials",
+      "expect": "block",
+      "categories": [
+        7
+      ],
+      "text": "Our job fails with timeout using DATABASE_URL=postgres://admin:S3cretPass!@prod-db.internal:5432/ledger — any ideas?"
+    },
+    {
+      "id": "EC17",
+      "title": "Named customer with balances",
+      "expect": "block",
+      "categories": [
+        8
+      ],
+      "text": "Prepare a portfolio review for client Theo Marchetti: holdings $4,812,300.00, cash balance $198,699.76, margin loan $310,000."
+    },
+    {
+      "id": "EC18",
+      "title": "Public-figure finance question (Warren Buffett)",
+      "expect": "allow",
+      "categories": [],
+      "text": "What is Warren Buffett's net worth, and how much of Berkshire's portfolio is in Apple?"
+    },
+    {
+      "id": "EC19",
+      "title": "General finance question",
+      "expect": "allow",
+      "categories": [],
+      "text": "How does a mortgage offset account work compared with a redraw facility, and which saves more interest?"
+    },
+    {
+      "id": "EC20",
+      "title": "Named patient with diagnosis and dosage",
+      "expect": "block",
+      "categories": [
+        9
+      ],
+      "text": "Discharge summary for patient Harriet Lindqvist (DOB 14/02/1961): admitted with community-acquired pneumonia, discharged on amoxicillin 500 mg three times daily."
+    },
+    {
+      "id": "EC21",
+      "title": "General medical question",
+      "expect": "allow",
+      "categories": [],
+      "text": "What are the common early symptoms of type 2 diabetes, and how is metformin usually dosed?"
+    },
+    {
+      "id": "EC22",
+      "title": "15-line excerpt of proprietary vault code",
+      "expect": "block",
+      "categories": [
+        10
+      ],
+      "text": "Can you make this faster?\n\n    const expectedSlippageBps = Math.max(0, limitGapBps) + venue.feeBps + toxicity * ADVERSE_SELECTION_PENALTY_BPS;\n    const darkBonus = venue.isDark ? DARK_POOL_PREFERENCE : 0;\n    const composite = fillProbability * (1 + darkBonus) - expectedSlippageBps / this.riskBudgetBps - this.inventorySkew * 0.04;\n    return { venue, fillProbability, expectedSlippageBps, toxicity, composite };\n  }\n\n  /** Splits the parent order across venues, capping participation to avoid signalling. */\n  route(order: Order, book: BookSnapshot, now = Date.now()): Order[] {\n    const ranked = this.venues\n      .map((v) => this.scoreVenue(v, order, book, now))\n      .filter((s) => s.composite > 0)\n      .sort((a, b) => b.composite - a.composite);\n\n    const children: Order[] = [];\n    let remaining = order.quantity;"
+    },
+    {
+      "id": "EC23",
+      "title": "One secret buried in a 1,500-word benign prompt",
+      "expect": "block",
+      "categories": [
+        1
+      ],
+      "text": "The quarterly planning cycle starts next week and every team lead should bring an updated roadmap. Our customer satisfaction survey closed with a strong response rate, and the themes were consistent. Remember to rotate the on-call schedule so that nobody covers two consecutive weekends. Marketing would like feedback on the draft launch blog post by the end of the week. The quarterly planning cycle starts next week and every team lead should bring an updated roadmap. Our customer satisfaction survey closed with a strong response rate, and the themes were consistent. Remember to rotate the on-call schedule so that nobody covers two consecutive weekends. Marketing would like feedback on the draft launch blog post by the end of the week. The quarterly planning cycle starts next week and every team lead should bring an updated roadmap. Our customer satisfaction survey closed with a strong response rate, and the themes were consistent. Remember to rotate the on-call schedule so that nobody covers two consecutive weekends. Marketing would like feedback on the draft launch blog post by the end of the week. The quarterly planning cycle starts next week and every team lead should bring an updated roadmap. Our customer satisfaction survey closed with a strong response rate, and the themes were consistent. Remember to rotate the on-call schedule so that nobody covers two consecutive weekends. Marketing would like feedback on the draft launch blog post by the end of the week. The quarterly planning cycle starts next week and every team lead should bring an updated roadmap. Our customer satisfaction survey closed with a strong response rate, and the themes were consistent. Remember to rotate the on-call schedule so that nobody covers two consecutive weekends. Marketing would like feedback on the draft launch blog post by the end of the week. The quarterly planning cycle starts next week and every team lead should bring an updated roadmap. Our customer satisfaction survey closed with a strong response rate, and the themes were consistent. Remember to rotate the on-call schedule so that nobody covers two consecutive weekends. Marketing would like feedback on the draft launch blog post by the end of the week. The quarterly planning cycle starts next week and every team lead should bring an updated roadmap. Our customer satisfaction survey closed with a strong response rate, and the themes were consistent. Remember to rotate the on-call schedule so that nobody covers two consecutive weekends. Marketing would like feedback on the draft launch blog post by the end of the week. The quarterly planning cycle starts next week and every team lead should bring an updated roadmap. Our customer satisfaction survey closed with a strong response rate, and the themes were consistent. Remember to rotate the on-call schedule so that nobody covers two consecutive weekends. Marketing would like feedback on the draft launch blog post by the end of the week. The quarterly planning cycle starts next week and every team lead should bring an updated roadmap. Our customer satisfaction survey closed with a strong response rate, and the themes were consistent. Remember to rotate the on-call schedule so that nobody covers two consecutive weekends. Marketing would like feedback on the draft launch blog post by the end of the week. The quarterly planning cycle starts next week and every team lead should bring an updated roadmap. Our customer satisfaction survey closed with a strong response rate, and the themes were consistent. Remember to rotate the on-call schedule so that nobody covers two consecutive weekends. Marketing would like feedback on the draft launch blog post by the end of the week. The quarterly planning cycle starts next week and every team lead should bring an updated roadmap. Our customer satisfaction survey closed with a strong response rate, and the themes were consistent. Remember to rotate the on-call schedule so that nobody covers two consecutive weekends. Marketing would like feedback on the draft launch blog post by the end of the week. The quarterly planning cycle starts next week and every team lead should bring an updated roadmap. Our customer satisfaction survey closed with a strong response rate, and the themes were consistent. Remember to rotate the on-call schedule so that nobody covers two consecutive weekends. Marketing would like feedback on the draft launch blog post by the end of the week. The quarterly planning cycle starts next week and every team lead should bring an updated roadmap. Our customer satisfaction survey closed with a strong response rate, and the themes were consistent. Remember to rotate the on-call schedule so that nobody covers two consecutive weekends. Marketing would like feedback on the draft launch blog post by the end of the week. The quarterly planning cycle starts next week and every team lead should bring an updated roadmap. Our customer satisfaction survey closed with a strong response rate, and the themes were consistent. Remember to rotate the on-call schedule so that nobody covers two consecutive weekends. Marketing would like feedback on the draft launch blog post by the end of the week. The quarterly planning cycle starts next week and every team lead should bring an updated roadmap. Our customer satisfaction survey closed with a strong response rate, and the themes were consistent. Remember to rotate the on-call schedule so that nobody covers two consecutive weekends. Marketing would like feedback on the draft launch blog post by the end of the week. (temporary deploy token: ghp_7Rk2Lm9Qx4Tz8Vb1Nc6Hd3Pw5Ys0Ja2Ge7Uf) The quarterly planning cycle starts next week and every team lead should bring an updated roadmap. Our customer satisfaction survey closed with a strong response rate, and the themes were consistent. Remember to rotate the on-call schedule so that nobody covers two consecutive weekends. Marketing would like feedback on the draft launch blog post by the end of the week. The quarterly planning cycle starts next week and every team lead should bring an updated roadmap. Our customer satisfaction survey closed with a strong response rate, and the themes were consistent. Remember to rotate the on-call schedule so that nobody covers two consecutive weekends. Marketing would like feedback on the draft launch blog post by the end of the week. The quarterly planning cycle starts next week and every team lead should bring an updated roadmap. Our customer satisfaction survey closed with a strong response rate, and the themes were consistent. Remember to rotate the on-call schedule so that nobody covers two consecutive weekends. Marketing would like feedback on the draft launch blog post by the end of the week. The quarterly planning cycle starts next week and every team lead should bring an updated roadmap. Our customer satisfaction survey closed with a strong response rate, and the themes were consistent. Remember to rotate the on-call schedule so that nobody covers two consecutive weekends. Marketing would like feedback on the draft launch blog post by the end of the week. The quarterly planning cycle starts next week and every team lead should bring an updated roadmap. Our customer satisfaction survey closed with a strong response rate, and the themes were consistent. Remember to rotate the on-call schedule so that nobody covers two consecutive weekends. Marketing would like feedback on the draft launch blog post by the end of the week. The quarterly planning cycle starts next week and every team lead should bring an updated roadmap. Our customer satisfaction survey closed with a strong response rate, and the themes were consistent. Remember to rotate the on-call schedule so that nobody covers two consecutive weekends. Marketing would like feedback on the draft launch blog post by the end of the week. The quarterly planning cycle starts next week and every team lead should bring an updated roadmap. Our customer satisfaction survey closed with a strong response rate, and the themes were consistent. Remember to rotate the on-call schedule so that nobody covers two consecutive weekends. Marketing would like feedback on the draft launch blog post by the end of the week. The quarterly planning cycle starts next week and every team lead should bring an updated roadmap. Our customer satisfaction survey closed with a strong response rate, and the themes were consistent. Remember to rotate the on-call schedule so that nobody covers two consecutive weekends. Marketing would like feedback on the draft launch blog post by the end of the week. The quarterly planning cycle starts next week and every team lead should bring an updated roadmap. Our customer satisfaction survey closed with a strong response rate, and the themes were consistent. Remember to rotate the on-call schedule so that nobody covers two consecutive weekends. Marketing would like feedback on the draft launch blog post by the end of the week. The quarterly planning cycle starts next week and every team lead should bring an updated roadmap. Our customer satisfaction survey closed with a strong response rate, and the themes were consistent. Remember to rotate the on-call schedule so that nobody covers two consecutive weekends. Marketing would like feedback on the draft launch blog post by the end of the week."
+    },
+    {
+      "id": "EC24",
+      "title": "Large paste becomes pasted-content.txt chip, then the chip is removed",
+      "expect": "block",
+      "categories": [
+        10
+      ],
+      "text": "Summarise the attached memo for my team in five bullet points.",
+      "paste": "Management recommends that the Board authorise a non-binding indicative offer for 100% of Corvane Logistics Group at an enterprise value of AUD 1.86 billion, representing 9.4x trailing EBITDA and a 31% premium to the thirty-day volume weighted average price. Funding would combine a AUD 900 million syndicated term loan, a AUD 450 million institutional placement and existing cash reserves. We propose that the offer be delivered to the Target chair no later than 14 October, ahead of the Target's scheduled investor day.\n\n## 2. Strategic rationale\n\nCorvane operates fourteen cold-chain distribution centres along the eastern seaboard and holds long-term service contracts with three of the four largest grocery retailers. Combining Corvane's network with our existing freight-forwarding platform eliminates duplicated linehaul capacity on the Brisbane to Melbourne corridor and gives us an immediate position in pharmaceutical cold-chain logistics, a segment our own growth plan did not expect to enter until FY28. Management estimates run-rate cost synergies of AUD 74 million by the end of the second full year, of which approximately 60 percent relates to network consolidation and the balance to procurement and shared corporate services.\n\n## 3. Valuation and negotiation strategy",
+      "steps": [
+        {
+          "text": "Summarise the attached memo for my team in five bullet points.",
+          "expect": "block",
+          "paste": "Management recommends that the Board authorise a non-binding indicative offer for 100% of Corvane Logistics Group at an enterprise value of AUD 1.86 billion, representing 9.4x trailing EBITDA and a 31% premium to the thirty-day volume weighted average price. Funding would combine a AUD 900 million syndicated term loan, a AUD 450 million institutional placement and existing cash reserves. We propose that the offer be delivered to the Target chair no later than 14 October, ahead of the Target's scheduled investor day.\n\n## 2. Strategic rationale\n\nCorvane operates fourteen cold-chain distribution centres along the eastern seaboard and holds long-term service contracts with three of the four largest grocery retailers. Combining Corvane's network with our existing freight-forwarding platform eliminates duplicated linehaul capacity on the Brisbane to Melbourne corridor and gives us an immediate position in pharmaceutical cold-chain logistics, a segment our own growth plan did not expect to enter until FY28. Management estimates run-rate cost synergies of AUD 74 million by the end of the second full year, of which approximately 60 percent relates to network consolidation and the balance to procurement and shared corporate services.\n\n## 3. Valuation and negotiation strategy"
+        },
+        {
+          "text": "Summarise the attached memo for my team in five bullet points.",
+          "expect": "allow"
+        }
+      ]
+    }
+  ],
+  "samples": [
+    {
+      "id": "settlement-netting-engine",
+      "type": "code",
+      "title": "Halcyon settlement netting engine",
+      "fileName": "settlement-netting-engine.ts",
+      "text": "// Halcyon Treasury — intraday settlement netting engine (FICTIONAL DEMO CODE for Aionix Sentinel\n// live testing; any resemblance to real software is coincidental).\nimport { Decimal } from './decimal';\n\nexport interface Obligation {\n  counterpartyId: string;\n  currency: 'AUD' | 'USD' | 'EUR';\n  amount: Decimal;\n  valueDate: string;\n}\n\nconst HALCYON_NETTING_CUTOFF_UTC = '06:45';\nconst LIQUIDITY_BUFFER_BPS = 37;\n\n/** Multilateral netting with a liquidity buffer tuned on the 2026 stress-test calendar. */\nexport function netObligations(obligations: Obligation[], fxMidRates: Map<string, Decimal>): Map<string, Decimal> {\n  const net = new Map<string, Decimal>();\n  for (const ob of obligations) {\n    const rate = fxMidRates.get(`${ob.currency}AUD`) ?? Decimal.one();\n    const audValue = ob.amount.times(rate).roundHalfEven(2);\n    const prior = net.get(ob.counterpartyId) ?? Decimal.zero();\n    net.set(ob.counterpartyId, prior.plus(audValue));\n  }\n  for (const [cp, value] of net) {\n    const buffered = value.isNegative() ? value.times(Decimal.of(1 + LIQUIDITY_BUFFER_BPS / 10_000)) : value;\n    net.set(cp, buffered.roundHalfEven(2));\n  }\n  return net;\n}\n\n/** Splits a payment run so no single RTGS instruction exceeds the counterparty's halcyon limit. */\nexport function splitForRtgs(cp: string, amount: Decimal, halcyonLimit: Decimal): Decimal[] {\n  const parts: Decimal[] = [];\n  let remaining = amount.abs();\n  while (remaining.greaterThan(halcyonLimit)) {\n    parts.push(halcyonLimit);\n    remaining = remaining.minus(halcyonLimit);\n  }\n  if (!remaining.isZero()) parts.push(remaining);\n  if (parts.length > 9) throw new Error(`netting for ${cp} needs ${parts.length} RTGS legs; escalate to the treasury desk`);\n  return parts;\n}\n\nexport function isBeforeCutoff(nowUtc: string): boolean {\n  return nowUtc.localeCompare(HALCYON_NETTING_CUTOFF_UTC) < 0;\n}\n"
+    },
+    {
+      "id": "halcyon-pricing-memo",
+      "type": "document",
+      "title": "Project Halcyon pricing memo",
+      "fileName": "halcyon-pricing-memo.md",
+      "text": "# Project Halcyon — confidential pricing memo (FICTIONAL DEMO DOCUMENT)\n\nPrepared for the Executive Pricing Committee. Do not forward outside the committee distribution list.\n\nHalcyon Treasury will reprice its intraday liquidity facility on 1 February 2027. The committee recommends a tiered fee of 11 basis points on the first AUD 250 million of daily netted volume, falling to 6 basis points above AUD 1.2 billion, with a floor of AUD 18,500 per month for any client on the premium settlement window.\n\nThe repricing assumes that the three largest clients, which together account for 41 percent of facility revenue, accept a twelve-month lock-in in exchange for a 9 percent rebate. If two of the three decline, the model projects a revenue shortfall of AUD 6.4 million in the first year, which the committee proposes to recover through the new overnight sweep product launching in the second quarter.\n\nCompetitive intelligence indicates that two rival providers will hold their current pricing until at least mid-2027. The committee therefore recommends announcing the change to clients no earlier than 15 December 2026, to avoid giving competitors time to respond with targeted retention offers.\n"
+    },
+    {
+      "id": "halcyon-customers",
+      "type": "customers",
+      "title": "Halcyon customer list",
+      "fileName": "halcyon-customers.csv",
+      "text": "customer_id,full_name,email,account_number,facility_limit_aud,overdue_aud\nHAL-20431,Imogen Thistlewood,imogen.thistlewood@halcyon-demo.example,483920175,2500000,0\nHAL-20447,Bartholomew Quayle,b.quayle@halcyon-demo.example,509318462,1250000,48210\nHAL-20452,Saoirse Delacroix-Vane,saoirse.dv@halcyon-demo.example,621047398,900000,0\nHAL-20468,Tobias Wrenfield,tobias.wrenfield@halcyon-demo.example,738204615,4100000,312500\nHAL-20473,Marisol Achterberg,marisol.a@halcyon-demo.example,842615309,650000,12000\n"
+    },
+    {
+      "id": "halcyon-patients",
+      "type": "patients",
+      "title": "Halcyon patient roster",
+      "fileName": "halcyon-patients.csv",
+      "text": "patient_id,full_name,mrn,date_of_birth,diagnosis,ward\nPAT-7021,Cordelia Fenwick-Ames,73019264,1968-02-14,Chronic kidney disease stage 3,Renal B\nPAT-7034,Ignatius Holloway,81547302,1955-09-30,Atrial fibrillation,Cardiology 2\nPAT-7046,Wilhelmina Asquith,69204813,1982-06-07,Type 1 diabetes mellitus,Endocrine A\nPAT-7058,Lucius Abernathy,90418576,1974-11-22,Major depressive disorder,Mental Health 1\nPAT-7062,Perpetua Llewellyn,58130947,1990-03-03,Multiple sclerosis,Neurology 3\n"
+    }
+  ]
+}

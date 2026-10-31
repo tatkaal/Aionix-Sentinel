@@ -1,0 +1,6 @@
+patient_id,full_name,mrn,date_of_birth,diagnosis,ward
+PAT-7021,Cordelia Fenwick-Ames,73019264,1968-02-14,Chronic kidney disease stage 3,Renal B
+PAT-7034,Ignatius Holloway,81547302,1955-09-30,Atrial fibrillation,Cardiology 2
+PAT-7046,Wilhelmina Asquith,69204813,1982-06-07,Type 1 diabetes mellitus,Endocrine A
+PAT-7058,Lucius Abernathy,90418576,1974-11-22,Major depressive disorder,Mental Health 1
+PAT-7062,Perpetua Llewellyn,58130947,1990-03-03,Multiple sclerosis,Neurology 3
