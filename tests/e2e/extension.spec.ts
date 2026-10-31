@@ -123,3 +123,91 @@ test('telemetry is zero-knowledge: records hold categories and fingerprints, nev
   expect(json).toMatch(/"fingerprint":"[0-9a-f]{12}"/);
   await page.close();
 });
+
+test('chatgpt signed out (textarea + form-encoded body): blocks the stakeholder password, redacts, and the backstop reads the form', async () => {
+  const page = await open('chatgpt-anon');
+  const box = page.locator('textarea[name="prompt"]');
+  await box.fill('my current psw is Ohlalalala34%. can you suggest a better one?');
+  await box.press('Enter');
+  await expect(drawer(page).getByText('Passwords & secrets').first()).toBeVisible();
+  await expect(sent(page)).toHaveCount(0);
+
+  await drawer(page).getByRole('button', { name: /Auto-redact/ }).click();
+  await expect(box).toHaveValue(/\[REDACTED_PASSWORD\]/);
+  await box.press('Enter');
+  await expect(sent(page)).toHaveCount(1);
+  await expect(sent(page).first()).not.toContainText('Ohlalalala34');
+
+  await page.locator('#direct-api').click();
+  await expect(page.locator('#log')).toContainText('DIRECT-BLOCKED');
+  await page.close();
+});
+
+test('options page: protected data blocks copies, exact records and lifts when removed', async () => {
+  const opts = await context.newPage();
+  await opts.goto(`chrome-extension://${extId}/options.html`);
+  for (const sample of ['settlement-netting-engine', 'halcyon-patients']) {
+    await opts.locator(`[data-sample="${sample}"]`).click();
+    await opts.locator('[data-action="protect"]').click();
+    await expect(opts.getByRole('status')).toContainText('The text itself was not stored');
+  }
+  await expect(opts.getByTestId('protected-list').locator('li')).toHaveCount(2);
+  const stored = await opts.evaluate(() => chrome.storage.local.get(null));
+  expect(JSON.stringify(stored)).not.toMatch(/HALCYON_NETTING_CUTOFF|Ignatius Holloway|81547302/);
+
+  const page = await open('claude');
+  const editor = page.locator('[contenteditable="true"]');
+  const code = ['/** Splits a payment run so no single RTGS instruction exceeds the counterparty\'s halcyon limit. */',
+    'export function splitForRtgs(cp: string, amount: Decimal, halcyonLimit: Decimal): Decimal[] {',
+    '  const parts: Decimal[] = [];', '  let remaining = amount.abs();', '  while (remaining.greaterThan(halcyonLimit)) {',
+    '    parts.push(halcyonLimit);', '    remaining = remaining.minus(halcyonLimit);', '  }'].join('\n');
+  await editor.fill(`Refactor this for readability:\n\n${code}`);
+  await editor.press('Enter');
+  await expect(drawer(page).getByText(/Matches vault asset/).first()).toBeVisible();
+  await drawer(page).getByRole('button', { name: 'Close' }).click();
+
+  await editor.fill('Please reschedule Ignatius Holloway (MRN 81547302) to Thursday.');
+  await editor.press('Enter');
+  await expect(drawer(page).getByText('Medical records').first()).toBeVisible();
+  await drawer(page).getByRole('button', { name: 'Close' }).click();
+
+  await opts.getByRole('button', { name: 'Remove all' }).click();
+  await expect(opts.getByText('Nothing protected yet')).toBeVisible();
+  await page.waitForTimeout(500);
+  await editor.fill(`Refactor this for readability:\n\n${code}`);
+  await editor.press('Enter');
+  await expect(sent(page)).toHaveCount(1);
+  await page.close();
+  await opts.close();
+});
+
+test('offscreen check unavailable: a clean-on-Tier-1 prompt is held for the user, not sent silently', async () => {
+  const [sw] = context.serviceWorkers();
+  const page = await open('claude');
+  const editor = page.locator('[contenteditable="true"]');
+  await editor.fill('Client Daniel Whitford — account balance $1,284,500.00, margin loan outstanding $310,000.');
+  // Make the offscreen engine unreachable: close it and let re-creation hang (restored below).
+  await sw!.evaluate(async () => {
+    const g = globalThis as unknown as { __create?: typeof chrome.offscreen.createDocument };
+    g.__create = chrome.offscreen.createDocument;
+    chrome.offscreen.createDocument = () => new Promise<void>(() => undefined);
+    await chrome.offscreen.closeDocument();
+  });
+  await editor.press('Enter');
+  await expect(drawer(page).getByText('Check incomplete')).toBeVisible();
+  await expect(sent(page)).toHaveCount(0);
+  await drawer(page).getByRole('button', { name: 'Send anyway' }).click();
+  await expect(sent(page)).toHaveCount(1);
+  await page.close();
+  await sw!.evaluate(() => {
+    const g = globalThis as unknown as { __create?: typeof chrome.offscreen.createDocument };
+    chrome.offscreen.createDocument = g.__create!;
+  });
+  // Let the engine finish starting so later tests see it ready.
+  const popup = await context.newPage();
+  await popup.goto(`chrome-extension://${extId}/popup.html`);
+  await expect
+    .poll(() => popup.evaluate(async () => ((await chrome.runtime.sendMessage({ target: 'background', type: 'status' })) as { engine?: { pathAReady?: boolean } })?.engine?.pathAReady ?? false), { timeout: 60_000, intervals: [500] })
+    .toBe(true);
+  await popup.close();
+});

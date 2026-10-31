@@ -18,7 +18,8 @@ export interface DrawerItem {
 }
 
 export interface DrawerState {
-  mode: 'blocked' | 'lifted';
+  /** held: Tier 1/3A were clean but the offscreen check (Tier 2/3B) could not answer — the user decides. */
+  mode: 'blocked' | 'lifted' | 'held';
   portalLabel: string;
   items: DrawerItem[];
   latencyMs: number;
@@ -31,6 +32,8 @@ export interface DrawerHandlers {
   onEdit(id: string): void;
   onRemoveAttachment(attachmentId: string): void;
   onClose(): void;
+  /** Only in 'held' mode: send although the context check did not finish. */
+  onSendAnyway?(): void;
 }
 
 const CSS = `
@@ -49,6 +52,7 @@ header { display: flex; align-items: center; gap: 10px; padding: 14px 16px; bord
 .badge { display: inline-flex; align-items: center; gap: 6px; padding: 3px 8px; border-radius: 6px; font-size: 12px; font-weight: 600; white-space: nowrap; }
 .badge.block { background: rgba(239,68,68,.14); color: #FCA5A5; box-shadow: inset 0 0 0 1px rgba(239,68,68,.4); }
 .badge.ok { background: rgba(16,185,129,.14); color: #6EE7B7; box-shadow: inset 0 0 0 1px rgba(16,185,129,.4); }
+.badge.warn { background: rgba(245,158,11,.14); color: #FCD34D; box-shadow: inset 0 0 0 1px rgba(245,158,11,.4); }
 .x { all: unset; cursor: pointer; width: 28px; height: 28px; display: grid; place-items: center; border-radius: 8px; color: ${BRAND.muted}; }
 .x:hover { background: rgba(255,255,255,.06); color: ${BRAND.text}; }
 .summary { padding: 14px 16px 6px; }
@@ -119,7 +123,7 @@ export class BlockDrawer {
     root.appendChild(style);
 
     const wrap = el('div', 'wrap');
-    wrap.setAttribute('role', state.mode === 'blocked' ? 'alertdialog' : 'status');
+    wrap.setAttribute('role', state.mode === 'lifted' ? 'status' : 'alertdialog');
     wrap.setAttribute('aria-labelledby', 'aionix-title');
 
     const header = el('header');
@@ -127,13 +131,40 @@ export class BlockDrawer {
     const logo = el('span');
     logo.innerHTML = aionixLogoMarkup(20); // static, trusted markup
     brand.append(logo, text('span', 'Aionix Sentinel'));
-    const badge = text('span', state.mode === 'blocked' ? 'Send blocked' : 'Block lifted', `badge ${state.mode === 'blocked' ? 'block' : 'ok'}`);
+    const badge = text(
+      'span',
+      { blocked: 'Send blocked', lifted: 'Block lifted', held: 'Check incomplete' }[state.mode],
+      `badge ${{ blocked: 'block', lifted: 'ok', held: 'warn' }[state.mode]}`,
+    );
     const close = el('button', 'x');
     close.setAttribute('aria-label', 'Close');
     close.innerHTML = '<svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 4l8 8M12 4l-8 8" stroke-linecap="round"/></svg>';
     close.addEventListener('click', () => h.onClose());
     header.append(brand, el('span', 'spacer'), badge, close);
     wrap.appendChild(header);
+
+    if (state.mode === 'held') {
+      const s = el('div', 'summary');
+      const h2 = text('h2', `Held: the context check did not finish`);
+      h2.id = 'aionix-title';
+      s.appendChild(h2);
+      s.appendChild(
+        text('p', `Secrets, IDs and document fingerprints were checked and nothing was found. The medical / financial context check and exact-data match could not answer in time, so nothing was sent to ${state.portalLabel}.`),
+      );
+      wrap.appendChild(s);
+      if (state.note) wrap.appendChild(text('div', state.note, 'note'));
+      wrap.appendChild(text('p', 'Press Enter to check again, or send without the context check.', 'lifted'));
+      const footer = el('footer');
+      const cancel = text('button', 'Keep editing', 'b primary');
+      cancel.addEventListener('click', () => h.onClose());
+      const anyway = text('button', 'Send anyway', 'b danger');
+      anyway.addEventListener('click', () => h.onSendAnyway?.());
+      footer.append(cancel, anyway);
+      wrap.appendChild(footer);
+      root.appendChild(wrap);
+      cancel.focus({ preventScroll: true });
+      return;
+    }
 
     if (state.mode === 'lifted') {
       const s = el('div', 'summary');

@@ -10,7 +10,7 @@ import { AttachmentShadowStore, LARGE_PASTE_THRESHOLD } from './attachment-store
 import { BlockDrawer, type DrawerItem } from './block-drawer';
 import { readEditable, replaceSpans, selectSpan } from './dom-text';
 
-export type InterceptorStatus = 'idle' | 'scanning' | 'blocked' | 'sent' | 'lifted' | 'redacted';
+export type InterceptorStatus = 'idle' | 'scanning' | 'blocked' | 'held' | 'sent' | 'lifted' | 'redacted';
 
 export interface InterceptorEvents {
   onStatus?(status: InterceptorStatus): void;
@@ -28,8 +28,15 @@ export interface InterceptorOptions {
   asyncScanner: AsyncScanner | null;
   drawer?: BlockDrawer;
   events?: InterceptorEvents;
-  /** Tier 2 SLA. Past it the prompt fails open on the already-clean Tier 1/3A verdict. */
+  /** Tier 2 SLA (default 1,000 ms). */
   asyncTimeoutMs?: number;
+  /**
+   * When the offscreen check (Tier 2 + 3B) times out or is unreachable after a clean Tier 1/3A
+   * verdict: 'hold' (default) asks the user — Send anyway / keep editing; 'send' fails open.
+   * A live capture run saw the offscreen engine become unreachable mid-session, so silently
+   * sending would have let Category 8/9 context through.
+   */
+  asyncFailure?: 'hold' | 'send';
 }
 
 interface BlockState {
@@ -241,16 +248,15 @@ export class PromptInterceptor {
     this.pending = true;
     this.opts.events?.onStatus?.('scanning');
     let merged = sync;
+    let incomplete = false;
+    const budget = this.opts.asyncTimeoutMs ?? 1000;
     try {
-      const asyncPart = this.opts.asyncScanner
-        ? await withTimeout(this.opts.asyncScanner.scanAsync(input), this.opts.asyncTimeoutMs ?? 1000)
-        : null;
-      merged =
-        asyncPart === 'timeout'
-          ? { ...sync, degradedReason: 'Tier 2 exceeded the 1,000 ms SLA — sent on clean Tier 1/3A verdict' }
-          : mergeAsync(sync, asyncPart, performance.now() - t0);
+      const asyncPart = this.opts.asyncScanner ? await withTimeout(this.opts.asyncScanner.scanAsync(input), budget) : null;
+      incomplete = asyncPart === 'timeout';
+      merged = asyncPart === 'timeout' ? { ...sync, degradedReason: `Context check exceeded the ${budget.toLocaleString()} ms budget` } : mergeAsync(sync, asyncPart, performance.now() - t0);
     } catch (err) {
-      merged = { ...sync, degradedReason: `Tier 2 unavailable: ${(err as Error).message}` };
+      incomplete = true;
+      merged = { ...sync, degradedReason: `Context check unavailable: ${(err as Error).message}` };
     } finally {
       this.pending = false;
     }
@@ -259,9 +265,31 @@ export class PromptInterceptor {
       this.enterBlock(input, merged);
       return;
     }
+    if (incomplete && (this.opts.asyncFailure ?? 'hold') === 'hold') {
+      this.holdForDecision(input, merged, trigger);
+      return;
+    }
     this.opts.events?.onScan?.(merged, false, input);
     this.opts.events?.onVerified?.(promptDigest(input.text));
     this.resend(trigger);
+  }
+
+  /** Clean on Tier 1/3A, but the offscreen check did not answer: the user decides, nothing is sent yet. */
+  private holdForDecision(input: ScanInput, result: ScanResult, trigger: 'enter' | 'click' | 'submit') {
+    this.opts.events?.onStatus?.('held');
+    this.drawer.show(
+      { mode: 'held', portalLabel: this.opts.adapter.label, items: [], latencyMs: result.timings.total, ...(result.degradedReason ? { note: result.degradedReason } : {}) },
+      {
+        ...this.handlers(),
+        onSendAnyway: () => {
+          this.drawer.hide();
+          const sent = { ...result, degradedReason: `${result.degradedReason ?? 'Context check incomplete'} — sent by the user without it` };
+          this.opts.events?.onScan?.(sent, false, input);
+          this.opts.events?.onVerified?.(promptDigest(input.text));
+          this.resend(trigger);
+        },
+      },
+    );
   }
 
   /** Re-dispatches the original send exactly once, bypassing interception. */
