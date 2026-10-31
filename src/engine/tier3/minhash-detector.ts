@@ -11,6 +11,8 @@ import type { VaultAsset } from './vault-format';
 export const MIN_HIT_RUN = 10;
 /** Whole-document near-duplicate threshold. */
 export const MIN_JACCARD = 0.5;
+/** Runs at least this long are part of a copied excerpt for the finding span (and redaction). */
+const COVER_RUN = 3;
 
 export interface VaultMatch {
   asset: VaultAsset;
@@ -43,25 +45,32 @@ export function createVaultDetector(initial: VaultAsset[]): VaultDetector {
     for (const asset of assets) {
       let run = 0;
       let best = 0;
-      let bestStart = 0;
-      let bestEnd = 0;
       let runStart = 0;
       let hits = 0;
+      // The reported span covers every substantial run (≥ COVER_RUN hits), not just the longest, so
+      // redacting a pasted excerpt removes all of the copied text in one step.
+      let coverStart = -1;
+      let coverEnd = -1;
+      const closeRun = (endToken: number) => {
+        if (run < COVER_RUN) return;
+        if (coverStart < 0 || runStart < coverStart) coverStart = runStart;
+        coverEnd = Math.max(coverEnd, endToken + 4);
+      };
+      let lastHitToken = 0;
       for (const s of sh) {
         if (s.generic) continue; // generic shingles neither extend nor break a run
         if (asset.bloom.has(s.hash)) {
           if (run === 0) runStart = s.token;
           run++;
           hits++;
-          if (run > best) {
-            best = run;
-            bestStart = runStart;
-            bestEnd = s.token + 4;
-          }
+          lastHitToken = s.token;
+          best = Math.max(best, run);
         } else {
+          closeRun(lastHitToken);
           run = 0;
         }
       }
+      closeRun(lastHitToken);
       const jaccard = promptSig ? estimateJaccard(promptSig, asset.signature) : 0;
       out.push({
         asset,
@@ -69,8 +78,8 @@ export function createVaultDetector(initial: VaultAsset[]): VaultDetector {
         hits,
         probes: meaningful.length,
         jaccard,
-        rawStart: best ? tokens[bestStart]!.start : 0,
-        rawEnd: best ? tokens[Math.min(bestEnd, tokens.length - 1)]!.end : 0,
+        rawStart: coverStart >= 0 ? tokens[coverStart]!.start : 0,
+        rawEnd: coverStart >= 0 ? tokens[Math.min(coverEnd, tokens.length - 1)]!.end : 0,
       });
     }
     return out;

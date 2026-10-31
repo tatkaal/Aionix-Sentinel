@@ -134,6 +134,7 @@ for (const line of readFileSync(rxFile, 'utf8').split(/\r?\n/)) {
 
 for (const t of lines('financial-terms.txt')) add(t, `${FST_CLASS.financial}`);
 for (const line of lines('first-names.txt')) for (const n of line.split(/\s+/)) add(n, `${FST_CLASS.firstName}`);
+for (const line of lines('surnames.txt')) for (const n of line.split(/\s+/)) add(n, `${FST_CLASS.surname}`);
 for (const p of lines('public-figures.txt')) add(p, `${FST_CLASS.publicFigure}`);
 for (const w of new Set([...vocab, ...multilingual])) if (w.length >= 7) add(w, `${FST_CLASS.commonWord}`);
 

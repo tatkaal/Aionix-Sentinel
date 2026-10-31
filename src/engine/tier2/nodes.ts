@@ -69,10 +69,12 @@ export function findPersonNodes(text: string, fst: Fst): PersonNode[] {
     const full = words.join(' ');
     if (ROLE_WORD.test(full)) continue;
     const isFirstName = fst.lookup(words[0]!.toLowerCase()).some((o) => o[0] === FST_CLASS.firstName);
+    // "Sarah Mitchell": a known surname is a name part even though "mitchell" is also a vocabulary word.
+    const isSurname = words.length > 1 && fst.lookup(words.at(-1)!.toLowerCase()).some((o) => o[0] === FST_CLASS.surname);
     const accepted =
       title || // "Mr Patel", "Dr. Okafor"
       (role && (isFirstName || (words.length > 1 && !isCommon(words[0]!)))) || // "client Theo Marchetti"
-      (isFirstName && words.length > 1 && !isCommon(words[1]!)); // "Margaret Okafor"
+      (isFirstName && words.length > 1 && (isSurname || !isCommon(words[1]!))); // "Margaret Okafor", "Sarah Mitchell"
     if (!accepted) continue;
     // "Scott County", "Grace Hospital", "Jordan Street" are places and organisations.
     if (words.length > 1 && PLACE_OR_ORG.test(words.at(-1)!)) continue;

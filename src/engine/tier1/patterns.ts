@@ -19,7 +19,7 @@ const API_KEY_RULES: TokenRule[] = [
   {
     type: 'AWS_SECRET_KEY',
     label: 'AWS secret access key',
-    re: /aws.{0,24}?(?:secret|private).{0,24}?[:=]\s*["']?([A-Za-z0-9/+]{40})(?![A-Za-z0-9/+])/gi,
+    re: /aws.{0,24}?(?:secret|private).{0,24}?(?:[:=]|\bis\b)\s*["']?([A-Za-z0-9/+]{40})(?![A-Za-z0-9/+])/gi,
     group: 1,
     minEntropy: 4,
   },
@@ -35,14 +35,16 @@ const API_KEY_RULES: TokenRule[] = [
   {
     type: 'API_KEY',
     label: 'Labelled API key / token',
-    re: /\b(?:api[_-]?key|apikey|access[_-]?token|secret[_-]?key|client[_-]?secret|auth[_-]?token|bearer)["']?\s*[:=]?\s*["']?([A-Za-z0-9_\-+/.=]{20,})/gi,
+    // "api_key=…", "my api key is …", "our slack access token is …".
+    re: /\b(?:api[_\s-]?key|apikey|access[_\s-]?token|secret[_\s-]?key|client[_\s-]?secret|auth[_\s-]?token|bearer|token)["']?\s*(?:(?:is|was|[:=])\s*)?["']?([A-Za-z0-9_\-+/.=]{20,})/gi,
     group: 1,
     minEntropy: 3.5,
     priority: 2,
   },
 ];
 
-const PLACEHOLDER = /^(?:x{3,}|\*{3,}|\.{3,}|<[^>]*>|\$\{[^}]*\}|\{\{[^}]*\}\}|%\w+%|your[_-]?\w*|changeme|example\w*|placeholder|redacted|password|pass|secret|null|none|undefined|string)$/i;
+// Includes our own redaction tags, so a redacted prompt ("-p[REDACTED_DB_CREDENTIAL]") passes.
+const PLACEHOLDER = /^(?:x{3,}|\*{3,}|\.{3,}|<[^>]*>|\$\{[^}]*\}|\{\{[^}]*\}\}|%\w+%|\[REDACTED_[A-Z0-9_]+\]|your[_-]?\w*|changeme|example\w*|placeholder|redacted|password|pass|secret|null|none|undefined|string)$/i;
 
 function scanRules(text: string, rules: TokenRule[], out: Candidate[]) {
   for (const rule of rules) {
@@ -71,6 +73,8 @@ function scanRules(text: string, rules: TokenRule[], out: Candidate[]) {
 
 const DB_URI =
   /\b(?:postgres(?:ql)?|mysql|mariadb|mongodb(?:\+srv)?|rediss?|amqps?|mssql|sqlserver|oracle|cockroachdb|jdbc:[a-z]+(?::[a-z]+)?):\/\/([^\s:/@'"]+):([^\s@'"]+)@[^\s'"]+/gi;
+/** `mysql -u root -pS3cret db` — the password glued to -p on a pasted command line. */
+const MYSQL_CLI = /\bmysql(?:dump|admin|sh)?\b[^\n]{0,80}?\s-p(?![\s-])['"]?([^\s'"]{4,})/gi;
 const ADO_CONN = /\b(?:Server|Data Source|Host|Address)\s*=[^;'"\n]{1,120};[^'"\n]{0,200}?\b(?:Password|Pwd)\s*=\s*([^;'"\s]{3,})/gi;
 
 function scanDbCredentials(text: string, out: Candidate[]) {
@@ -89,6 +93,12 @@ function scanDbCredentials(text: string, out: Candidate[]) {
       priority: 7,
     });
   }
+  MYSQL_CLI.lastIndex = 0;
+  for (let m = MYSQL_CLI.exec(text); m; m = MYSQL_CLI.exec(text)) {
+    if (PLACEHOLDER.test(m[1]!)) continue;
+    const s = m.index + m[0].lastIndexOf(m[1]!);
+    out.push({ start: s, end: s + m[1]!.length, category: 7, type: 'DB_CREDENTIAL', label: 'Database password on a command line', confidence: 0.92, evidence: 'mysql -p<password>', priority: 7 });
+  }
   ADO_CONN.lastIndex = 0;
   for (let m = ADO_CONN.exec(text); m; m = ADO_CONN.exec(text)) {
     if (PLACEHOLDER.test(m[1]!)) continue;
@@ -105,7 +115,8 @@ function scanDbCredentials(text: string, out: Candidate[]) {
   }
 }
 
-const PASSPORT = /\bpassport\s*(?:no\.?|number|num|#)?\s*[:#]?\s*([A-Z]{0,2}\d{6,9}|[A-Z]\d{7,8})\b/gi;
+// Labels may be followed by "is"/"was" as typed in prose ("my passport no is …", "the BSB is …").
+const PASSPORT = /\bpassport\s*(?:no\.?|number|num|#)?\s*(?:is|was)?\s*[:#]?\s*([A-Z]{0,2}\d{6,9}|[A-Z]\d{7,8})\b/gi;
 const DRIVER_LICENCE = /\b(?:driver'?s?\s*licen[cs]e|driving\s*licen[cs]e|DL)\s*(?:no\.?|number|num|#)?\s*(?:is|was|=)?\s*[:#]?\s*([A-Z0-9][A-Z0-9-]{4,14})\b/gi;
 // Labelled social-security / national identity numbers (multilingual) with an ID-shaped value.
 const NATIONAL_ID = /\b(?:SSN|social\s*security(?:\s*(?:no\.?|number))?|national\s*(?:id|insurance)(?:\s*(?:no\.?|number))?|num[eé]ro\s*de\s*s[eé]curit[eé]\s*sociale|sozialversicherungs(?:nummer)?|AHV(?:-?Nr\.?)?|AVS|codice\s*fiscale|n[uú]mero\s*de\s*seguridad\s*social|NIR|BSN|PESEL|personnummer)\s*(?:no\.?|number|nr\.?|#)?\s*(?:is|est|ist|è|es|=)?\s*[:#]?\s*(\d[\d .-]{6,16}\d)\b/gi;
@@ -114,9 +125,9 @@ const AHV13 = /\b756[. ]?\d{4}[. ]?\d{4}[. ]?\d{2}\b/g;
 const UK_NINO = /\b[A-CEGHJ-PR-TW-Z][A-CEGHJ-NPR-TW-Z]\s?\d{2}\s?\d{2}\s?\d{2}\s?[A-D]\b/g;
 const IN_PAN = /\b[A-Z]{3}[ABCFGHLJPT][A-Z]\d{4}[A-Z]\b/g;
 const IBAN = /\b[A-Za-z]{2}\d{2}(?: ?[A-Za-z0-9]){11,30}\b/g;
-const BSB = /\bBSB\s*(?:no\.?|number|#)?\s*[:#]?\s*(\d{3}[- ]?\d{3})\b/gi;
-const ACCOUNT_NO = /\b(?:acc(?:oun)?t|a\/c)\s*(?:no\.?|number|num|#)?\s*[:#]?\s*(\d[\d -]{4,14}\d)\b/gi;
-const ROUTING = /\b(?:routing|ABA)\s*(?:no\.?|number|num|#)?\s*[:#]?\s*(\d{9})\b/gi;
+const BSB = /\bBSB\s*(?:no\.?|number|#)?\s*(?:is|was)?\s*[:#]?\s*(\d{3}[- ]?\d{3})\b/gi;
+const ACCOUNT_NO = /\b(?:acc(?:oun)?t|acc\.?|a\/c)\s*(?:no\.?|number|num|#)?\s*(?:is|was)?\s*[:#]?\s*(\d[\d -]{4,14}\d)\b/gi;
+const ROUTING = /\b(?:routing|ABA)\s*(?:no\.?|number|num|#)?\s*(?:is|was)?\s*[:#]?\s*(\d{9})\b/gi;
 
 function push(out: Candidate[], c: Omit<Candidate, 'priority'> & { priority?: number }) {
   out.push({ priority: 5, ...c });

@@ -96,6 +96,23 @@ describe('Tier 1 detectors — must block', () => {
     ['PAN', 'PAN: ABCPE1234F', 'PAN'],
     ['Postgres URI', 'DATABASE_URL=postgres://admin:S3cretPass@db.internal:5432/prod', 'DB_CREDENTIAL'],
     ['ADO string', 'Server=sql01;Database=crm;User Id=sa;Password=Winter2024!;', 'DB_CREDENTIAL'],
+    // English disclosure phrasings (stakeholder report + probes, see data/datasets/english-probes.json)
+    ['stakeholder "psw"', 'my current psw is Ohlalalala34%. can you suggest a better one?', 'PASSWORD'],
+    ['"pw is"', 'my pw is sunshine!2024', 'PASSWORD'],
+    ['"pass is"', 'the wifi pass is CoffeeShop2024', 'PASSWORD'],
+    ['words between label and value', 'The password I use for my bank is Kangaroo#77.', 'PASSWORD'],
+    ['"changed my password to"', 'I changed my password to Summer2024! yesterday', 'PASSWORD'],
+    ['owned lowercase password', 'my password is ohlalala', 'PASSWORD'],
+    ['Wi-Fi key', 'the wifi key is Sunflower2024', 'PASSWORD'],
+    ['creds pair', 'here are my creds: jdoe / Summer2024!', 'PASSWORD'],
+    ['bank PIN', 'my bank PIN is 4821', 'PIN'],
+    ['one-time code', 'my one-time code is 739204', 'ONE_TIME_CODE'],
+    ['alarm code', 'my alarm code is 4417', 'ACCESS_CODE'],
+    ['"api key is"', 'my api key is 9f8e7d6c5b4a39281706f5e4d3c2b1a0', 'API_KEY'],
+    ['"AWS secret key is"', 'The AWS secret key is wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY', 'AWS_SECRET_KEY'],
+    ['"passport no is"', 'my passport no is N8473629', 'PASSPORT'],
+    ['"account number is … BSB is"', 'my account number is 12345678 and the BSB is 062-000', 'BANK_ACCOUNT'],
+    ['mysql -p', 'mysql -u root -pS3cr3tPass42 crm_prod', 'DB_CREDENTIAL'],
   ])('%s', (_name, text, type) => {
     expect(types(text)).toContain(type);
   });
@@ -126,6 +143,15 @@ describe('Tier 1 detectors — must allow', () => {
     ['UUID', 'request id 3f2b8c1e-9d4a-4e6b-8f1a-2c3d4e5f6a7b failed'],
     ['URL', 'see https://example.com/docs?page=2&sort=Desc#Section-4'],
     ['placeholder URI', 'postgres://user:<password>@localhost:5432/app'],
+    ['"password is too weak"', 'My password is too weak, how do I make a stronger one?'],
+    ['"password is stored in 1Password"', 'My password is stored in 1Password, so I never type it.'],
+    ['"bypass" is not "pass"', 'The bypass is 2400 metres long.'],
+    ['"passport" is not "pass"', 'My passport is expiring next month.'],
+    ['day pass price', 'A day pass is $25 at the front desk.'],
+    ['India PIN code (postal)', 'Ship it to PIN code 110001, New Delhi.'],
+    ['PIN prose', 'How do I reset my PIN if the card is locked?'],
+    ['gate code instruction', 'Enter the gate code at the door.'],
+    ['"password to" without a change verb', 'The password to the shared drive is with IT.'],
   ])('%s', (_name, text) => {
     expect(scanTier1(text)).toEqual([]);
   });

@@ -2,16 +2,35 @@
 import { charClasses, entropyThresholdFor, shannonEntropy } from './entropy';
 import type { Candidate } from './candidate';
 
+// Full password words match anywhere (DB_PASSWORD, PGPASSWORD); short forms only as whole words
+// ("psw", "pw", "pass", "wifi key") so "bypass" or "passport" never become labels.
 const LABEL =
-  "(?:pass(?:word|wd|phrase|code)|pwd|passwort|kennwort|contrase(?:ñ|n)a|clave|senha|wachtwoord|mot de passe|mdp|parola d['’]ordine|пароль|密码|密碼|パスワード|비밀번호|كلمة المرور|पासवर्ड)";
+  "(?:(?<full>pass(?:word|wd|phrase|code)|pwd|passwort|kennwort|contrase(?:ñ|n)a|senha|wachtwoord|mot de passe|parola d['’]ordine|пароль|密码|密碼|パスワード|비밀번호|كلمة المرور|पासवर्ड)|(?<![\\p{L}\\p{N}])(?<short>psw|pswd|pw|p/w|pass|mdp|clave|(?:wi-?fi|wpa[23]?|wep|network|wireless)\\s+key))";
+
+// "password for our office wifi is …", "password I use for my bank is …": a connector word, then
+// at most four more words, between the label and its value.
+const BETWEEN = "(?:\\s+(?:for|to|of|on|at|in|that|which|i|we|you)(?:\\s+[\\p{L}\\p{N}'’.-]+){0,4}?)?";
 
 const PASSWORD_RE = new RegExp(
   LABEL +
-    '(?![a-z])["\'`]?\\s*' +
-    '(?:(?<sym>=>|->|[:=：])|(?<word>(?:is|es|est|ist|era|was)(?=\\s)|は|是|为|為))\\s*' +
+    '(?![a-z])["\'`]?' +
+    BETWEEN +
+    '\\s*(?:(?<sym>=>|->|[:=：])|(?<word>(?:is|es|est|ist|era|was|to)(?=\\s)|は|是|为|為))\\s*(?:(?:now|still|currently)\\s+)?' +
     '(?:"(?<q1>[^"\\n]*)"|\'(?<q2>[^\'\\n]*)\'|`(?<q3>[^`\\n]*)`|(?<bare>[^\\s"\'`,;]+))',
   'giu',
 );
+
+/** "… password to X" is a value only after a change verb ("I changed my password to X"). */
+const CHANGE_VERB = /\b(?:change[ds]?|changing|set(?:ting)?|reset(?:ting)?|update[ds]?|updating|switch(?:ed|ing)?|made)\b[^.!?\n]{0,30}$/i;
+/** Ownership before the label: "my password is ohlalala" is a disclosure; "the password is stored" is not. */
+const OWNED = /\b(?:my|our|his|her|their|your|the (?:new|current|old|admin|root|wifi|default)|current|new)\s+(?:[\p{L}-]+\s+){0,2}$/iu;
+/** Words that follow "password is" in prose about passwords rather than in a disclosure. */
+const PROSE_VALUE =
+  /^(?:too|not|very|so|being|still|now|also|only|just|the|a|an|stored|saved|hashed|salted|encrypted|encoded|hidden|masked|shown|visible|required|mandatory|optional|needed|necessary|incorrect|wrong|invalid|valid|correct|expired|expiring|weak|strong|secure|insecure|safe|unsafe|compromised|leaked|reset|changed|updated|set|sent|emailed|missing|empty|blank|same|different|unique|long|short|case|managed|rotated|unknown|known|easy|hard|simple|complex|good|bad|fine|ok|okay|ready|due|locked|disabled|enabled|working|broken|protected|generated|random|temporary|shared|forgotten|lost|there|here|what|which|whatever|something|nothing|same|in|on|at|for|to|of|with|by|from)$/i;
+
+function isMoneyOrMeasure(v: string): boolean {
+  return /^(?:[$€£¥₹]\s?\d|\d[\d,.]*\s?(?:%|k|m|am|pm)$)/i.test(v);
+}
 
 /** Values that are types, keywords or placeholders — i.e. code *about* passwords, not passwords. */
 const NON_SECRET_VALUE =
@@ -20,15 +39,35 @@ const NON_SECRET_VALUE =
 const CODE_REFERENCE =
   /^(?:[A-Za-z_$][\w$]*(?:\.[A-Za-z_$][\w$]*)+|.*\(.*|\$\{.*\}|\{\{.*\}\}|<[^>]*>|%[\w(]+%?|\?|:[A-Za-z_]\w*|@\w+|\*+|x{3,}|\.{3,}|[/~][^\s]*|[A-Za-z]:\\.*)$/;
 
-function classifyPasswordValue(value: string, wordConnector: boolean): number | null {
-  const v = value.replace(/[.,;)\]]+$/, '');
+interface LabelContext {
+  wordConnector: boolean;
+  /** "pass", "pw": weaker labels need a stronger value. */
+  shortLabel: boolean;
+  owned: boolean;
+  /** What follows the value ("… is stored in the vault" continues as prose). */
+  after: string;
+  quoted: boolean;
+}
+
+function classifyPasswordValue(value: string, ctx: LabelContext): number | null {
+  // Our own redaction tag ("my psw is [REDACTED_PASSWORD]") is not a value — otherwise a redacted
+  // prompt would stay blocked.
+  if (/^\[REDACTED_[A-Z0-9_]+\]/.test(value)) return null;
+  const v = value.replace(/[.,;:!?)\]]+$/, '');
   if (v.length < 4) return null;
   if (NON_SECRET_VALUE.test(v) || CODE_REFERENCE.test(v)) return null;
-  // Prose ("the password is stored hashed") — a plain lowercase word after "is" is not a credential.
-  if (wordConnector && /^[a-z]+$/.test(v)) return null;
+  const classes = charClasses(v).count;
+  if (ctx.shortLabel && (classes < 2 || isMoneyOrMeasure(v))) return null;
+  if (ctx.wordConnector && !ctx.quoted && /^[a-z]+$/.test(v)) {
+    // A plain lowercase word after "is": prose ("the password is stored hashed") unless it is owned,
+    // not a prose word, and ends the clause ("my password is ohlalala").
+    if (!ctx.owned || PROSE_VALUE.test(v) || !/^\s*(?:$|[.,;:!?]|and\b|but\b|so\b|—|-\s)/i.test(ctx.after)) return null;
+    return 0.8;
+  }
+  if (ctx.wordConnector && PROSE_VALUE.test(v)) return null;
   // Identifier-like right-hand sides in code (`password = userPassword`) are references, not secrets.
-  if (!wordConnector && /^[a-z_$][A-Za-z_$]*$/.test(v) && /[A-Z_]/.test(v)) return null;
-  return charClasses(v).count >= 2 ? 0.92 : 0.78;
+  if (!ctx.wordConnector && /^[a-z_$][A-Za-z_$]*$/.test(v) && /[A-Z_]/.test(v)) return null;
+  return classes >= 2 ? 0.92 : 0.78;
 }
 
 function scanLabelled(text: string, out: Candidate[]) {
@@ -37,7 +76,15 @@ function scanLabelled(text: string, out: Candidate[]) {
     const g = m.groups!;
     const value = g.q1 ?? g.q2 ?? g.q3 ?? g.bare;
     if (value === undefined) continue;
-    const conf = classifyPasswordValue(value, g.word !== undefined);
+    const before = text.slice(Math.max(0, m.index - 48), m.index);
+    if (g.word?.toLowerCase() === 'to' && !CHANGE_VERB.test(before)) continue;
+    const conf = classifyPasswordValue(value, {
+      wordConnector: g.word !== undefined,
+      shortLabel: g.short !== undefined,
+      owned: OWNED.test(before),
+      after: text.slice(m.index + m[0].length, m.index + m[0].length + 12),
+      quoted: g.bare === undefined,
+    });
     if (conf === null) continue;
     const trimmed = value.replace(/[.,;)\]]+$/, '');
     const start = m.index + m[0].length - value.length - (g.bare === undefined ? 1 : 0);
@@ -107,7 +154,7 @@ function scanEntropy(text: string, out: Candidate[]) {
 
 // Credential cues (multilingual): password words incl. plurals, login / access verbs, "protected with".
 const CREDENTIAL_CUE =
-  /^(?:pass(?:word|wd|phrase|code)s?|passw[oö]rt(?:er)?|kennw[oö]rt(?:er)?|contrase(?:ñ|n)as?|senhas?|mdp|credentials?|credenziali|identifiants?|login|logon|signin|anmelden|anmeldedaten|zugang(?:sdaten)?|zugreifen|zuzugreifen|connecter|connectez|connexion|accedere|acceder|accéder|access|protected|secured|protégé|geschützt|token|pin)$/i;
+  /^(?:pass(?:word|wd|phrase|code)s?|passw[oö]rt(?:er)?|kennw[oö]rt(?:er)?|contrase(?:ñ|n)as?|senhas?|mdp|credentials?|creds?|credenziali|identifiants?|login|logon|signin|anmelden|anmeldedaten|zugang(?:sdaten)?|zugreifen|zuzugreifen|connecter|connectez|connexion|accedere|acceder|accéder|access|protected|secured|protégé|geschützt|token|pin)$/i;
 const PHRASE_CUES = /mots? de passe|parola d['’]ordine|log in|sign in|se connecter|password (?:has been |was )?(?:changed|reset|set) to/gi;
 
 /** Random-looking credential: high character diversity and mixed classes, not a word or path. */
@@ -120,7 +167,11 @@ function passwordShaped(t: string): boolean {
     const b = t[i]!;
     if (/[a-z]/.test(a) !== /[a-z]/.test(b) || /[A-Z]/.test(a) !== /[A-Z]/.test(b)) switches++;
   }
-  const shaped = c.count >= 3 ? switches >= 3 : c.count === 2 && c.upper && c.lower && t.length >= 10 && switches >= 4;
+  // Word+digits(+symbol) ("Summer2024!", "Kangaroo#77") is the most common human password shape: two
+  // class switches, provided it carries ≥ 2 digits — "1Password" (a product) and "&Personal" (a menu
+  // label after "Logon to …", Enron dev) do not.
+  const digits = t.replace(/\D/g, '').length;
+  const shaped = c.count >= 3 ? switches >= 3 || (switches >= 2 && digits >= 2) : c.count === 2 && c.upper && c.lower && t.length >= 10 && switches >= 4;
   return shaped && shannonEntropy(t) >= Math.log2(t.length) - 0.6;
 }
 
@@ -158,8 +209,34 @@ function scanCredentialContext(text: string, out: Candidate[]) {
   }
 }
 
+// "my bank PIN is 4821", "Card PIN: 7390". Not "PIN code" — in India that is a postal code.
+const PIN_RE = /(?<![\p{L}\p{N}])PIN(?:\s*(?:number|no\.?))?\s*(?:is|was|[:=#-])\s*(\d{4,8})(?!\d)/giu;
+// One-time / verification codes: short-lived, but a live credential while valid.
+const OTP_RE =
+  /(?<![\p{L}\p{N}])(?:OTP|one[-\s]?time\s+(?:pass(?:word|code)|code|pin)|verification\s+code|(?:2FA|MFA|two[-\s]factor)\s+code|auth(?:entication)?\s+code|security\s+code|log[-\s]?in\s+code|sign[-\s]?in\s+code)\s*(?:is|was|[:=#-])?\s*(\d{4,8})(?!\d)/giu;
+
+// Physical access codes: "my alarm code is 4417", "the gate code is 2580", "safe combination: 12-34-56".
+const ACCESS_CODE_RE =
+  /(?<![\p{L}\p{N}])(?:alarm|door|gate|garage|safe|lock|locker|keypad|entry|building|lockbox|key\s*safe)\s+(?:code|combination|combo)\s*(?:is|was|[:=#-])\s*(\d{3,8}|\d{1,3}(?:[-\s]\d{1,3}){1,3})(?!\d)/giu;
+
+function scanCodes(text: string, out: Candidate[]) {
+  for (const [re, type, label] of [
+    [PIN_RE, 'PIN', 'PIN'],
+    [OTP_RE, 'ONE_TIME_CODE', 'One-time / verification code'],
+    [ACCESS_CODE_RE, 'ACCESS_CODE', 'Access code'],
+  ] as const) {
+    re.lastIndex = 0;
+    for (let m = re.exec(text); m; m = re.exec(text)) {
+      const v = m[1]!;
+      const start = m.index + m[0].lastIndexOf(v);
+      out.push({ start, end: start + v.length, category: 2, type, label, confidence: 0.86, evidence: `labelled ${label.toLowerCase()}`, priority: 4 });
+    }
+  }
+}
+
 export function scanSecrets(text: string, out: Candidate[]): void {
   scanLabelled(text, out);
+  scanCodes(text, out);
   scanCredentialContext(text, out);
   scanEntropy(text, out);
 }

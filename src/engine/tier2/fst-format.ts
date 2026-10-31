@@ -15,6 +15,8 @@ export const FST_CLASS = {
   brand: 'B',
   financial: 'F',
   firstName: 'N',
+  /** Frequent surname (US Census 2010 top 1,000) — a name part even when it is also a word. */
+  surname: 'S',
   publicFigure: 'P',
   /** Everyday word (≥ 7 letters; English BERT + multilingual XLM-R vocabularies) — never a fuzzy-match candidate. */
   commonWord: 'W',
