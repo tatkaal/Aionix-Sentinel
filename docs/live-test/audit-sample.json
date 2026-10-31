@@ -1,0 +1,88 @@
+{
+  "exportedAt": "2026-10-31T13:12:14.865Z",
+  "counters": {
+    "blocked": 17,
+    "byCategory": {
+      "1": 1,
+      "2": 2,
+      "3": 1,
+      "4": 1,
+      "5": 2,
+      "6": 1,
+      "7": 1,
+      "8": 2,
+      "9": 4,
+      "10": 3
+    },
+    "byPath": {
+      "edm": 1,
+      "math": 9,
+      "minhash": 3,
+      "neural": 5
+    },
+    "byPortal": {
+      "chatgpt": 14,
+      "gemini": 4
+    },
+    "scanned": 18
+  },
+  "records": [
+    {
+      "blocked": true,
+      "degraded": false,
+      "findings": [
+        {
+          "category": 5,
+          "fingerprint": "f0360a1e9629",
+          "inAttachment": false,
+          "path": "math",
+          "tier": "tier1",
+          "type": "IBAN"
+        }
+      ],
+      "id": "mvwf7fgc-cocjlf",
+      "latencyMs": 1.4,
+      "portal": "gemini",
+      "tier2Route": null,
+      "ts": 1793452321020
+    },
+    {
+      "blocked": true,
+      "degraded": false,
+      "findings": [
+        {
+          "category": 9,
+          "fingerprint": "9d62cf1a7072",
+          "inAttachment": false,
+          "path": "neural",
+          "tier": "tier2",
+          "type": "PATIENT_IDENTITY"
+        }
+      ],
+      "id": "mvwf7it2-pm32be",
+      "latencyMs": 26.3,
+      "portal": "gemini",
+      "tier2Route": "B",
+      "ts": 1793452325366
+    },
+    {
+      "blocked": true,
+      "degraded": false,
+      "findings": [
+        {
+          "category": 10,
+          "fingerprint": "f349047ad1ed",
+          "inAttachment": false,
+          "path": "minhash",
+          "tier": "tier3",
+          "type": "CONFIDENTIAL_DOCUMENT"
+        }
+      ],
+      "id": "mvwf7m52-1msuq4",
+      "latencyMs": 1.9,
+      "portal": "gemini",
+      "tier2Route": null,
+      "ts": 1793452329686
+    }
+  ]
+}

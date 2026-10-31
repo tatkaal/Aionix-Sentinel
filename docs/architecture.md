@@ -128,8 +128,12 @@ The Workbench runs the same `src/engine/` modules: Tier 1/3A on the main thread 
 
 ### ADR-005 — Tier 2 latency budget
 
-- **Context.** The send path promises a verdict within 1,000 ms. On integrated GPUs, `openai/privacy-filter` can take longer than that on long prompts. If Tier 2 times out, the content script fails open on the already-clean Tier 1/3A verdict.
-- **Decision.** Path B gets a 650 ms Tier 2 budget (`PATH_B_BUDGET_MS`). Past it, Path A (CPU, about 20–40 ms) decides that prompt and the result carries a `degradedReason`. ONNX Runtime cannot cancel a run, so the in-flight Path B inference finishes and is discarded.
+- **Context.** The send path promises a verdict within 1,000 ms. On integrated GPUs, `openai/privacy-filter` could take longer than that on long prompts. The CPU tagger that replaced it (ADR-007) answers in 13 / 21 ms (p50 / p95) inside the extension, so the budget now matters mainly when the offscreen engine is starting or unreachable.
+- **Decision.** Path B keeps a 650 ms Tier 2 budget (`PATH_B_BUDGET_MS`). Past it, Path A (CPU) decides that prompt and the result carries a `degradedReason`. ONNX Runtime cannot cancel a run, so the in-flight Path B inference finishes and is discarded.
+- **When the whole offscreen check misses its 1,000 ms budget or is unreachable** (Tier 1/3A already clean), the prompt is **held**, not sent (`asyncFailure: 'hold'`, the default). The drawer shows "Check incomplete" and offers *Keep editing* or *Send anyway*; Enter re-runs the check. A "send anyway" is recorded in telemetry with the reason.
+  - The earlier behaviour was to fail open silently. It was changed after a live capture run (2026-11-01) in which the offscreen engine became unreachable mid-session, and Category 8/9 context prompts would have been sent unchecked; the capture's own network guard stopped them.
+  - `asyncFailure: 'send'` restores fail-open for deployments that prefer it.
+  - Offscreen start is bounded (10 s). A start that never settles no longer wedges every later request; the next request retries.
 - **Benchmarks** call the host with `strictRoute`, so Path B quality and latency are measured as they are, never padded by Path A.
 
 ### ADR-006 — Benchmark methodology

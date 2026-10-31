@@ -12,6 +12,7 @@ All sampling is seeded, so re-running the script produces the same rows.
 | Presidio synthetic PII | [`synth_dataset_v2.json`](https://github.com/data-privacy-stack/presidio-research/blob/main/data/synth_dataset_v2.json) (`presidio-research`) | MIT | Yes | Mixed PII; tests precision on PII outside our block policy and recall on cards/SSN/IBAN |
 | AI4Privacy PII-200k | [`ai4privacy/pii-masking-200k`](https://huggingface.co/datasets/ai4privacy/pii-masking-200k) | No licence stated on the card | **No** (gitignored; fetched at setup/CI) | Multilingual (en/fr/de/it) spans, plus obfuscation augmentation |
 | Stakeholder edge cases | Hand-authored from the blueprint (see [edge-cases.md](edge-cases.md)) | Project | Yes | 24 mandatory acceptance scenarios |
+| English disclosure probes | Hand-authored after the stakeholder reported `my current psw is …` passing (`scripts/datasets/english-probes.ts`) | Project | Yes | 98 English phrasings across Categories 1–10 plus benign near-misses. Used to find and fix gaps, so it is a regression suite (`curated`), not an unbiased estimate |
 
 ### Labelling policy
 
@@ -52,6 +53,12 @@ These were observed but not tuned away:
 | ICD-10-CM 2026 code descriptions | [CMS `2026-code-descriptions-tabular-order.zip`](https://www.cms.gov/files/zip/2026-code-descriptions-tabular-order.zip) (74,719 codes) | Public domain (US Government) | Medical-condition terms |
 | RxNorm Current Prescribable Content | [NLM `RxNorm_full_prescribe_*.zip`](https://www.nlm.nih.gov/research/umls/rxnorm/docs/prescribe.html) (IN / PIN / BN term types) | Freely available; no UMLS licence required | Medication names |
 | MiniLM-L6-v2 INT8 | [`Xenova/all-MiniLM-L6-v2`](https://huggingface.co/Xenova/all-MiniLM-L6-v2) | Apache-2.0 | Context validator + Tier 3B embeddings |
+| US surnames (top 1,000) | [US Census Bureau 2010 surname file](https://www2.census.gov/topics/genealogy/2010surnames/names.zip) → `data/lexicons/surnames.txt` | Public domain | Name parts after a known first name ("Sarah Mitchell") even when the surname is also a vocabulary word |
+| Multilingual everyday words | Whole-word pieces of the XLM-R vocabulary (`tokenizer.json` of `sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2`) | Apache-2.0 | Never fuzzy-match these against drug names; drop brand names that are everyday words |
+
+## Live test kit data
+
+`data/test-kit/` holds four **fictional** samples (Halcyon settlement code, pricing memo, customer CSV, patient CSV). They are protected inside the extension during live tests (options page), and compiled with the category prompts and the 24 edge cases into `assets/engine/test-kit.json` by `npm run data:test-kit`.
 
 ## Tier 2 Path B model and training data
 

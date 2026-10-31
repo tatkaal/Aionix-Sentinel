@@ -1,0 +1,183 @@
+{
+  "capturedAt": "2026-10-31T13:13:33.331Z",
+  "leaks": [],
+  "results": [
+    {
+      "shot": "10-chatgpt-cat2-stakeholder-psw",
+      "portal": "chatgpt",
+      "title": "Stakeholder report (\"psw\")",
+      "expect": "block",
+      "observed": "block",
+      "note": "Tier 1 (content script, synchronous) · short label \"psw\" + value",
+      "engine": "ready/B"
+    },
+    {
+      "shot": "12-chatgpt-cat1-openai-key",
+      "portal": "chatgpt",
+      "title": "OpenAI key in code",
+      "expect": "block",
+      "observed": "block",
+      "note": "Tier 1 (content script, synchronous) · OPENAI_API_KEY format",
+      "engine": "ready/B"
+    },
+    {
+      "shot": "13-chatgpt-cat3-ssn",
+      "portal": "chatgpt",
+      "title": "SSN with dashes",
+      "expect": "block",
+      "observed": "block",
+      "note": "Tier 1 (content script, synchronous) · SSN structure",
+      "engine": "ready/B"
+    },
+    {
+      "shot": "14-chatgpt-cat4-tfn",
+      "portal": "chatgpt",
+      "title": "Valid TFN",
+      "expect": "block",
+      "observed": "block",
+      "note": "Tier 1 (content script, synchronous) · Mod-11 valid",
+      "engine": "ready/B"
+    },
+    {
+      "shot": "15-chatgpt-cat5-card",
+      "portal": "chatgpt",
+      "title": "Card with expiry and CVV",
+      "expect": "block",
+      "observed": "block",
+      "note": "Tier 1 (content script, synchronous) · Luhn valid",
+      "engine": "ready/B"
+    },
+    {
+      "shot": "16-chatgpt-cat6-abn",
+      "portal": "chatgpt",
+      "title": "ABN with entity",
+      "expect": "block",
+      "observed": "block",
+      "note": "Tier 1 (content script, synchronous) · Mod-89 + entity",
+      "engine": "ready/B"
+    },
+    {
+      "shot": "17-chatgpt-cat7-postgres",
+      "portal": "chatgpt",
+      "title": "Postgres URI",
+      "expect": "block",
+      "observed": "block",
+      "note": "Tier 1 (content script, synchronous) · URI with credentials",
+      "engine": "ready/B"
+    },
+    {
+      "shot": "18-chatgpt-cat8-named-client",
+      "portal": "chatgpt",
+      "title": "Named client with balances (context)",
+      "expect": "block",
+      "observed": "block",
+      "note": "Tier 2 (offscreen: person ↔ sensitive-term graph + MiniLM validator) · no setup needed",
+      "engine": "ready/B"
+    },
+    {
+      "shot": "19-chatgpt-cat8-protected-customer",
+      "portal": "chatgpt",
+      "title": "Customer from your protected CSV",
+      "expect": "block",
+      "observed": "block",
+      "note": "Tier 3 Path B (offscreen: salted field hashes + MiniLM vectors) · after protecting the sample customer CSV",
+      "engine": "ready/B"
+    },
+    {
+      "shot": "20-chatgpt-cat9-patient",
+      "portal": "chatgpt",
+      "title": "Patient with MRN and diagnosis (context)",
+      "expect": "block",
+      "observed": "block",
+      "note": "Tier 2 (offscreen: person ↔ sensitive-term graph + MiniLM validator) · no setup needed",
+      "engine": "ready/B"
+    },
+    {
+      "shot": "21-chatgpt-cat9-protected-patient",
+      "portal": "chatgpt",
+      "title": "Patient from your protected CSV",
+      "expect": "block",
+      "observed": "block",
+      "note": "Tier 3 Path B (offscreen: salted field hashes + MiniLM vectors) · after protecting the sample patient CSV",
+      "engine": "ready/B"
+    },
+    {
+      "shot": "22-chatgpt-cat10-vault-code",
+      "portal": "chatgpt",
+      "title": "15 lines of the bundled proprietary router",
+      "expect": "block",
+      "observed": "block",
+      "note": "Tier 3 Path A (content script: Bloom + MinHash fingerprints)",
+      "engine": "ready/B"
+    },
+    {
+      "shot": "23-chatgpt-cat10-protected-code",
+      "portal": "chatgpt",
+      "title": "Excerpt of your protected code",
+      "expect": "block",
+      "observed": "block",
+      "note": "Tier 3 Path A (content script: Bloom + MinHash fingerprints) · after protecting the sample code",
+      "engine": "ready/B"
+    },
+    {
+      "shot": "24-chatgpt-allowed-question",
+      "portal": "chatgpt",
+      "title": "Symptom question",
+      "expect": "sent",
+      "observed": "sent",
+      "note": "General question — must pass",
+      "engine": "ready/B"
+    },
+    {
+      "shot": "25-chatgpt-backstop",
+      "portal": "chatgpt",
+      "title": "Direct fetch bypassing the composer",
+      "expect": "block",
+      "observed": "block",
+      "note": "rejected: Aionix Sentinel blocked this request: high-risk data detected."
+    },
+    {
+      "shot": "30-gemini-cat2-bank-pin",
+      "portal": "gemini",
+      "title": "Bank PIN",
+      "expect": "block",
+      "observed": "block",
+      "note": "Tier 1 (content script, synchronous) · labelled PIN",
+      "engine": "ready/B"
+    },
+    {
+      "shot": "31-gemini-cat5-iban",
+      "portal": "gemini",
+      "title": "IBAN",
+      "expect": "block",
+      "observed": "block",
+      "note": "Tier 1 (content script, synchronous) · mod-97 valid",
+      "engine": "ready/B"
+    },
+    {
+      "shot": "32-gemini-cat9-named-person",
+      "portal": "gemini",
+      "title": "Named person, condition and drug (context)",
+      "expect": "block",
+      "observed": "block",
+      "note": "Tier 2 (offscreen: person ↔ sensitive-term graph + MiniLM validator) · no setup needed",
+      "engine": "ready/B"
+    },
+    {
+      "shot": "33-gemini-cat10-protected-memo",
+      "portal": "gemini",
+      "title": "Paragraph of your protected document",
+      "expect": "block",
+      "observed": "block",
+      "note": "Tier 3 Path A (content script: Bloom + MinHash fingerprints) + Tier 3 Path B (offscreen: salted field hashes + MiniLM vectors) · after protecting the sample memo",
+      "engine": "ready/B"
+    },
+    {
+      "shot": "57-claude-replica-held",
+      "portal": "claude-replica",
+      "title": "Offscreen check unavailable",
+      "expect": "held",
+      "observed": "held"
+    }
+  ]
+}

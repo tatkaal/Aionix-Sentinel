@@ -34,3 +34,6 @@ Thumbs.db
 # Python ML environment for the Path B model pipeline (scripts/ml)
 .venv/
 __pycache__/
+
+# Private, complete handover document (kept out of the public repository)
+HANDOVER.md
