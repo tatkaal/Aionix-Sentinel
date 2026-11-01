@@ -6,6 +6,7 @@ import {
   abnValid,
   ibanValid,
   luhnValid,
+  medicareValid,
   tfnValid,
   verhoeffCheckDigit,
   verhoeffValid,
@@ -37,6 +38,12 @@ describe('checksums', () => {
     expect(aadhaarValid('1' + full.slice(1))).toBe(false);
     expect(verhoeffValid('2363')).toBe(true); // canonical Verhoeff example (236 → check digit 3)
   });
+  it('validates AU Medicare check digits', () => {
+    expect(medicareValid('2123456701')).toBe(true);
+    expect(medicareValid('2123456711')).toBe(false);
+    expect(medicareValid('1123456701')).toBe(false); // first digit must be 2–6
+  });
+
   it('validates IBAN (mod-97) and ABA routing', () => {
     expect(ibanValid('GB82 WEST 1234 5698 7654 32')).toBe(true);
     expect(ibanValid('DE89370400440532013000')).toBe(true);
@@ -113,6 +120,17 @@ describe('Tier 1 detectors — must block', () => {
     ['"passport no is"', 'my passport no is N8473629', 'PASSPORT'],
     ['"account number is … BSB is"', 'my account number is 12345678 and the BSB is 062-000', 'BANK_ACCOUNT'],
     ['mysql -p', 'mysql -u root -pS3cr3tPass42 crm_prod', 'DB_CREDENTIAL'],
+    // Stakeholder brief formats (audit 2026-11-01): .env names, URL parameters, records, strength questions
+    ['.env key name ending in _API_KEY', 'SENDGRID_API_KEY=Zq8vT2mL9pR4kW7nZ1cB5yH3jF6d', 'API_KEY'],
+    ['.env name ending in _SECRET', 'APP_SECRET=Zq8vT2mL9pR4kW7nZ1cB5yH3jF6d', 'API_KEY'],
+    ['SendGrid key format', 'key SG.x9Kd3LmQ7vRt2Wz8Yb4Nc6Hd.1Pm5Gs0Ea9Ui3Ro7Tq2Vw4Xz8Yb1Nc6Hd3Lm5Qk', 'SENDGRID_API_KEY'],
+    ['JDBC password parameter', 'jdbc:mysql://10.0.0.5:3306/sales?user=root&password=Sql!Pass77', 'DB_CREDENTIAL'],
+    ['strength question, trailing "!"', 'can you tell me if Summer2024! is a strong one?', 'PASSWORD'],
+    ['strength question, internal symbol', 'Is Kangaroo#77 strong enough for my bank login?', 'PASSWORD'],
+    ['strength question, leet "@"', 'how secure is P@ssw0rd2025', 'PASSWORD'],
+    ['labelled account at a bank', 'my account number is 10234567 at Westpac', 'BANK_ACCOUNT'],
+    ['account in a wire request', 'please wire it to my Chase checking account 4429183746', 'BANK_ACCOUNT'],
+    ['Medicare number', 'my medicare card number is 2123 45670 1', 'MEDICARE'],
   ])('%s', (_name, text, type) => {
     expect(types(text)).toContain(type);
   });
@@ -152,6 +170,17 @@ describe('Tier 1 detectors — must allow', () => {
     ['PIN prose', 'How do I reset my PIN if the card is locked?'],
     ['gate code instruction', 'Enter the gate code at the door.'],
     ['"password to" without a change verb', 'The password to the shared drive is with IT.'],
+    // Code that mentions a password without a value (stakeholder look-alike)
+    ['env var reference', 'const password = process.env.DB_PASSWORD; if (!password) throw new Error("missing password")'],
+    ['os.environ lookup', 'const password = os.environ["DB_PASSWORD"]'],
+    ['shell variable after -p', 'mysql -u root -p$MYSQL_ROOT_PASSWORD'],
+    ['.env placeholder', 'Set OPENAI_API_KEY=your-key-here in your .env file'],
+    ['.env code reference', 'NEXT_PUBLIC_API_KEY=process.env.NEXT_PUBLIC_API_KEY_VALUE'],
+    ['.env change-me value', 'JWT_SECRET=change_me_in_production_please'],
+    ['product names in security questions', 'Is Windows11 secure enough? How safe is iPhone15 compared to Pixel8?'],
+    ['utility account number', 'My electricity account number is 400123456, can you explain the bill?'],
+    ['account period, not a number', 'We moved the savings target to account 2024-25 in the budget.'],
+    ['Medicare number failing its check digit', 'medicare card number 2123 45671 1'],
   ])('%s', (_name, text) => {
     expect(scanTier1(text)).toEqual([]);
   });

@@ -163,6 +163,18 @@ export function ean13Valid(digits: string): boolean {
   return (10 - (sum % 10)) % 10 === digits.charCodeAt(12) - 48;
 }
 
+/**
+ * Australian Medicare card number: 10 digits (+ optional issue digit), first digit 2–6,
+ * (1·d1 + 3·d2 + 7·d3 + 9·d4 + 1·d5 + 3·d6 + 7·d7 + 9·d8) mod 10 = d9.
+ */
+export function medicareValid(digits: string): boolean {
+  if (!/^[2-6]\d{9,10}$/.test(digits)) return false;
+  const w = [1, 3, 7, 9, 1, 3, 7, 9];
+  let sum = 0;
+  for (let i = 0; i < 8; i++) sum += (digits.charCodeAt(i) - 48) * w[i]!;
+  return sum % 10 === digits.charCodeAt(8) - 48;
+}
+
 /** US SSN structural rules (area ≠ 000/666/9xx, group ≠ 00, serial ≠ 0000). */
 export function ssnStructValid(digits: string): boolean {
   if (!/^\d{9}$/.test(digits)) return false;

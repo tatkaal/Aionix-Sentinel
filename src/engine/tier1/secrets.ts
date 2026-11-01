@@ -37,7 +37,7 @@ const NON_SECRET_VALUE =
   /^(?:string|str|String|int|integer|number|bool|boolean|char|varchar(?:\(\d+\))?|text|bytes?|null|none|nil|undefined|true|false|required|optional|any|object|hash(?:ed)?|field|input|column|secret|password|pass|pwd|example|placeholder|redacted|changeme|your[_-]?\w*|z\.string\(\)\S*|SecureString|Option<.*>|str\s*\|\s*None)$/i;
 
 const CODE_REFERENCE =
-  /^(?:[A-Za-z_$][\w$]*(?:\.[A-Za-z_$][\w$]*)+|.*\(.*|\$\{.*\}|\{\{.*\}\}|<[^>]*>|%[\w(]+%?|\?|:[A-Za-z_]\w*|@\w+|\*+|x{3,}|\.{3,}|[/~][^\s]*|[A-Za-z]:\\.*)$/;
+  /^(?:[A-Za-z_$][\w$]*(?:\.[A-Za-z_$][\w$]*)+(?:\[.*)?|.*\(.*|\$\{.*\}|\{\{.*\}\}|<[^>]*>|%[\w(]+%?|\?|:[A-Za-z_]\w*|@\w+|\*+|x{3,}|\.{3,}|[/~][^\s]*|[A-Za-z]:\\.*)$/;
 
 interface LabelContext {
   wordConnector: boolean;
@@ -156,10 +156,17 @@ function scanEntropy(text: string, out: Candidate[]) {
 const CREDENTIAL_CUE =
   /^(?:pass(?:word|wd|phrase|code)s?|passw[oö]rt(?:er)?|kennw[oö]rt(?:er)?|contrase(?:ñ|n)as?|senhas?|mdp|credentials?|creds?|credenziali|identifiants?|login|logon|signin|anmelden|anmeldedaten|zugang(?:sdaten)?|zugreifen|zuzugreifen|connecter|connectez|connexion|accedere|acceder|accéder|access|protected|secured|protégé|geschützt|token|pin)$/i;
 const PHRASE_CUES = /mots? de passe|parola d['’]ordine|log in|sign in|se connecter|password (?:has been |was )?(?:changed|reset|set) to/gi;
+const ENV_NAME = /^\$?[A-Z][A-Z0-9]*(?:_[A-Z0-9]+)+$|^\$[A-Za-z_]\w*$/;
+// An unlabelled password in a strength question: "is Summer2024! strong enough?", "how secure is
+// Kangaroo#77". The token must also carry password punctuation, so product names ("is Windows11
+// secure?", "is iPhone15 safe?") pass.
+const STRENGTH_CUE = /^(?:strong(?:er|est)?|secure|safe|weak|crack(?:able|ed)?|hack(?:able|ed)?|guess(?:able)?|brute-?force)$/i;
 
 /** Random-looking credential: high character diversity and mixed classes, not a word or path. */
-function passwordShaped(t: string): boolean {
-  if (t.length < 8 || t.length > 40 || /^\d+$/.test(t) || NOT_A_PASSWORD.test(t) || /[/:@]/.test(t)) return false;
+function passwordShaped(t: string, allowAt = false): boolean {
+  if (t.length < 8 || t.length > 40 || /^\d+$/.test(t) || NOT_A_PASSWORD.test(t) || /[/:]|^@/.test(t) || (!allowAt && t.includes('@'))) return false;
+  // Code *about* a credential: `process.env.DB_PASSWORD`, `DB_PASSWORD`, `$PGPASS`, `getpass()`.
+  if (CODE_REFERENCE.test(t) || ENV_NAME.test(t)) return false;
   const c = charClasses(t);
   let switches = 0;
   for (let i = 1; i < t.length; i++) {
@@ -176,11 +183,11 @@ function passwordShaped(t: string): boolean {
 }
 
 function scanCredentialContext(text: string, out: Candidate[]) {
-  const words: { w: string; start: number; end: number }[] = [];
+  const words: { w: string; raw: string; start: number; end: number }[] = [];
   const re = /[^\s"'`<>()[\]{},;]+/g;
   for (let m = re.exec(text); m; m = re.exec(text)) {
     const w = m[0].replace(/[.,:!?]+$/, '');
-    words.push({ w, start: m.index, end: m.index + w.length });
+    words.push({ w, raw: m[0], start: m.index, end: m.index + w.length });
   }
   const cueIdx = new Set<number>();
   words.forEach((x, i) => CREDENTIAL_CUE.test(x.w.replace(/^[^\p{L}]+/u, '')) && cueIdx.add(i));
@@ -207,6 +214,30 @@ function scanCredentialContext(text: string, out: Candidate[]) {
       });
     }
   }
+  words.forEach((cue, ci) => {
+    if (!STRENGTH_CUE.test(cue.w)) return;
+    for (let j = Math.max(0, ci - 4); j <= Math.min(words.length - 1, ci + 5); j++) {
+      const x = words[j]!;
+      // "P@ssw0rd2025": '@' is password punctuation here (e-mail shapes stay excluded).
+      if (j === ci || seen.has(j) || !passwordShaped(x.w, true)) continue;
+      // Password punctuation inside the token, or a trailing "!"/"#"… while the sentence goes on
+      // ("Summer2024! is a strong one?").
+      const trailing = x.raw.slice(x.w.length);
+      if (!STRONG_SYMBOL.test(x.w) && !(/^[!#$%&*@]/.test(trailing) && /^\s+\p{Ll}/u.test(text.slice(x.start + x.raw.length)))) continue;
+      seen.add(j);
+      const end = x.start + x.w.length + (STRONG_SYMBOL.test(x.w) ? 0 : 1);
+      out.push({
+        start: x.start,
+        end,
+        category: 2,
+        type: 'PASSWORD',
+        label: 'Password in a strength question',
+        confidence: 0.85,
+        evidence: `strength cue “${cue.w}” + password-shaped token`,
+        priority: 3,
+      });
+    }
+  });
 }
 
 // "my bank PIN is 4821", "Card PIN: 7390". Not "PIN code" — in India that is a postal code.

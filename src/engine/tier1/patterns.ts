@@ -1,6 +1,6 @@
 // Structured-token detectors: API keys (Cat 1), government IDs (Cat 3), IBAN/bank (Cat 5),
 // PAN (Cat 6) and database credentials (Cat 7). Each regex is a single linear pass.
-import { abaRoutingValid, ean13Valid, ibanValid } from './checksums';
+import { abaRoutingValid, cardNetwork, ean13Valid, ibanValid, luhnValid, medicareValid } from './checksums';
 import { charClasses, shannonEntropy } from './entropy';
 import type { Candidate } from './candidate';
 
@@ -32,11 +32,16 @@ const API_KEY_RULES: TokenRule[] = [
   { type: 'JWT', label: 'JSON Web Token', re: /\beyJ[A-Za-z0-9_-]{10,}\.eyJ[A-Za-z0-9_-]{10,}\.[A-Za-z0-9_-]{10,}/g },
   { type: 'PRIVATE_KEY', label: 'Private key block', re: /-----BEGIN (?:RSA |EC |DSA |OPENSSH |PGP |ENCRYPTED )?PRIVATE KEY(?: BLOCK)?-----/g, priority: 6 },
   { type: 'AZURE_STORAGE_KEY', label: 'Azure storage account key', re: /AccountKey=([A-Za-z0-9+/]{80,}={0,2})/g, group: 1 },
+  { type: 'SENDGRID_API_KEY', label: 'SendGrid API key', re: /\bSG\.[A-Za-z0-9_-]{16,32}\.[A-Za-z0-9_-]{16,64}(?![A-Za-z0-9_-])/g },
+  { type: 'NPM_TOKEN', label: 'npm access token', re: /\bnpm_[A-Za-z0-9]{36}\b/g },
+  { type: 'GITLAB_TOKEN', label: 'GitLab token', re: /\bglpat-[A-Za-z0-9_-]{20,}(?![A-Za-z0-9_-])/g },
+  { type: 'HUGGINGFACE_TOKEN', label: 'Hugging Face token', re: /\bhf_[A-Za-z0-9]{34,}\b/g },
   {
     type: 'API_KEY',
     label: 'Labelled API key / token',
-    // "api_key=…", "my api key is …", "our slack access token is …".
-    re: /\b(?:api[_\s-]?key|apikey|access[_\s-]?token|secret[_\s-]?key|client[_\s-]?secret|auth[_\s-]?token|bearer|token)["']?\s*(?:(?:is|was|[:=])\s*)?["']?([A-Za-z0-9_\-+/.=]{20,})/gi,
+    // "api_key=…", "my api key is …", "our slack access token is …", and .env names that end in a
+    // key word ("SENDGRID_API_KEY=…", "SLACK_BOT_TOKEN=…", "JWT_SECRET=…").
+    re: /(?<![A-Za-z0-9])(?:api[_\s-]?key|apikey|access[_\s-]?token|secret[_\s-]?key|client[_\s-]?secret|auth[_\s-]?token|bearer|token|(?<=_)secret)["']?\s*(?:(?:is|was|[:=])\s*)?["']?([A-Za-z0-9_\-+/.=]{20,})/gi,
     group: 1,
     minEntropy: 3.5,
     priority: 2,
@@ -44,7 +49,7 @@ const API_KEY_RULES: TokenRule[] = [
 ];
 
 // Includes our own redaction tags, so a redacted prompt ("-p[REDACTED_DB_CREDENTIAL]") passes.
-const PLACEHOLDER = /^(?:x{3,}|\*{3,}|\.{3,}|<[^>]*>|\$\{[^}]*\}|\{\{[^}]*\}\}|%\w+%|\[REDACTED_[A-Z0-9_]+\]|your[_-]?\w*|changeme|example\w*|placeholder|redacted|password|pass|secret|null|none|undefined|string)$/i;
+const PLACEHOLDER = /^(?:x{3,}|\*{3,}|\.{3,}|<[^>]*>|\$\{[^}]*\}|\{\{[^}]*\}\}|%\w+%|\$[A-Za-z_]\w*|\$\(.*\)|\[REDACTED_[A-Z0-9_]+\]|your[_-]?\w*|change[_-]?me\w*|example\w*|placeholder|redacted|password|pass|secret|null|none|undefined|string)$/i;
 
 function scanRules(text: string, rules: TokenRule[], out: Candidate[]) {
   for (const rule of rules) {
@@ -57,6 +62,8 @@ function scanRules(text: string, rules: TokenRule[], out: Candidate[]) {
       if (PLACEHOLDER.test(value)) continue;
       if (rule.minEntropy !== undefined && shannonEntropy(value) < rule.minEntropy) continue;
       if (rule.type === 'API_KEY' && charClasses(value).count < 2) continue;
+      // A code reference on the right-hand side (`API_KEY=process.env.NEXT_PUBLIC_API_KEY`) is not a key.
+      if (rule.type === 'API_KEY' && /^[A-Za-z_$][\w$]*(?:\.[A-Za-z_$][\w$]*)+$/.test(value)) continue;
       out.push({
         start,
         end: start + value.length,
@@ -76,6 +83,9 @@ const DB_URI =
 /** `mysql -u root -pS3cret db` — the password glued to -p on a pasted command line. */
 const MYSQL_CLI = /\bmysql(?:dump|admin|sh)?\b[^\n]{0,80}?\s-p(?![\s-])['"]?([^\s'"]{4,})/gi;
 const ADO_CONN = /\b(?:Server|Data Source|Host|Address)\s*=[^;'"\n]{1,120};[^'"\n]{0,200}?\b(?:Password|Pwd)\s*=\s*([^;'"\s]{3,})/gi;
+/** Password as a URL parameter: `jdbc:mysql://host/db?user=root&password=…`. */
+const DB_URL_PARAM =
+  /\b(?:postgres(?:ql)?|mysql|mariadb|mongodb(?:\+srv)?|rediss?|mssql|sqlserver|oracle|jdbc:[a-z0-9]+(?::[a-z]+)?):[^\s'"]*?[?&;](?:password|pwd)=([^&;\s'"]+)/gi;
 
 function scanDbCredentials(text: string, out: Candidate[]) {
   DB_URI.lastIndex = 0;
@@ -113,6 +123,20 @@ function scanDbCredentials(text: string, out: Candidate[]) {
       priority: 7,
     });
   }
+  DB_URL_PARAM.lastIndex = 0;
+  for (let m = DB_URL_PARAM.exec(text); m; m = DB_URL_PARAM.exec(text)) {
+    if (PLACEHOLDER.test(m[1]!)) continue;
+    out.push({
+      start: m.index,
+      end: m.index + m[0].length,
+      category: 7,
+      type: 'DB_CREDENTIAL',
+      label: 'Database connection string with password',
+      confidence: 0.95,
+      evidence: 'connection URL with password= parameter',
+      priority: 7,
+    });
+  }
 }
 
 // Labels may be followed by "is"/"was" as typed in prose ("my passport no is …", "the BSB is …").
@@ -128,6 +152,12 @@ const IBAN = /\b[A-Za-z]{2}\d{2}(?: ?[A-Za-z0-9]){11,30}\b/g;
 const BSB = /\bBSB\s*(?:no\.?|number|#)?\s*(?:is|was)?\s*[:#]?\s*(\d{3}[- ]?\d{3})\b/gi;
 const ACCOUNT_NO = /\b(?:acc(?:oun)?t|acc\.?|a\/c)\s*(?:no\.?|number|num|#)?\s*(?:is|was)?\s*[:#]?\s*(\d[\d -]{4,14}\d)\b/gi;
 const ROUTING = /\b(?:routing|ABA)\s*(?:no\.?|number|num|#)?\s*(?:is|was)?\s*[:#]?\s*(\d{9})\b/gi;
+// Australian Medicare card number, labelled; validated by its check digit.
+const MEDICARE = /\bmedicare(?:\s*card)?\s*(?:no\.?|number|num|#)?\s*(?:is|was)?\s*[:#]?\s*([2-6]\d{3}[ -]?\d{5}[ -]?\d(?:[ -/]?\d)?)(?!\d)/gi;
+// An account number on its own is a bank account only in a banking context ("my account number is
+// 10234567 at Westpac"); a utility or loyalty "account number" is not Category 5.
+const BANK_CONTEXT =
+  /\b(?:bank(?:ing)?|savings?|checking|cheque|chequing|deposit|transfer|wire|sort\s*code|swift|bsb|routing|iban|westpac|commbank|commonwealth\s+bank|anz|nab|macquarie|bendigo|suncorp|chase|wells\s+fargo|citi(?:bank)?|hsbc|barclays|lloyds|natwest|santander|monzo|revolut|capital\s+one|scotiabank)\b/i;
 
 function push(out: Candidate[], c: Omit<Candidate, 'priority'> & { priority?: number }) {
   out.push({ priority: 5, ...c });
@@ -164,6 +194,13 @@ function scanIds(text: string, out: Candidate[]) {
   for (let m = UK_NINO.exec(text); m; m = UK_NINO.exec(text)) {
     push(out, { start: m.index, end: m.index + m[0].length, category: 3, type: 'UK_NINO', label: 'UK National Insurance number', confidence: 0.9, evidence: 'NINO format' });
   }
+  MEDICARE.lastIndex = 0;
+  for (let m = MEDICARE.exec(text); m; m = MEDICARE.exec(text)) {
+    const v = m[1]!;
+    if (!medicareValid(v.replace(/\D/g, ''))) continue;
+    const s = m.index + m[0].lastIndexOf(v);
+    push(out, { start: s, end: s + v.length, category: 3, type: 'MEDICARE', label: 'Australian Medicare number', confidence: 0.94, evidence: 'Medicare check digit valid', priority: 6 });
+  }
   IN_PAN.lastIndex = 0;
   for (let m = IN_PAN.exec(text); m; m = IN_PAN.exec(text)) {
     push(out, { start: m.index, end: m.index + m[0].length, category: 6, type: 'PAN', label: 'Indian PAN', confidence: 0.92, evidence: 'PAN structure (entity code)' });
@@ -185,9 +222,15 @@ function scanBanking(text: string, out: Candidate[]) {
   for (let m = ACCOUNT_NO.exec(text); m; m = ACCOUNT_NO.exec(text)) {
     const v = m[1]!;
     const digits = v.replace(/\D/g, '');
-    if (digits.length < 6 || digits.length > 12) continue;
+    if (digits.length < 6 || digits.length > 17) continue;
     const s = m.index + m[0].lastIndexOf(v);
     accounts.push({ start: s, end: s + v.length });
+    // Card numbers are Tier 1 card findings; elsewhere a labelled account number in a banking context.
+    if (digits.length >= 13 && luhnValid(digits) && cardNetwork(digits)) continue;
+    if (/^(?:19|20)\d{2}[-/ ](?:\d{2}|(?:19|20)\d{2})$/.test(v)) continue; // "account 2024-25" is a period
+    if (BANK_CONTEXT.test(text.slice(Math.max(0, m.index - 100), s + v.length + 100))) {
+      push(out, { start: s, end: s + v.length, category: 5, type: 'BANK_ACCOUNT', label: 'Bank account number', confidence: 0.86, evidence: 'labelled account number in a banking context', priority: 4 });
+    }
   }
   const near = (s: number) => accounts.find((a) => Math.abs(a.start - s) < 120);
   BSB.lastIndex = 0;
