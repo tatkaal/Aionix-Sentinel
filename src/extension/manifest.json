@@ -25,6 +25,7 @@
   },
   "permissions": [
     "offscreen",
+    "scripting",
     "storage"
   ],
   "host_permissions": [

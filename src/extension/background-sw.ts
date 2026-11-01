@@ -4,6 +4,8 @@ import { randomSalt, type ScanRecord } from '../engine/telemetry';
 import { CUSTOM_VAULT_KEY, type CustomVaultRecord } from '../engine/tier3/custom-vault';
 import { emptyCounters, LAST_ENGINE_KEY, STORE_KEYS, type BackgroundRequest, type Counters, type EngineStatus, type OffscreenRequest, type ProtectedEdm, type StatusResponse } from './messages';
 
+declare const __AIONIX_TEST_BUILD__: boolean;
+
 const OFFSCREEN_PATH = 'offscreen.html';
 const MAX_RECORDS = 500;
 const OFFSCREEN_START_TIMEOUT_MS = 10_000;
@@ -163,7 +165,30 @@ chrome.storage.onChanged.addListener((changes, area) => {
 // The engine loads once and stays: the offscreen document outlives this service worker, which Chrome
 // stops after ~30 s idle. Every worker start (browser launch, install, enable, any wake-up) only checks
 // that the document exists and creates it if it does not, so it is up before the first prompt.
+/**
+ * After an install or update, portal tabs that were already open still run the previous content scripts,
+ * which Chrome has cut off from the extension (no chrome.runtime): their checks cannot reach the engine.
+ * Inject the current scripts into those tabs; the previous copy steps aside when the new one announces
+ * itself (content-script.ts), and a superseded network wrapper passes requests through.
+ */
+async function injectIntoOpenTabs(): Promise<void> {
+  for (const cs of chrome.runtime.getManifest().content_scripts ?? []) {
+    const tabs = await chrome.tabs.query({ url: cs.matches ?? [] }).catch(() => [] as chrome.tabs.Tab[]);
+    const world = (cs as { world?: 'ISOLATED' | 'MAIN' }).world ?? 'ISOLATED';
+    for (const tab of tabs) {
+      if (tab.id === undefined || tab.discarded) continue;
+      await chrome.scripting.executeScript({ target: { tabId: tab.id }, files: cs.js ?? [], world }).catch(() => undefined);
+    }
+  }
+}
+
+// Playwright cannot reload a command-line-loaded extension, so the e2e test calls the update path directly.
+if (__AIONIX_TEST_BUILD__) (globalThis as unknown as { __aionixInjectIntoOpenTabs?: () => Promise<void> }).__aionixInjectIntoOpenTabs = injectIntoOpenTabs;
+
 // The onStartup listener is also what makes Chrome start this worker when the browser opens.
-chrome.runtime.onInstalled.addListener(() => void getSalt());
+chrome.runtime.onInstalled.addListener((details) => {
+  void getSalt();
+  if (details.reason === 'install' || details.reason === 'update') void injectIntoOpenTabs();
+});
 chrome.runtime.onStartup.addListener(() => void ensureOffscreen().catch(() => undefined));
 void ensureOffscreen().catch(() => undefined);

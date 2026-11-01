@@ -333,3 +333,31 @@ test('the engine loads once: an idle-stopped service worker leaves the offscreen
   await cdp.detach();
   await popup.close();
 });
+
+test('after an extension update, the new content script takes over open tabs and the old copy steps aside', async () => {
+  const page = await open('claude');
+  const editor = page.locator('[contenteditable="true"]');
+  // The copy injected at page load blocks a secret …
+  await editor.fill('debug this: aws_access_key_id = AKIAQ3EGTRBX4M7PZK2N');
+  await editor.press('Enter');
+  await expect(drawer(page).getByText('Send blocked')).toBeVisible();
+
+  // … then the update path runs: the background injects the current scripts into every open portal tab.
+  const [sw] = context.serviceWorkers();
+  await sw!.evaluate(() => (globalThis as unknown as { __aionixInjectIntoOpenTabs: () => Promise<void> }).__aionixInjectIntoOpenTabs());
+  // The previous copy removed its hooks and its drawer.
+  await expect(drawer(page)).toHaveCount(0);
+
+  // Exactly one live copy handles the next sends: a block, then a clean prompt sent once.
+  await editor.press('Enter');
+  await expect(drawer(page).getByText('Send blocked')).toBeVisible();
+  await expect(page.locator('aionix-sentinel-drawer')).toHaveCount(1);
+  await drawer(page).getByRole('button', { name: 'Close' }).click();
+  await editor.fill('What are the common early symptoms of type 2 diabetes?');
+  await editor.press('Enter');
+  await expect(sent(page)).toHaveCount(1);
+  // The superseded network wrapper passes requests through; the new one still stops a record.
+  await page.locator('#direct-api-record').click();
+  await expect(page.locator('#log')).toContainText('RECORD-BLOCKED');
+  await page.close();
+});

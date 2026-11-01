@@ -24,7 +24,20 @@ function pickAdapter(): PortalAdapter | null {
   return null;
 }
 
+/** After the extension is reloaded or updated, a copy already running in the page loses chrome.runtime. */
+function extensionAlive(): boolean {
+  try {
+    return !!chrome.runtime?.id;
+  } catch {
+    return false;
+  }
+}
+
+const STALE =
+  'Aionix Sentinel was updated or reloaded, and this tab still runs the previous copy, which cannot reach the engine. Refresh the page to reconnect the full check.';
+
 function send<T>(msg: BackgroundRequest): Promise<T> {
+  if (!extensionAlive()) return Promise.reject(new Error(STALE));
   return chrome.runtime.sendMessage(msg) as Promise<T>;
 }
 
@@ -46,6 +59,12 @@ function registerBrandFonts() {
 const adapter = pickAdapter();
 
 if (adapter) {
+  // Listeners this copy adds to the page, so it can step aside when a newer copy is injected.
+  const teardown: (() => void)[] = [];
+  const listen = (type: string, fn: (e: Event) => void, capture = false) => {
+    document.addEventListener(type, fn, capture);
+    teardown.push(() => document.removeEventListener(type, fn, capture));
+  };
   let salt: string | null = null;
   const getSalt = async () => (salt ??= await send<string>({ target: 'background', type: 'salt' }));
 
@@ -72,8 +91,12 @@ if (adapter) {
     tier3a = d ?? createVaultDetector([]);
     applyCustom(await readCustom());
   });
-  chrome.storage.onChanged.addListener((changes, area) => {
+  const onStorage = (changes: Record<string, chrome.storage.StorageChange>, area: string) => {
     if (area === 'local' && changes[CUSTOM_VAULT_KEY]) applyCustom((changes[CUSTOM_VAULT_KEY].newValue as CustomVaultRecord[] | undefined) ?? []);
+  };
+  chrome.storage.onChanged.addListener(onStorage);
+  teardown.push(() => {
+    if (extensionAlive()) chrome.storage.onChanged.removeListener(onStorage);
   });
 
   const asyncScanner: AsyncScanner = {
@@ -113,12 +136,12 @@ if (adapter) {
   });
 
   registerBrandFonts();
-  interceptor.install();
+  teardown.push(interceptor.install());
 
   // Wake the service worker (and through it the offscreen engine, if Chrome dropped it) when the user
   // starts on a prompt, so a cold start is not paid inside the 1 s budget after Send.
   let lastWarm = 0;
-  document.addEventListener(
+  listen(
     'focusin',
     (e) => {
       if (Date.now() - lastWarm < 20_000 || !interceptor.composerFor(e.target)) return;
@@ -129,7 +152,7 @@ if (adapter) {
   );
 
   // MAIN-world backstop, step 1: Tier 1 there already stopped the request.
-  document.addEventListener('aionix:backstop-block', (e) => {
+  listen('aionix:backstop-block', (e) => {
     try {
       const detail = JSON.parse((e as CustomEvent<string>).detail) as { items: { label: string; category: string; masked: string; evidence?: string }[]; latencyMs?: number };
       interceptor.showNetworkBlock(
@@ -151,7 +174,7 @@ if (adapter) {
 
   // MAIN-world backstop, step 2: Tier 1 was clean but the prompt skipped the composer check, so the rest
   // of the cascade runs here. Acknowledge at once; the verdict follows (possibly after the user decides).
-  document.addEventListener('aionix:backstop-scan', (e) => {
+  listen('aionix:backstop-scan', (e) => {
     let req: { id: string; prompt: string };
     try {
       req = JSON.parse((e as CustomEvent<string>).detail) as { id: string; prompt: string };
@@ -164,4 +187,13 @@ if (adapter) {
       .catch(() => false)
       .then((allow) => document.dispatchEvent(new CustomEvent('aionix:backstop-verdict', { detail: JSON.stringify({ id: req.id, allow }) })));
   });
+
+  // One live copy per page: when the extension is updated, the background injects the new content script
+  // into open tabs; it announces itself and this (older) copy removes every hook it added.
+  const instanceId = `${Date.now().toString(36)}-${Math.random().toString(36).slice(2)}`;
+  listen('aionix:instance', (e) => {
+    if ((e as CustomEvent<unknown>).detail === instanceId) return;
+    for (const fn of teardown.splice(0)) fn();
+  });
+  document.dispatchEvent(new CustomEvent('aionix:instance', { detail: instanceId }));
 }

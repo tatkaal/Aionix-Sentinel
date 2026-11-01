@@ -33,8 +33,14 @@ function pickAdapter(): PortalAdapter | null {
 }
 
 const adapter = pickAdapter();
+// A newer copy of this script (injected after an extension update) takes over; this one then passes
+// every request straight to the fetch / XHR it wrapped.
+const GENERATION = '__aionixBackstopGeneration';
+const generation = {};
 
 if (adapter) {
+  (window as unknown as Record<string, unknown>)[GENERATION] = generation;
+  const superseded = () => (window as unknown as Record<string, unknown>)[GENERATION] !== generation;
   const verified = new Map<string, number>();
   document.addEventListener('aionix:verified', (e) => {
     const digest = (e as CustomEvent<unknown>).detail;
@@ -111,7 +117,7 @@ if (adapter) {
   const origFetch = window.fetch;
   window.fetch = async function aionixFetch(this: unknown, input: RequestInfo | URL, init?: RequestInit) {
     const url = typeof input === 'string' ? input : input instanceof URL ? input.href : input.url;
-    if (adapter.completionEndpoint.test(url)) {
+    if (!superseded() && adapter.completionEndpoint.test(url)) {
       const body = await bodyText(input, init).catch(() => null);
       if (body != null && (await mustBlock(body))) throw new AionixBlockedError();
     }
@@ -127,7 +133,7 @@ if (adapter) {
   } as typeof XMLHttpRequest.prototype.open;
   XMLHttpRequest.prototype.send = function (this: XMLHttpRequest, body?: Document | XMLHttpRequestBodyInit | null) {
     const url = urls.get(this) ?? '';
-    if (adapter.completionEndpoint.test(url)) {
+    if (!superseded() && adapter.completionEndpoint.test(url)) {
       const text = typeof body === 'string' ? body : body instanceof URLSearchParams ? body.toString() : null;
       const v = text == null ? ({ kind: 'allow' } as const) : inspect(text);
       const fail = () => this.dispatchEvent(new ProgressEvent('error'));
