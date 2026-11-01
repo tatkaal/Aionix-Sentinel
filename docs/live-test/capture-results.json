@@ -1,5 +1,5 @@
 {
-  "capturedAt": "2026-10-31T13:13:33.331Z",
+  "capturedAt": "2026-11-01T03:43:01.367Z",
   "leaks": [],
   "results": [
     {
@@ -120,6 +120,42 @@
       "engine": "ready/B"
     },
     {
+      "shot": "26-chatgpt-cat2-unlabelled-password",
+      "portal": "chatgpt",
+      "title": "Unlabelled password (strength question)",
+      "expect": "block",
+      "observed": "block",
+      "note": "Tier 1 (content script, synchronous) · strength cue + password-shaped token",
+      "engine": "ready/B"
+    },
+    {
+      "shot": "27-chatgpt-cat8-customer-json",
+      "portal": "chatgpt",
+      "title": "Customer record as JSON (context)",
+      "expect": "block",
+      "observed": "block",
+      "note": "Tier 2 (offscreen: person ↔ sensitive-term graph + MiniLM validator) · record keys cue the name and account",
+      "engine": "ready/B"
+    },
+    {
+      "shot": "28-chatgpt-cat3-ssn-csv",
+      "portal": "chatgpt",
+      "title": "SSNs in a CSV",
+      "expect": "block",
+      "observed": "block",
+      "note": "Tier 1 (content script, synchronous) · SSN structure in CSV rows",
+      "engine": "ready/B"
+    },
+    {
+      "shot": "29-chatgpt-large-paste",
+      "portal": "chatgpt",
+      "title": "Large paste (inline when signed out)",
+      "expect": "block",
+      "observed": "block",
+      "note": "Tier 3 Path A (content script: Bloom + MinHash fingerprints) on the attachment; removing the chip lifts the block",
+      "engine": "ready/B"
+    },
+    {
       "shot": "24-chatgpt-allowed-question",
       "portal": "chatgpt",
       "title": "Symptom question",
@@ -170,6 +206,24 @@
       "expect": "block",
       "observed": "block",
       "note": "Tier 3 Path A (content script: Bloom + MinHash fingerprints) + Tier 3 Path B (offscreen: salted field hashes + MiniLM vectors) · after protecting the sample memo",
+      "engine": "ready/B"
+    },
+    {
+      "shot": "34-gemini-cat9-patients-csv",
+      "portal": "gemini",
+      "title": "Patients as CSV (context)",
+      "expect": "block",
+      "observed": "block",
+      "note": "Tier 2 (offscreen: person ↔ sensitive-term graph + MiniLM validator) · no setup needed",
+      "engine": "ready/B"
+    },
+    {
+      "shot": "35-gemini-allowed-code-password-field",
+      "portal": "gemini",
+      "title": "Code reading a password from the environment",
+      "expect": "sent",
+      "observed": "sent",
+      "note": "A reference, not a value — must pass",
       "engine": "ready/B"
     },
     {

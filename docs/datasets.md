@@ -12,7 +12,7 @@ All sampling is seeded, so re-running the script produces the same rows.
 | Presidio synthetic PII | [`synth_dataset_v2.json`](https://github.com/data-privacy-stack/presidio-research/blob/main/data/synth_dataset_v2.json) (`presidio-research`) | MIT | Yes | Mixed PII; tests precision on PII outside our block policy and recall on cards/SSN/IBAN |
 | AI4Privacy PII-200k | [`ai4privacy/pii-masking-200k`](https://huggingface.co/datasets/ai4privacy/pii-masking-200k) | No licence stated on the card | **No** (gitignored; fetched at setup/CI) | Multilingual (en/fr/de/it) spans, plus obfuscation augmentation |
 | Stakeholder edge cases | Hand-authored from the blueprint (see [edge-cases.md](edge-cases.md)) | Project | Yes | 24 mandatory acceptance scenarios |
-| English disclosure probes | Hand-authored after the stakeholder reported `my current psw is …` passing (`scripts/datasets/english-probes.ts`) | Project | Yes | 98 English phrasings across Categories 1–10 plus benign near-misses. Used to find and fix gaps, so it is a regression suite (`curated`), not an unbiased estimate |
+| English disclosure probes | Hand-authored after the stakeholder reported `my current psw is …` passing (`scripts/datasets/english-probes.ts`) | Project | Yes | 137 English phrasings across Categories 1–10 plus benign near-misses, incl. the stakeholder brief's formats (spaces/dashes, code blocks, JSON, CSV, unlabelled passwords, code that names a password field). Used to find and fix gaps, so it is a regression suite (`curated`), not an unbiased estimate |
 
 ### Labelling policy
 
@@ -20,6 +20,7 @@ All sampling is seeded, so re-running the script produces the same rows.
 - **Presidio:** rows with `CREDIT_CARD`, `US_SSN`, `US_DRIVER_LICENSE` or `IBAN_CODE` are `block`. Rows that contain only names, addresses, emails, phones or dates are `allow`, because ordinary PII is outside the 10-category block policy.
 - **Enron:** every row defaults to `allow`. Rows the engine flags are reviewed by hand and recorded in `data/datasets/enron-adjudications.json`, with the reason and the corrected label. This keeps FPR honest without letting the engine label itself.
 - **AI4Privacy:** high-risk labels map to the matching category, e.g. `CREDITCARDNUMBER` → 5, `PASSWORD` → 2, `SSN` → 3, `IBAN` → 5, `ACCOUNTNUMBER` → 8 only when a name is present. Rows with only low-risk labels are `allow`.
+  - This mapping was fixed before the stakeholder's raw brief arrived. The brief's Category 5 covers bank account numbers, so since 2026-11-01 the engine also blocks a labelled account number in a banking context ("Savings Account number 80536240"). AI4Privacy still scores that as a false positive (1 dev row); the mapping was deliberately not changed after seeing engine output.
 - **Augmentation is labelled as augmentation.** It adds checksum-valid AU TFN, ABN, Aadhaar and PAN rows, Category 8 and 9 rows, and obfuscation (spacing, dashes, JSON/CSV/code wrapping). Every augmented row carries `augmented: true` and is reported both separately and combined.
 - **Checksum policy:** synthetic card or ID numbers that fail their checksum are reported in a separate bucket. They are not real cards or IDs, so blocking them would be a false positive.
 

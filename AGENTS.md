@@ -54,6 +54,7 @@ Aionix Sentinel is a Manifest V3 Chrome extension that inspects prompts on claud
 
 - Findings carry **raw** offsets (`rawStart`/`rawEnd`) mapped through `normToRawIdx`; redaction and the drawer depend on them.
 - Category ids are fixed (1–10, see `src/engine/types.ts`); don't renumber.
-- New detectors need a vitest case in `tests/unit/` and, if they change block decisions, an edge case in `data/datasets/edge-cases.json`.
+- New detectors need a vitest case in `tests/unit/` and, if they change block decisions, a probe in `scripts/datasets/english-probes.ts` (the 24 stakeholder edge cases in `data/datasets/edge-cases.json` stay fixed).
+- Tier 2: a name directly after a record role (patient, client, customer …) or a record identifier (MRN, DOB, labelled ID) is a record without the MiniLM validator; the validator only arbitrates uncued names. Lay condition / debt terms go in `data/lexicons/medical-synonyms.txt` / `financial-terms.txt` (then `npm run data:fst`).
 - Portal selectors live only in `src/extension/content/adapters/*`. When a live site changes, update the adapter, not the core, and add the new shape to `tests/e2e/fixtures/portal.html` (e.g. `chatgpt-anon`) and `tests/unit/adapters.test.ts`.
 - Tier 1 rules must never fire on their own redaction tags (`[REDACTED_<TYPE>]`); `tests/unit/english-probes.test.ts` checks every blocked probe passes after auto-redaction.

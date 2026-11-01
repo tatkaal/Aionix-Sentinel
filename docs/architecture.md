@@ -26,15 +26,31 @@ The Workbench runs the same `src/engine/` modules: Tier 1/3A on the main thread 
 | # | Category | Primary tier |
 |---|---|---|
 | 1 | API keys & access tokens | Tier 1 |
-| 2 | Passwords & secrets (labelled, multilingual, high-entropy) | Tier 1 |
-| 3 | Government IDs (SSN, passport, driver licence) | Tier 1 |
+| 2 | Passwords & secrets (labelled, multilingual, high-entropy, strength questions, private keys) | Tier 1 |
+| 3 | Government IDs (SSN, passport, driver licence, national IDs, UK NINO, AU Medicare) | Tier 1 |
 | 4 | Australian Tax File Number | Tier 1 |
-| 5 | Payment cards & bank accounts (Luhn cards, IBAN, BSB + account) | Tier 1 |
+| 5 | Payment cards & bank accounts (Luhn cards, IBAN, BSB / routing + account, labelled accounts in a banking context) | Tier 1 |
 | 6 | Business & national IDs (ABN, PAN, Aadhaar) | Tier 1 |
 | 7 | Database credentials (connection strings with inline secrets) | Tier 1 |
 | 8 | Customer financial records tied to an identifiable person | Tier 2, Tier 3B (CRM rows) |
-| 9 | Medical records tied to an identifiable person | Tier 2 |
+| 9 | Medical records tied to an identifiable person | Tier 2, Tier 3B (patient rows) |
 | 10 | Corporate IP & proprietary documents | Tier 3 |
+
+**How Categories 8–10 are decided, and why** (the brief leaves this to us):
+
+- **8 and 9 are about a *person*, not about vocabulary.** "What are the symptoms of diabetes?" and "Warren Buffett's net worth" must pass; "patient Linda Park, breast cancer, tamoxifen 20 mg" must not. So a block needs both:
+  - a non-public person (a name, MRN, DOB or customer ID);
+  - a sensitive fact within 30 tokens: an ICD-10-CM condition, an RxNorm drug or a dose for 9; an account, or an amount plus a financial attribute, for 8.
+- **Who decides whether that pairing is a record:**
+  - **Record subjects:** a name after a record role (patient, client, customer, policyholder …), or a record identifier, is a record by construction.
+  - **Uncued names:** the MiniLM validator decides between a disclosure and a general question.
+  - **Why the split:** keyword lists alone over-block, and a model alone is unexplainable and slow.
+- **10 is about *what the organisation owns*,** which no general rule can know. It is decided by fingerprints of the organisation's own material:
+  - **Excerpts and near-copies:** Bloom + MinHash shingles catch copied excerpts (about 2 lines of code) and near-duplicates.
+  - **Restated paragraphs:** Orama vectors catch paragraphs restated almost verbatim.
+  - **Exact rows:** salted field hashes catch exact customer and patient rows, which also covers 8 and 9.
+  - **Where the fingerprints come from:** a bundled demo vault, plus the options page's *Protected data*, which stores fingerprints only.
+  - **Why not markings:** a "confidential" banner is not used as a signal, because Enron-style mail footers carry it on ordinary messages.
 
 ## 3. Architecture decision records
 
@@ -54,7 +70,7 @@ The Workbench runs the same `src/engine/` modules: Tier 1/3A on the main thread 
   - The runtime walks a `Uint32Array` with no per-token allocation.
   - A clinical or financial hit is only escalated when two things hold:
     1. a non-public person node sits within 30 tokens of it (proximity graph);
-    2. the shared MiniLM-L6 INT8 context validator classifies the surrounding window as a personal disclosure rather than a general question.
+    2. the person is a record subject (a record role such as "patient" / "customer", or an MRN / DOB / labelled ID), or the shared MiniLM-L6 INT8 context validator classifies the surrounding window as a personal disclosure rather than a general question. (Record subjects skip the validator since 2026-11-01: it had scored "Patient Harriet Lindqvist was admitted with pneumonia and started metformin 500 mg" just under its margin.)
 - **Path B — WebGPU with hardware-aware degradation.**
   - `hardware-probe.ts` checks the adapter (non-fallback, `maxStorageBufferBindingSize`, `maxBufferSize`, `shader-f16`) and `navigator.deviceMemory`.
   - When the probe passes, `openai/privacy-filter` runs on WebGPU. Its `private_person` and `account_number` spans become graph nodes, and `secret` supplements Category 2. Medical nodes still come from the FST.
@@ -128,7 +144,15 @@ The Workbench runs the same `src/engine/` modules: Tier 1/3A on the main thread 
 
 ### ADR-005 — Tier 2 latency budget
 
-- **Context.** The send path promises a verdict within 1,000 ms. On integrated GPUs, `openai/privacy-filter` could take longer than that on long prompts. The CPU tagger that replaced it (ADR-007) answers in 13 / 21 ms (p50 / p95) inside the extension, so the budget now matters mainly when the offscreen engine is starting or unreachable.
+- **Context.** The send path promises a verdict within 1,000 ms. On integrated GPUs, `openai/privacy-filter` could take longer than that on long prompts. The CPU tagger that replaced it (ADR-007) answers in 7 / 11 ms (p50 / p95) inside the extension, so the budget now matters mainly when the offscreen engine is starting or unreachable.
+- **The budget is counted from the Send event** (Enter, click or submit), so input collection, Tier 1 + 3A and the offscreen round trip all fit inside the 1,000 ms (the brief's "within 1 second of Send, covering everything combined"); the offscreen check gets whatever is left.
+- **Measured** (`npm run measure:ext`, real content script on the fixture portal, Enter → page send handler or drawer, 2026-11-01):
+
+  | Prompt | Path B (tagger) p50 / max | Path A only p50 / max |
+  |---|---|---|
+  | Clean — sent (12 prompts) | 20 / 43 ms | 16 / 33 ms |
+  | Tier 2 block — drawer shown (5) | 34 / 52 ms | 23 / 50 ms |
+  | Tier 1 block — drawer shown (5) | 9 / 13 ms | 7 / 15 ms |
 - **Decision.** Path B keeps a 650 ms Tier 2 budget (`PATH_B_BUDGET_MS`). Past it, Path A (CPU) decides that prompt and the result carries a `degradedReason`. ONNX Runtime cannot cancel a run, so the in-flight Path B inference finishes and is discarded.
 - **When the whole offscreen check misses its 1,000 ms budget or is unreachable** (Tier 1/3A already clean), the prompt is **held**, not sent (`asyncFailure: 'hold'`, the default). The drawer shows "Check incomplete" and offers *Keep editing* or *Send anyway*; Enter re-runs the check. A "send anyway" is recorded in telemetry with the reason.
   - The earlier behaviour was to fail open silently. It was changed after a live capture run (2026-11-01) in which the offscreen engine became unreachable mid-session, and Category 8/9 context prompts would have been sent unchecked; the capture's own network guard stopped them.
@@ -176,6 +200,10 @@ The same analysis fixed two FST precision bugs that Path B exposed in French/Ita
 **Consequences** (README results, measured):
 - Held-out AI4Privacy recall rises from 0.646 to 0.720 (F2 0.687 → 0.749). FPR rises 1.20% → 1.67%, and held-out Enron FPR 1.34% → 2.01%. privacy-filter had reached F2 0.770 at 14.83% FPR.
 - In the extension: 110.2 MB, Tier 2 p50 / p95 13.0 / 20.5 ms, load 0.22 s.
+- After the raw-brief audit (2026-11-01):
+  - **Held-out AI4Privacy:** F2 0.685 → 0.747; FPR 1.44% → 1.91%.
+  - **Held-out Enron FPR:** 1.34% → 2.34%.
+  - **In the extension:** 110.4 MB; Tier 2 p50 / p95 6.8 / 10.7 ms.
 - Path B is now gated in CI (`bench-gate.json` → `pathB`).
 - Not met: the dev-split gate "F2 ≥ Path A on every split" fails on Enron dev, which has a single positive, so one false alarm moves F2 from 1.000 to 0.833. FPR there is +0.33 points.
 

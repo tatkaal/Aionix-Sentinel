@@ -181,12 +181,38 @@ try {
     ['21-chatgpt-cat9-protected-patient', prompt(9, 'Patient from your protected CSV')],
     ['22-chatgpt-cat10-vault-code', prompt(10, '15 lines of the bundled proprietary router')],
     ['23-chatgpt-cat10-protected-code', prompt(10, 'Excerpt of your protected code')],
+    // Formats the stakeholder brief lists: unlabelled password, JSON, CSV.
+    ['26-chatgpt-cat2-unlabelled-password', prompt(2, 'Unlabelled password (strength question)')],
+    ['27-chatgpt-cat8-customer-json', prompt(8, 'Customer record as JSON (context)')],
+    ['28-chatgpt-cat3-ssn-csv', prompt(3, 'SSNs in a CSV')],
   ];
   for (const [shot, p] of gptTrials) {
     await trial(gpt, 'chatgpt', shot, p);
     // The production drawer is a closed shadow root; its actions are shown on the replica below.
     await closeDrawer(gpt);
     const box = await composerOf(gpt, 'chatgpt');
+    await box.fill('');
+  }
+  // Large paste (real clipboard paste). Signed-out ChatGPT keeps it inline rather than as a chip
+  // (checked 2026-11-01); the whole text is still inspected on Enter.
+  await ctx.grantPermissions(['clipboard-read', 'clipboard-write'], { origin: 'https://chatgpt.com' });
+  {
+    const memoPaste = prompt(10, 'Large paste → pasted-content chip');
+    const engine = await engineState();
+    const box = await composerOf(gpt, 'chatgpt');
+    marker = memoPaste.paste!.slice(0, 48);
+    await gpt.evaluate((t) => navigator.clipboard.writeText(t), memoPaste.paste!);
+    await box.click();
+    await gpt.keyboard.press('Control+V');
+    await gpt.keyboard.press('Control+End');
+    await gpt.keyboard.type(` ${memoPaste.text}`);
+    await box.press('Enter');
+    await gpt.waitForTimeout(2200);
+    const observed = await outcome(gpt, 'chatgpt', memoPaste.paste!);
+    await shoot(gpt, '29-chatgpt-large-paste');
+    results.push({ shot: '29-chatgpt-large-paste', portal: 'chatgpt', title: 'Large paste (inline when signed out)', expect: 'block', observed, note: memoPaste.note, engine });
+    marker = null;
+    await closeDrawer(gpt);
     await box.fill('');
   }
   // Allowed: a benign question goes through to the live AI.
@@ -214,11 +240,14 @@ try {
     ['31-gemini-cat5-iban', prompt(5, 'IBAN')],
     ['32-gemini-cat9-named-person', prompt(9, 'Named person, condition and drug (context)')],
     ['33-gemini-cat10-protected-memo', prompt(10, 'Paragraph of your protected document')],
+    ['34-gemini-cat9-patients-csv', prompt(9, 'Patients as CSV (context)')],
   ] as [string, KitPrompt][]) {
     await trial(gem, 'gemini', shot, p);
     await closeDrawer(gem);
     await (await composerOf(gem, 'gemini')).fill('');
   }
+  // Benign look-alike: code that mentions a password without a value goes through to Gemini.
+  await trial(gem, 'gemini', '35-gemini-allowed-code-password-field', prompt(2, 'Code reading a password from the environment'), { send: true });
 
   // Popup after the session: counters and recent blocks.
   await popup.reload();
