@@ -1,12 +1,12 @@
 {
-  "built": "2026-11-01T03:01:20.568Z",
+  "built": "2026-11-01T15:39:06.326Z",
   "icdSource": "https://www.cms.gov/files/zip/2026-code-descriptions-tabular-order.zip",
   "rxnormSource": "https://download.nlm.nih.gov/rxnorm/RxNorm_full_prescribe_10052026.zip",
-  "entries": 82058,
-  "states": 423086,
-  "bytes": 3634020,
+  "entries": 65938,
+  "states": 415542,
+  "bytes": 3561356,
   "byClass": {
-    "C": 31528,
+    "C": 15408,
     "B": 3799,
     "M": 6280,
     "F": 78,

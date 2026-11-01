@@ -91,6 +91,16 @@ const add = (term: string, output: string) => {
 const QUALIFIER = /\s*,\s*(unspecified|initial encounter|subsequent encounter|sequela|not elsewhere classified|other specified|in remission|not intractable|without.*|with.*)$/i;
 const SPLIT = /,|\s(?:without|with|due to|in|involving|following|complicating|affecting|associated with|of|on)\s/i;
 let icdCodes = 0;
+// One code per term. A heading such as "pneumonia" belongs to dozens of codes (J12.81 SARS pneumonia,
+// J13 …, J18.9 unspecified) and the drawer names the one stored. Prefer the code whose description is the
+// term, then one that is the term once qualifiers are stripped, then a generic code ("unspecified", "without complications"); ties go
+// to the shortest (most general) code, then ICD's ".9" (unspecified / uncomplicated) code, then sort order.
+const bestIcd = new Map<string, { out: string; key: string }>();
+const offerIcd = (norm: string, out: string, rank: number) => {
+  const key = `${rank}${String(out.length).padStart(2, '0')}${out.endsWith('9') ? 0 : 1}${out}`;
+  const cur = bestIcd.get(norm);
+  if (!cur || key < cur.key) bestIcd.set(norm, { out, key });
+};
 for (const line of readFileSync(icdFile, 'utf8').split(/\r?\n/)) {
   const m = line.match(/^([A-Z][0-9A-Z]{2,6})\s+(.+)$/);
   if (!m) continue;
@@ -111,9 +121,10 @@ for (const line of readFileSync(icdFile, 'utf8').split(/\r?\n/)) {
     // genuinely clinical ones (pneumonia, dementia …) come from the curated synonym list instead.
     if (words.length === 1 && vocab.has(norm) && !synonyms.has(norm)) continue;
     if (words.every((w) => stop.has(w) || w.length < 3)) continue;
-    add(norm, out);
+    offerIcd(norm, out, norm === normalizeTerm(desc) ? 0 : norm === normalizeTerm(full) ? 1 : /\b(?:unspecified|without complications?)\b/i.test(desc) ? 2 : 3);
   }
 }
+for (const [term, { out }] of bestIcd) add(term, out);
 
 for (const syn of lines('medical-synonyms.txt')) add(syn, `${FST_CLASS.condition}SYN`);
 
