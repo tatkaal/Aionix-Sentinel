@@ -231,13 +231,15 @@ export class PromptInterceptor {
 
   async handleSend(e: Event, trigger: 'enter' | 'click' | 'submit'): Promise<void> {
     if (this.bypass) return;
+    // The 1 s decision budget covers everything from the Send event: input collection, Tier 1 + 3A
+    // and the offscreen round trip.
+    const t0 = performance.now();
     const { input } = this.collectInput();
     if (!input.text.trim() && !input.attachments?.length) return;
     e.preventDefault();
     e.stopImmediatePropagation();
     if (this.pending) return;
 
-    const t0 = performance.now();
     const sync = scanSync(input, this.opts.tier3a());
     if (sync.verdict === 'block') {
       this.enterBlock(input, sync);
@@ -251,7 +253,8 @@ export class PromptInterceptor {
     let incomplete = false;
     const budget = this.opts.asyncTimeoutMs ?? 1000;
     try {
-      const asyncPart = this.opts.asyncScanner ? await withTimeout(this.opts.asyncScanner.scanAsync(input), budget) : null;
+      const remaining = Math.max(0, budget - (performance.now() - t0));
+      const asyncPart = this.opts.asyncScanner ? await withTimeout(this.opts.asyncScanner.scanAsync(input), remaining) : null;
       incomplete = asyncPart === 'timeout';
       merged = asyncPart === 'timeout' ? { ...sync, degradedReason: `Context check exceeded the ${budget.toLocaleString()} ms budget` } : mergeAsync(sync, asyncPart, performance.now() - t0);
     } catch (err) {
