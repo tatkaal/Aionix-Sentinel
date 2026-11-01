@@ -38,13 +38,13 @@ export function charClasses(s: string): CharClasses {
   return { lower, upper, digit, symbol, count: +lower + +upper + +digit + +symbol };
 }
 
-/** Blueprint threshold for unlabelled secrets. */
+/** Planned threshold for unlabelled secrets. */
 export const ENTROPY_THRESHOLD = 3.85;
 
 /**
  * Entropy threshold adjusted for short tokens. A string of length L can reach at most log2(L)
  * bits/char, so for L < 16 a fixed 3.85 is unreachable. Short tokens instead must be
- * near-maximal (log2(L) − 0.35). From 16 characters on, the blueprint's 3.85 applies unchanged.
+ * near-maximal (log2(L) − 0.35). From 16 characters on, the planned 3.85 applies unchanged.
  */
 export function entropyThresholdFor(length: number): number {
   return length >= 16 ? ENTROPY_THRESHOLD : Math.log2(length) - 0.35;

@@ -1,4 +1,4 @@
-// Official Aionix mark — the exact 4-path geometry from the brand blueprint.
+// Official Aionix mark — the exact 4-path geometry from the brand specification.
 // Single source of truth for <AionixLogo/> (React) and aionixLogoMarkup() (Shadow DOM / plain HTML).
 
 export interface LogoPath {

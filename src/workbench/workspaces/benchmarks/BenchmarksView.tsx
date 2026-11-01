@@ -10,7 +10,7 @@ import { RELEASE_GATE_YAML } from '../../lib/release-gate';
 import { resolveRun, runKey, useBench, type Route } from '../../state/bench';
 import { useEngine } from '../../state/engine';
 
-/** Blueprint targets — displayed as targets only, never as results. */
+/** Design targets from the original plan — displayed as targets only, never as results. */
 export const TARGETS = { f2: 0.978, fpr: 0.0002 };
 
 const f3 = (v: number | null) => (v === null ? '—' : v.toFixed(3));
@@ -165,7 +165,7 @@ export function BenchmarksView() {
 
       <div className="mb-6 rounded-xl border border-amber/30 bg-amber/[0.06] px-4 py-3 text-[13px] text-[#FCD34D]">
         <strong className="font-semibold">Read held-out numbers.</strong> Dev splits were used for error analysis while the rules were developed, so their scores
-        are optimistic. Held-out splits were drawn from different offsets and never inspected. Blueprint figures (F2 ≥ {TARGETS.f2}, FPR &lt;{' '}
+        are optimistic. Held-out splits were drawn from different offsets and never inspected. Design targets (F2 ≥ {TARGETS.f2}, FPR &lt;{' '}
         {(TARGETS.fpr * 100).toFixed(2)}%) are shown only as targets.
       </div>
 
@@ -265,7 +265,7 @@ export function BenchmarksView() {
         </Panel>
       ) : (
         <div className="grid gap-6 xl:grid-cols-2">
-          <Panel title="Path A vs Path B" subtitle="Document-level metrics; positive = must block. White tick = blueprint target.">
+          <Panel title="Path A vs Path B" subtitle="Document-level metrics; positive = must block. White tick = design target.">
             <PairedBars rows={rows} format={(v) => (v === null ? '—' : v.toFixed(3))} />
           </Panel>
           <Panel title="Confusion matrices & latency">

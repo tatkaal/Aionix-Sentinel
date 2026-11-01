@@ -44,7 +44,7 @@ const meets = (s: RunSummary) => (s.metrics.f2 === null || s.metrics.f2 >= 0.978
 for (const [label, run] of [['Path A', nodeA], ['Path B', nodeB]] as const) {
   if (!run) continue;
   const rows = DATASETS.map((d) => ({ d, s: find(run, d.id) })).filter((x) => x.s);
-  lines.push(`Blueprint targets (F2 ≥ 0.978, FPR < 0.02%) on ${label}: met on ${rows.filter((x) => meets(x.s!)).map((x) => x.d.label).join(', ') || 'none'}; **not met on ${rows.filter((x) => !meets(x.s!)).map((x) => x.d.label).join(', ') || 'none'}.**`);
+  lines.push(`Design targets (F2 ≥ 0.978, FPR < 0.02%) on ${label}: met on ${rows.filter((x) => meets(x.s!)).map((x) => x.d.label).join(', ') || 'none'}; **not met on ${rows.filter((x) => !meets(x.s!)).map((x) => x.d.label).join(', ') || 'none'}.**`);
 }
 lines.push('');
 

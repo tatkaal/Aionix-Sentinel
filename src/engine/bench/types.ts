@@ -9,7 +9,7 @@ export type DatasetId = 'edge' | 'probes' | 'enron' | 'presidio' | 'ai4privacy' 
 export type Split = 'curated' | 'dev' | 'holdout';
 
 export const DATASETS: { id: DatasetId; label: string; file: string; focus: string; source: string; split: Split }[] = [
-  { id: 'edge', label: '24 Stakeholder Edge Cases', file: 'edge-cases.json', focus: 'Mandatory acceptance scenarios', source: 'Derived from the blueprint (docs/edge-cases.md)', split: 'curated' },
+  { id: 'edge', label: '24 Stakeholder Edge Cases', file: 'edge-cases.json', focus: 'Mandatory acceptance scenarios', source: "Written from the brief's edge-case list (docs/edge-cases.md)", split: 'curated' },
   { id: 'probes', label: 'English Disclosure Probes', file: 'english-probes.json', focus: 'How people type sensitive data in English (Cat 1–10) + benign near-misses', source: 'Authored after the stakeholder psw report (scripts/datasets/english-probes.ts); used to fix gaps', split: 'curated' },
   { id: 'enron', label: 'Enron Email Corpus', file: 'enron.jsonl', focus: 'Benign enterprise email · false-positive rate', source: 'LLM-PBE/enron-email (Apache-2.0)', split: 'dev' },
   { id: 'presidio', label: 'Presidio Synthetic PII', file: 'presidio.jsonl', focus: 'Multi-entity precision / recall / F2', source: 'presidio-research synth_dataset_v2 (MIT) + labelled augmentation', split: 'dev' },

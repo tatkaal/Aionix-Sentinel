@@ -111,7 +111,7 @@ export function PairedBars({ rows, format, aLabel = 'Path A', bLabel = 'Path B' 
               {hover === r.key && (
                 <Tooltip>
                   {r.label}: <span className="metric">{aLabel} {format(r.a)}</span> · <span className="metric">{bLabel} {format(r.b)}</span>
-                  {r.target && <div className="text-subtle">Blueprint target {r.target.label} (white tick)</div>}
+                  {r.target && <div className="text-subtle">Design target {r.target.label} (white tick)</div>}
                 </Tooltip>
               )}
             </div>

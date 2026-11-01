@@ -263,7 +263,7 @@ export function PresentationView() {
         </tbody>
       </table>
       <p className="mt-[1.5%] text-[0.85em] text-subtle">
-        Targets from the blueprint: F2 ≥ {TARGETS.f2}, FPR &lt; {(TARGETS.fpr * 100).toFixed(2)}%. Path A figures come from {SOURCE_TEXT[rows.find((r) => r.aSource)?.aSource ?? 'CI']}; Path B figures from {SOURCE_TEXT[rows.find((r) => r.bSource)?.bSource ?? 'CI']}, routed strictly to the tagger.
+        Design targets from the original plan: F2 ≥ {TARGETS.f2}, FPR &lt; {(TARGETS.fpr * 100).toFixed(2)}%. Path A figures come from {SOURCE_TEXT[rows.find((r) => r.aSource)?.aSource ?? 'CI']}; Path B figures from {SOURCE_TEXT[rows.find((r) => r.bSource)?.bSource ?? 'CI']}, routed strictly to the tagger.
       </p>
     </Slide>,
     <Slide key="future" n={8} kicker="Future scope" title="Keeping pace with the portals and the enterprise">
@@ -299,7 +299,7 @@ export function PresentationView() {
           `| ${r.label} | ${r.split} | ${r.a?.observations ?? '—'} | ${f3(r.a?.metrics.precision)} | ${f3(r.a?.metrics.recall)} | ${f3(r.a?.metrics.f2)} | ${f3(r.b?.metrics.f2)} | ${formatPct(r.a?.metrics.fpr, 2)} | ${formatMs(r.a?.latency.p95)} ms |`,
       ),
       '',
-      `Blueprint targets: F2 ≥ ${TARGETS.f2}, FPR < ${(TARGETS.fpr * 100).toFixed(2)}%. Dev splits were used for error analysis; held-out splits were not.`,
+      `Design targets: F2 ≥ ${TARGETS.f2}, FPR < ${(TARGETS.fpr * 100).toFixed(2)}%. Dev splits were used for error analysis; held-out splits were not.`,
       '',
       '## Engine',
       '',
