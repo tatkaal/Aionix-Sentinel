@@ -24,10 +24,14 @@ export interface SensitiveNode {
   code?: string;
 }
 
-// Cues must sit on the same line, directly before the name.
+// Cues must sit on the same line, directly before the name. A role word may also be a JSON / YAML /
+// form key ("patient": "Linda Park", customer_name = Margaret Ellison).
 const TITLE_BEFORE = /\b(?:mr|mrs|ms|miss|mx|dr|prof|sir|dame|madam)\.?[ \t]*$/i;
-const ROLE_BEFORE =
-  /(?:\b(?:patient|pt|client|customer|member|employee|claimant|policyholder|resident|insured|beneficiary|account holder|borrower|investor|named|called)[ \t]*[:,]?|(?:^|[\n.!?]\s*)(?:dear|hi|hello|hey|bonjour|cher|ch[eè]re|hallo|liebe|lieber|ciao|gentile|hola|estimad[oa]|caro|cara))[ \t]*$/i;
+const ROLE_KEY =
+  /\b(?:(?:patient|pt|client|customer|member|employee|claimant|policyholder|resident|insured|beneficiary|account[ _]holder|borrower|investor)(?:[ _]?(?:full[ _]?)?name)?|(?:full|legal)[ _]?name|named|called)["']?[ \t]*[:,=]?[ \t]*["']?[ \t]*$/i;
+/** A bare `name` key cues a name but, unlike a person role, does not overrule the place/organisation check ("name": "Acme Corp"). */
+const NAME_KEY = /\bname["']?[ \t]*[:=][ \t]*["']?[ \t]*$/i;
+const GREETING_BEFORE = /(?:^|[\n.!?]\s*)(?:dear|hi|hello|hey|bonjour|cher|ch[eè]re|hallo|liebe|lieber|ciao|gentile|hola|estimad[oa]|caro|cara)[ \t]*$/i;
 const TITLE_WORD = /^(?:mr|mrs|ms|miss|mx|dr|prof|sir|dame)$/i;
 // Name parts are joined by spaces/tabs only — never across a line break ("Lisa\nTuesday").
 const NAME_SEQ = /\b([A-Z][a-z]+(?:['’-][A-Z]?[a-z]+)?)((?:[ \t]+(?:[A-Z]\.[ \t]+)?[A-Z][a-z]+(?:['’-][A-Z]?[a-z]+)?){0,2})\b/g;
@@ -49,6 +53,22 @@ const IDENTIFIERS: [PersonKind, RegExp][] = [
 
 const ROLE_WORD = /^(?:mr|mrs|ms|miss|mx|dr|prof|sir|dame|patient|client|customer|member|employee|claimant|policyholder|resident|borrower|investor)$/i;
 
+// Roles that only ever introduce a record subject ("patient Linda Park", "customer": "…"), unlike
+// "member", "employee" or a title ("Dr Smith recommends …" names the clinician, not a patient).
+const RECORD_ROLE =
+  /\b(?:patient|pt|client|customer|claimant|policyholder|insured|beneficiary|account[ _]holder|borrower)(?:[ _]?(?:full[ _]?)?name)?["']?[ \t]*[:,=]?[ \t]*["']?[ \t]*$/i;
+const LABELLED_RECORD_ID = /^(?:patient|pt|customer|client|member|policy|claim)\b/i;
+
+/**
+ * A person introduced as the subject of a record: an explicit record role directly before the name,
+ * or a record identifier (MRN, date of birth, labelled patient / customer ID).
+ */
+export function isRecordSubject(text: string, person: PersonNode): boolean {
+  if (person.kind === 'mrn' || person.kind === 'dob') return true;
+  if (person.kind === 'record-id') return LABELLED_RECORD_ID.test(person.text);
+  return RECORD_ROLE.test(text.slice(Math.max(0, person.start - 28), person.start));
+}
+
 export function findPersonNodes(text: string, fst: Fst): PersonNode[] {
   const out: PersonNode[] = [];
   NAME_SEQ.lastIndex = 0;
@@ -58,7 +78,8 @@ export function findPersonNodes(text: string, fst: Fst): PersonNode[] {
     let start = m.index;
     const before = text.slice(Math.max(0, m.index - 28), m.index);
     let title = TITLE_BEFORE.test(before);
-    let role = ROLE_BEFORE.test(before);
+    const roleKey = ROLE_KEY.test(before);
+    let role = roleKey || NAME_KEY.test(before) || GREETING_BEFORE.test(before);
     // "Client Daniel Whitford" / "Patient Margaret Okafor": the role word is a cue, not a name part.
     while (words.length > 1 && ROLE_WORD.test(words[0]!.replace(/\.$/, ''))) {
       if (TITLE_WORD.test(words[0]!.replace(/\.$/, ''))) title = true;
@@ -76,8 +97,9 @@ export function findPersonNodes(text: string, fst: Fst): PersonNode[] {
       (role && (isFirstName || (words.length > 1 && !isCommon(words[0]!)))) || // "client Theo Marchetti"
       (isFirstName && words.length > 1 && (isSurname || !isCommon(words[1]!))); // "Margaret Okafor", "Sarah Mitchell"
     if (!accepted) continue;
-    // "Scott County", "Grace Hospital", "Jordan Street" are places and organisations.
-    if (words.length > 1 && PLACE_OR_ORG.test(words.at(-1)!)) continue;
+    // "Scott County", "Grace Hospital", "Jordan Street" are places and organisations — unless a record
+    // role names a person ("patient Linda Park", "customer": "Ava Hill").
+    if (words.length > 1 && PLACE_OR_ORG.test(words.at(-1)!) && !RECORD_ROLE.test(text.slice(Math.max(0, start - 28), start))) continue;
     const cue = title || role;
     const isPublic = fst.lookup(full.toLowerCase()).some((o) => o[0] === FST_CLASS.publicFigure);
     out.push({ kind: cue ? 'honorific' : 'name', start, end: start + text.slice(start).indexOf(words.at(-1)!) + words.at(-1)!.length, text: full, isPublic });
@@ -94,9 +116,13 @@ export function findPersonNodes(text: string, fst: Fst): PersonNode[] {
 
 const DOSAGE = /\b\d+(?:\.\d+)?\s?(?:mg|mcg|µg|ug|g|ml|mL|units?|iu|IU|mmol)\b(?:\s?\/\s?(?:kg|m2|m²|day|d|dose))?/g;
 const ICD_CODE = /\b[A-Q]\d{2}\.\d{1,4}\b/g;
+// Includes record keys: account_no, account_number, accountNumber, acct_id.
 const ACCOUNT_LABELLED =
-  /\b(?:acc(?:oun)?t|a\/c|iban|compte|konto(?:nummer)?|conto|cuenta|conta)\b[^\n\d]{0,40}?(?:no\.?|number|num|numéro|nummer|numero|número|#)?\s*[:#(]?\s*[A-Z]{0,2}\d[\d -]{5,24}\d\b/gi;
+  /\b(?:acc(?:oun)?t(?:[_-]?(?:no|num(?:ber)?|id))?|a\/c|iban|compte|konto(?:nummer)?|conto|cuenta|conta)\b[^\n\d]{0,40}?(?:no\.?|number|num|numéro|nummer|numero|número|#)?\s*[:#(]?\s*[A-Z]{0,2}\d[\d -]{5,24}\d\b/gi;
 const MONEY =/(?:[$€£¥₹]\s?|\b(?:AUD|USD|EUR|GBP|INR|CAD|NZD|SGD)\s?)\d[\d,]*(?:\.\d+)?(?:\s?(?:k|m|mn|million|bn|billion))?\b/gi;
+/** Amounts in records without a currency sign: "balance": 182450.22, outstanding_amount=9120. */
+const MONEY_FIELD =
+  /\b(?:[a-z]+[_ ])?(?:balance|amount|salary|income|net[_ ]?worth|credit[_ ]?limit|debt|loan|owed|outstanding|arrears|premium|payment)["']?[ \t]*[:=][ \t]*["']?-?\d(?:[\d,]{2,}(?:\.\d{1,2})?|\.\d{2}|\d*\.\d{1,2})\b/gi;
 
 export function findSensitiveNodes(text: string, fst: Fst): SensitiveNode[] {
   const out: SensitiveNode[] = [];
@@ -113,6 +139,7 @@ export function findSensitiveNodes(text: string, fst: Fst): SensitiveNode[] {
     ['dosage', 'medical', DOSAGE],
     ['icd-code', 'medical', ICD_CODE],
     ['money', 'financial', MONEY],
+    ['money', 'financial', MONEY_FIELD],
     ['account', 'financial', ACCOUNT_LABELLED],
   ];
   for (const [kind, domain, re] of regexNodes) {

@@ -98,3 +98,59 @@ schizophrenia
 smallpox
 tuberculosis
 vertigo
+# Common lay / clinical names that ICD-10-CM only lists with a qualifier ("Unspecified atrial
+# fibrillation") or as an everyday one-word heading (audit of the stakeholder brief, 2026-11-01).
+# Ambiguous everyday words (flu, cold, anxiety, fracture, pregnant) stay out on purpose.
+atrial fibrillation
+afib
+osteoporosis
+angina
+appendicitis
+concussion
+eczema
+atopic dermatitis
+polycystic ovary syndrome
+pcos
+obsessive compulsive disorder
+ocd
+panic disorder
+substance use disorder
+substance abuse
+drug addiction
+chickenpox
+strep throat
+urinary tract infection
+uti
+kidney stones
+gallstones
+shingles
+torn acl
+sexually transmitted infection
+sti
+hpv
+hepatitis b
+irritable bowel syndrome
+ibs
+postpartum depression
+anorexia nervosa
+binge eating disorder
+cystic fibrosis
+cerebral palsy
+down syndrome
+motor neurone disease
+huntington's disease
+sepsis
+mrsa
+meningitis
+pancreatitis
+diverticulitis
+ovarian cancer
+cervical cancer
+bowel cancer
+colorectal cancer
+thyroid cancer
+bladder cancer
+liver cancer
+brain tumour
+brain tumor
+myeloma

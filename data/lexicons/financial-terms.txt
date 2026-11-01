@@ -52,3 +52,29 @@ bank statement
 payslip
 inheritance
 trust account
+# Debt and credit wording people use in chat (audit of the stakeholder brief, 2026-11-01).
+credit card
+credit card debt
+line of credit
+credit line
+owes
+owed
+owing
+overdue
+past due
+unpaid
+bankruptcy
+insolvency
+defaulted
+car loan
+auto loan
+student loan
+payday loan
+tax debt
+medical debt
+debt collection
+collections agency
+garnishment
+foreclosure
+repossession
+credit report

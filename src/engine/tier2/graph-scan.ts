@@ -4,7 +4,7 @@
 import { chunkText } from '../chunk';
 import type { EnginePath, Finding, FindingSource } from '../types';
 import type { ContextValidator } from './context-validator';
-import type { PersonNode, SensitiveNode } from './nodes';
+import { isRecordSubject, type PersonNode, type SensitiveNode } from './nodes';
 import { buildEdges, type GraphEdge } from './proximity-graph';
 
 const MAX_VALIDATIONS = 4;
@@ -25,10 +25,15 @@ function validationWindow(text: string, edge: GraphEdge): string {
   return text.slice(Math.max(0, edge.windowStart - CONTEXT_PAD), Math.min(text.length, edge.windowEnd + CONTEXT_PAD));
 }
 
+/**
+ * The linked fact for the drawer label. Account numbers and amounts are values the user typed, so the
+ * label names their kind instead of repeating them (masked previews stay the only place values show).
+ */
 function describe(edge: GraphEdge): string {
-  const s = edge.sensitive[0]!;
+  const s = edge.sensitive.find((x) => x.kind !== 'account' && x.kind !== 'money') ?? edge.sensitive[0]!;
   const extra = edge.sensitive.length > 1 ? ` +${edge.sensitive.length - 1}` : '';
-  return `${s.term.trim()}${s.code ? ` (${s.code})` : ''}${extra}`;
+  const what = s.kind === 'account' ? 'an account number' : s.kind === 'money' ? 'an amount' : s.term.trim();
+  return `${what}${s.code && s.code !== 'SYN' ? ` (${s.code})` : ''}${extra}`;
 }
 
 export async function graphFindings(
@@ -58,7 +63,13 @@ export async function graphFindings(
     }
     let contextNote = 'graph only';
     let confidence = 0.8;
-    if (validator && validations < MAX_VALIDATIONS) {
+    // "Patient Harriet Lindqvist … pneumonia … metformin 500 mg" is a record by construction; the
+    // validator arbitrates only names without a record role or identifier (it scored that one
+    // just under its margin, next to the anchor "How is metformin usually dosed for adults?").
+    if (isRecordSubject(text, edge.person)) {
+      contextNote = 'record role / identifier';
+      confidence = 0.9;
+    } else if (validator && validations < MAX_VALIDATIONS) {
       validations++;
       const v = await validator.validate(validationWindow(text, edge));
       if (!v.personal) continue;

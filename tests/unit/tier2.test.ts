@@ -58,6 +58,17 @@ describe('proximity graph', () => {
     expect(buildEdges(far, findPersonNodes(far, fst), findSensitiveNodes(far, fst))).toHaveLength(0);
   });
 
+  it.skipIf(!existsSync(fstPath))('reads records: JSON keys cue names, account_no and bare amounts are financial facts', () => {
+    const fst = new Fst(readFileSync(fstPath));
+    const patient = '{"patient":"Linda Park","diagnosis":"breast cancer"}';
+    expect(findPersonNodes(patient, fst).map((p) => p.text)).toEqual(['Linda Park']);
+    const customer = '{"customer":"Margaret Ellison","account_no":"40231987","balance":182450.22}';
+    expect(findSensitiveNodes(customer, fst).map((s) => s.kind)).toEqual(expect.arrayContaining(['account', 'money']));
+    // A bare "name" key still lets the place/organisation rule reject companies.
+    expect(findPersonNodes('{"name":"Acme Corp","balance":1200.50}', fst)).toEqual([]);
+    expect(findPersonNodes('{"name":"Grace Hospital"}', fst)).toEqual([]);
+  });
+
   it.skipIf(!existsSync(fstPath))('treats public figures as non-linkable', () => {
     const fst = new Fst(readFileSync(fstPath));
     const text = "Warren Buffett's net worth is $140 billion.";
