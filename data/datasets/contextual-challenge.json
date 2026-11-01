@@ -1,0 +1,1031 @@
+[
+  {
+    "id": "CC001",
+    "dataset": "challenge",
+    "title": "Default credentials for a company login (reported case)",
+    "text": "So the flow is that first the user clicks login in the website which takes him into the authentication part and then he enters the username provided by the company and then the password for it. Usually it is admin, so try that out first and if it doesn't work test with root.",
+    "expect": "block",
+    "categories": [
+      2
+    ],
+    "note": "en: Default credentials for a company login (reported case)"
+  },
+  {
+    "id": "CC002",
+    "dataset": "challenge",
+    "title": "Reused password, no credential word",
+    "text": "I use Summer2024! for everything, is that a problem?",
+    "expect": "block",
+    "categories": [
+      2
+    ],
+    "note": "en: Reused password, no credential word"
+  },
+  {
+    "id": "CC003",
+    "dataset": "challenge",
+    "title": "Paraphrased: \"the thing I type to get into my bank\"",
+    "text": "the thing I type to get into my bank is Kangaroo#77",
+    "expect": "block",
+    "categories": [
+      2
+    ],
+    "note": "en: Paraphrased: \"the thing I type to get into my bank\""
+  },
+  {
+    "id": "CC004",
+    "dataset": "challenge",
+    "title": "Login steps with the value",
+    "text": "Log into the staging box as deploy, then type Wint3r!Sun when it prompts you.",
+    "expect": "block",
+    "categories": [
+      2
+    ],
+    "note": "en: Login steps with the value"
+  },
+  {
+    "id": "CC005",
+    "dataset": "challenge",
+    "title": "Team VPN secret in passing",
+    "text": "If the VPN asks again just enter hunter2 — that's what IT set up for the whole team.",
+    "expect": "block",
+    "categories": [
+      2
+    ],
+    "note": "en: Team VPN secret in passing"
+  },
+  {
+    "id": "CC006",
+    "dataset": "challenge",
+    "title": "Phone unlock PIN, no \"PIN\" word",
+    "text": "My laptop unlocks with 0417, which is my birthday. Is that ok?",
+    "expect": "block",
+    "categories": [
+      2
+    ],
+    "note": "en: Phone unlock PIN, no \"PIN\" word"
+  },
+  {
+    "id": "CC007",
+    "dataset": "challenge",
+    "title": "Shared mailbox address and secret",
+    "text": "For the shared mailbox use finance@corp-mail.com and Tr3asury#2025.",
+    "expect": "block",
+    "categories": [
+      2
+    ],
+    "note": "en: Shared mailbox address and secret"
+  },
+  {
+    "id": "CC008",
+    "dataset": "challenge",
+    "title": "Office Wi-Fi, value after \"it's\"",
+    "text": "The wifi in the office is CorpGuest and it's sunshine2024 at the moment.",
+    "expect": "block",
+    "categories": [
+      2
+    ],
+    "note": "en: Office Wi-Fi, value after \"it's\""
+  },
+  {
+    "id": "CC009",
+    "dataset": "challenge",
+    "title": "Failed login with the typed value",
+    "text": "Can you check why my login fails? I typed jsmith and then Pa55word99 twice.",
+    "expect": "block",
+    "categories": [
+      2
+    ],
+    "note": "en: Failed login with the typed value"
+  },
+  {
+    "id": "CC010",
+    "dataset": "challenge",
+    "title": "Router never changed: admin/admin",
+    "text": "We never changed the router at the warehouse, it's still admin / admin.",
+    "expect": "block",
+    "categories": [
+      2
+    ],
+    "note": "en: Router never changed: admin/admin"
+  },
+  {
+    "id": "CC011",
+    "dataset": "challenge",
+    "title": "Streaming account pair",
+    "text": "my netflix is mike.r@gmail.com / bluefish44 if you want to test the API",
+    "expect": "block",
+    "categories": [
+      2
+    ],
+    "note": "en: Streaming account pair"
+  },
+  {
+    "id": "CC012",
+    "dataset": "challenge",
+    "title": "Jenkins box, \"the secret bit\"",
+    "text": "To get into the jenkins box: user ops, the secret bit is K9#vLq2!pX",
+    "expect": "block",
+    "categories": [
+      2
+    ],
+    "note": "en: Jenkins box, \"the secret bit\""
+  },
+  {
+    "id": "CC013",
+    "dataset": "challenge",
+    "title": "Dashboard value to type",
+    "text": "Remember to type qwerty123 when the sales dashboard asks, it's the team one.",
+    "expect": "block",
+    "categories": [
+      2
+    ],
+    "note": "en: Dashboard value to type"
+  },
+  {
+    "id": "CC014",
+    "dataset": "challenge",
+    "title": "Recovery phrase for a wallet",
+    "text": "My wallet recovery words are tiger maple river cloud seven anchor velvet jungle orbit candle frost lemon — keep them safe for me.",
+    "expect": "block",
+    "categories": [
+      2
+    ],
+    "note": "en: Recovery phrase for a wallet"
+  },
+  {
+    "id": "CC015",
+    "dataset": "challenge",
+    "title": "Value before the label",
+    "text": "Ocean$1999 is what I set as my password for the HR portal yesterday.",
+    "expect": "block",
+    "categories": [
+      2
+    ],
+    "note": "en: Value before the label"
+  },
+  {
+    "id": "CC016",
+    "dataset": "challenge",
+    "title": "Door code",
+    "text": "The server room door code is 4-7-1-9, please let the contractor in.",
+    "expect": "block",
+    "categories": [
+      2
+    ],
+    "note": "en: Door code"
+  },
+  {
+    "id": "CC017",
+    "dataset": "challenge",
+    "title": "Boîte partagée, sans le mot \"mot de passe\"",
+    "text": "Pour entrer dans la boîte mail partagée, tape Compta#2025 quand on te le demande.",
+    "expect": "block",
+    "categories": [
+      2
+    ],
+    "note": "fr: Boîte partagée, sans le mot \"mot de passe\""
+  },
+  {
+    "id": "CC018",
+    "dataset": "challenge",
+    "title": "Testserver: admin, sonst root",
+    "text": "Für den Testserver nimm einfach admin, falls das nicht klappt probier root.",
+    "expect": "block",
+    "categories": [
+      2
+    ],
+    "note": "de: Testserver: admin, sonst root"
+  },
+  {
+    "id": "CC019",
+    "dataset": "challenge",
+    "title": "Portal: \"mi clave\"",
+    "text": "Para entrar al portal de nóminas usa mi clave, que es Gatito#88.",
+    "expect": "block",
+    "categories": [
+      2
+    ],
+    "note": "es: Portal: \"mi clave\""
+  },
+  {
+    "id": "CC020",
+    "dataset": "challenge",
+    "title": "VPN: valore da digitare",
+    "text": "Per accedere alla VPN digita Estate2024! quando te lo chiede.",
+    "expect": "block",
+    "categories": [
+      2
+    ],
+    "note": "it: VPN: valore da digitare"
+  },
+  {
+    "id": "CC021",
+    "dataset": "challenge",
+    "title": "Wi-Fi du bureau",
+    "text": "Le wifi du bureau c'est Bureau-Invite, et pour se connecter il faut taper printemps2025.",
+    "expect": "block",
+    "categories": [
+      2
+    ],
+    "note": "fr: Wi-Fi du bureau"
+  },
+  {
+    "id": "CC022",
+    "dataset": "challenge",
+    "title": "Laptop-PIN",
+    "text": "Mein Laptop lässt sich mit 2580 entsperren, das ist doch sicher genug?",
+    "expect": "block",
+    "categories": [
+      2
+    ],
+    "note": "de: Laptop-PIN"
+  },
+  {
+    "id": "CC023",
+    "dataset": "challenge",
+    "title": "JSON with a short key name",
+    "text": "Why does this fail? {\"user\":\"svc_backup\",\"pass\":\"Bk!2024-rotate\",\"host\":\"10.0.4.12\"}",
+    "expect": "block",
+    "categories": [
+      2
+    ],
+    "note": "en: JSON with a short key name"
+  },
+  {
+    "id": "CC024",
+    "dataset": "challenge",
+    "title": "CSV with pwd column",
+    "text": "host,user,pwd\ndb01,app,Xq9!rT2#mm\ndb02,app,Lp4$wZ8@kk",
+    "expect": "block",
+    "categories": [
+      2
+    ],
+    "note": "en: CSV with pwd column"
+  },
+  {
+    "id": "CC025",
+    "dataset": "challenge",
+    "title": "psycopg2 connect with literal password",
+    "text": "conn = psycopg2.connect(host=\"db.internal\", user=\"app\", password=\"S3cure!Pg\", dbname=\"orders\")",
+    "expect": "block",
+    "categories": [
+      7
+    ],
+    "note": "en: psycopg2 connect with literal password"
+  },
+  {
+    "id": "CC026",
+    "dataset": "challenge",
+    "title": "YAML smtp block",
+    "text": "smtp:\n  host: mail.corp.io\n  username: alerts\n  password: Mailer#2025",
+    "expect": "block",
+    "categories": [
+      2
+    ],
+    "note": "en: YAML smtp block"
+  },
+  {
+    "id": "CC027",
+    "dataset": "challenge",
+    "title": "docker login with -p",
+    "text": "docker login -u ci -p Dk!r2025reg registry.corp.io fails with 401, why?",
+    "expect": "block",
+    "categories": [
+      2
+    ],
+    "note": "en: docker login with -p"
+  },
+  {
+    "id": "CC028",
+    "dataset": "challenge",
+    "title": "curl basic auth",
+    "text": "curl -u admin:Adm1n!2024 https://jenkins.corp.io/api/json returns 403",
+    "expect": "block",
+    "categories": [
+      2
+    ],
+    "note": "en: curl basic auth"
+  },
+  {
+    "id": "CC029",
+    "dataset": "challenge",
+    "title": "PowerShell secure string",
+    "text": "$pw = ConvertTo-SecureString \"Win#Admin77\" -AsPlainText -Force",
+    "expect": "block",
+    "categories": [
+      2
+    ],
+    "note": "en: PowerShell secure string"
+  },
+  {
+    "id": "CC030",
+    "dataset": "challenge",
+    "title": "SQL CREATE USER",
+    "text": "CREATE USER report_ro WITH PASSWORD 'Rep0rt!2025';",
+    "expect": "block",
+    "categories": [
+      2
+    ],
+    "note": "en: SQL CREATE USER"
+  },
+  {
+    "id": "CC031",
+    "dataset": "challenge",
+    "title": "Bearer token in a header",
+    "text": "curl -H \"Authorization: Bearer 7f3c9a1e5b2d4f8a6c0e9b3d7a1f5c2e8b4d6a0f\" https://api.corp.io/v1/me",
+    "expect": "block",
+    "categories": [
+      1
+    ],
+    "note": "en: Bearer token in a header"
+  },
+  {
+    "id": "CC032",
+    "dataset": "challenge",
+    "title": "Python dict of credentials",
+    "text": "creds = {'username': 'etl', 'secret': 'mZ7#qP2!vX9w'}",
+    "expect": "block",
+    "categories": [
+      2
+    ],
+    "note": "en: Python dict of credentials"
+  },
+  {
+    "id": "CC033",
+    "dataset": "challenge",
+    "title": "JSON con contraseña",
+    "text": "{\"usuario\":\"contabilidad\",\"contrasena\":\"Nomina!2025\"}",
+    "expect": "block",
+    "categories": [
+      2
+    ],
+    "note": "es: JSON con contraseña"
+  },
+  {
+    "id": "CC034",
+    "dataset": "challenge",
+    "title": "CSV di accessi",
+    "text": "utente;password\nmagazzino;Scaffale#42\nufficio;Scrivania!9",
+    "expect": "block",
+    "categories": [
+      2
+    ],
+    "note": "it: CSV di accessi"
+  },
+  {
+    "id": "CC035",
+    "dataset": "challenge",
+    "title": "SSN in prose without a label",
+    "text": "Here is the number for the background check: 536-28-1947.",
+    "expect": "block",
+    "categories": [
+      3
+    ],
+    "note": "en: SSN in prose without a label"
+  },
+  {
+    "id": "CC036",
+    "dataset": "challenge",
+    "title": "Spaced TFN without a label",
+    "text": "Put 387 676 947 on the tax form for him please.",
+    "expect": "block",
+    "categories": [
+      4
+    ],
+    "note": "en: Spaced TFN without a label"
+  },
+  {
+    "id": "CC037",
+    "dataset": "challenge",
+    "title": "Dashed TFN with \"tax file\"",
+    "text": "my tax file no. is 990 654 986",
+    "expect": "block",
+    "categories": [
+      4
+    ],
+    "note": "en: Dashed TFN with \"tax file\""
+  },
+  {
+    "id": "CC038",
+    "dataset": "challenge",
+    "title": "Aadhaar spaced without a label",
+    "text": "Verify this for her: 4685 0897 0066",
+    "expect": "block",
+    "categories": [
+      6
+    ],
+    "note": "en: Aadhaar spaced without a label"
+  },
+  {
+    "id": "CC039",
+    "dataset": "challenge",
+    "title": "Aadhaar dashed",
+    "text": "aadhaar 5939 2424 4829 — can you check the format?",
+    "expect": "block",
+    "categories": [
+      6
+    ],
+    "note": "en: Aadhaar dashed"
+  },
+  {
+    "id": "CC040",
+    "dataset": "challenge",
+    "title": "PAN next to a name",
+    "text": "Invoice to Rahul Sharma, MUQPU1483Z, for the consulting work.",
+    "expect": "block",
+    "categories": [
+      6
+    ],
+    "note": "en: PAN next to a name"
+  },
+  {
+    "id": "CC041",
+    "dataset": "challenge",
+    "title": "PAN on its own",
+    "text": "DQUPH8020X",
+    "expect": "block",
+    "categories": [
+      6
+    ],
+    "note": "en: PAN on its own"
+  },
+  {
+    "id": "CC042",
+    "dataset": "challenge",
+    "title": "ABN with an entity name",
+    "text": "Invoice from Acme Widgets Pty Ltd, ABN 30 981 546 005",
+    "expect": "block",
+    "categories": [
+      6
+    ],
+    "note": "en: ABN with an entity name"
+  },
+  {
+    "id": "CC043",
+    "dataset": "challenge",
+    "title": "ABN digits next to a person",
+    "text": "John Smith 97 592 901 750 sole trader, plumbing services",
+    "expect": "block",
+    "categories": [
+      6
+    ],
+    "note": "en: ABN digits next to a person"
+  },
+  {
+    "id": "CC044",
+    "dataset": "challenge",
+    "title": "Card in prose without a label",
+    "text": "charge it to 4316 3210 8840 3762 exp 09/27 cvv 381",
+    "expect": "block",
+    "categories": [
+      5
+    ],
+    "note": "en: Card in prose without a label"
+  },
+  {
+    "id": "CC045",
+    "dataset": "challenge",
+    "title": "Dashed card in CSV",
+    "text": "name,card\nJ. Smith,4838-2944-0219-2453",
+    "expect": "block",
+    "categories": [
+      5
+    ],
+    "note": "en: Dashed card in CSV"
+  },
+  {
+    "id": "CC046",
+    "dataset": "challenge",
+    "title": "NIR (sécurité sociale) espacé",
+    "text": "Mon numéro de sécu est 1 84 12 76 451 089 46, il faut le mettre où ?",
+    "expect": "block",
+    "categories": [
+      3
+    ],
+    "note": "fr: NIR (sécurité sociale) espacé"
+  },
+  {
+    "id": "CC047",
+    "dataset": "challenge",
+    "title": "IBAN ohne Label",
+    "text": "Bitte überweise es auf DE89 3704 0044 0532 0130 00 bis Freitag.",
+    "expect": "block",
+    "categories": [
+      5
+    ],
+    "note": "de: IBAN ohne Label"
+  },
+  {
+    "id": "CC048",
+    "dataset": "challenge",
+    "title": "Root password buried in notes",
+    "text": "The quarterly planning notes cover the roadmap, hiring, the office move and the customer survey. Most items are on track; the survey closes on Friday and the results go to the leadership meeting. The quarterly planning notes cover the roadmap, hiring, the office move and the customer survey. Most items are on track; the survey closes on Friday and the results go to the leadership meeting. The quarterly planning notes cover the roadmap, hiring, the office move and the customer survey. Most items are on track; the survey closes on Friday and the results go to the leadership meeting. The quarterly planning notes cover the roadmap, hiring, the office move and the customer survey. Most items are on track; the survey closes on Friday and the results go to the leadership meeting. The quarterly planning notes cover the roadmap, hiring, the office move and the customer survey. Most items are on track; the survey closes on Friday and the results go to the leadership meeting. The quarterly planning notes cover the roadmap, hiring, the office move and the customer survey. Most items are on track; the survey closes on Friday and the results go to the leadership meeting. Oh and the root password on the build server is Tr0ub4dor&3, don't share it. The quarterly planning notes cover the roadmap, hiring, the office move and the customer survey. Most items are on track; the survey closes on Friday and the results go to the leadership meeting. The quarterly planning notes cover the roadmap, hiring, the office move and the customer survey. Most items are on track; the survey closes on Friday and the results go to the leadership meeting. The quarterly planning notes cover the roadmap, hiring, the office move and the customer survey. Most items are on track; the survey closes on Friday and the results go to the leadership meeting. The quarterly planning notes cover the roadmap, hiring, the office move and the customer survey. Most items are on track; the survey closes on Friday and the results go to the leadership meeting. The quarterly planning notes cover the roadmap, hiring, the office move and the customer survey. Most items are on track; the survey closes on Friday and the results go to the leadership meeting. The quarterly planning notes cover the roadmap, hiring, the office move and the customer survey. Most items are on track; the survey closes on Friday and the results go to the leadership meeting. ",
+    "expect": "block",
+    "categories": [
+      2
+    ],
+    "note": "en: Root password buried in notes"
+  },
+  {
+    "id": "CC049",
+    "dataset": "challenge",
+    "title": "API key buried in a long question",
+    "text": "The quarterly planning notes cover the roadmap, hiring, the office move and the customer survey. Most items are on track; the survey closes on Friday and the results go to the leadership meeting. The quarterly planning notes cover the roadmap, hiring, the office move and the customer survey. Most items are on track; the survey closes on Friday and the results go to the leadership meeting. The quarterly planning notes cover the roadmap, hiring, the office move and the customer survey. Most items are on track; the survey closes on Friday and the results go to the leadership meeting. The quarterly planning notes cover the roadmap, hiring, the office move and the customer survey. Most items are on track; the survey closes on Friday and the results go to the leadership meeting. The quarterly planning notes cover the roadmap, hiring, the office move and the customer survey. Most items are on track; the survey closes on Friday and the results go to the leadership meeting. We call it with key AKIAQ3EGTRBX4M7PZK2N from the deploy job. The quarterly planning notes cover the roadmap, hiring, the office move and the customer survey. Most items are on track; the survey closes on Friday and the results go to the leadership meeting. The quarterly planning notes cover the roadmap, hiring, the office move and the customer survey. Most items are on track; the survey closes on Friday and the results go to the leadership meeting. The quarterly planning notes cover the roadmap, hiring, the office move and the customer survey. Most items are on track; the survey closes on Friday and the results go to the leadership meeting. The quarterly planning notes cover the roadmap, hiring, the office move and the customer survey. Most items are on track; the survey closes on Friday and the results go to the leadership meeting. The quarterly planning notes cover the roadmap, hiring, the office move and the customer survey. Most items are on track; the survey closes on Friday and the results go to the leadership meeting. ",
+    "expect": "block",
+    "categories": [
+      1
+    ],
+    "note": "en: API key buried in a long question"
+  },
+  {
+    "id": "CC050",
+    "dataset": "challenge",
+    "title": "Temp creds line in meeting notes",
+    "text": "Notes from standup:\n- release on Thursday\n- temp creds for the ingest box: svc-ingest / Ingest!42\n- retro next week\nThe quarterly planning notes cover the roadmap, hiring, the office move and the customer survey. Most items are on track; the survey closes on Friday and the results go to the leadership meeting. The quarterly planning notes cover the roadmap, hiring, the office move and the customer survey. Most items are on track; the survey closes on Friday and the results go to the leadership meeting. The quarterly planning notes cover the roadmap, hiring, the office move and the customer survey. Most items are on track; the survey closes on Friday and the results go to the leadership meeting. ",
+    "expect": "block",
+    "categories": [
+      2
+    ],
+    "note": "en: Temp creds line in meeting notes"
+  },
+  {
+    "id": "CC051",
+    "dataset": "challenge",
+    "title": "Passwort in langen Notizen",
+    "text": "Die Planung umfasst Budget, Personal und den Umzug des Büros. Die Planung umfasst Budget, Personal und den Umzug des Büros. Die Planung umfasst Budget, Personal und den Umzug des Büros. Die Planung umfasst Budget, Personal und den Umzug des Büros. Die Planung umfasst Budget, Personal und den Umzug des Büros. Die Planung umfasst Budget, Personal und den Umzug des Büros. Die Planung umfasst Budget, Personal und den Umzug des Büros. Die Planung umfasst Budget, Personal und den Umzug des Büros. Die Planung umfasst Budget, Personal und den Umzug des Büros. Die Planung umfasst Budget, Personal und den Umzug des Büros. Das Kennwort für den Drucker ist Drucker#2025. Die Ergebnisse gehen an die Geschäftsführung. Die Ergebnisse gehen an die Geschäftsführung. Die Ergebnisse gehen an die Geschäftsführung. Die Ergebnisse gehen an die Geschäftsführung. Die Ergebnisse gehen an die Geschäftsführung. Die Ergebnisse gehen an die Geschäftsführung. Die Ergebnisse gehen an die Geschäftsführung. Die Ergebnisse gehen an die Geschäftsführung. Die Ergebnisse gehen an die Geschäftsführung. Die Ergebnisse gehen an die Geschäftsführung. ",
+    "expect": "block",
+    "categories": [
+      2
+    ],
+    "note": "de: Passwort in langen Notizen"
+  },
+  {
+    "id": "CC052",
+    "dataset": "challenge",
+    "title": "What makes a password strong",
+    "text": "What makes a password strong? How long should it be?",
+    "expect": "allow",
+    "categories": [],
+    "note": "en: What makes a password strong"
+  },
+  {
+    "id": "CC053",
+    "dataset": "challenge",
+    "title": "Rotation policy question",
+    "text": "How often should we rotate the admin password on our servers?",
+    "expect": "allow",
+    "categories": [],
+    "note": "en: Rotation policy question"
+  },
+  {
+    "id": "CC054",
+    "dataset": "challenge",
+    "title": "Reset help",
+    "text": "I forgot my password, how do I reset it on Gmail?",
+    "expect": "allow",
+    "categories": [],
+    "note": "en: Reset help"
+  },
+  {
+    "id": "CC055",
+    "dataset": "challenge",
+    "title": "Policy statement",
+    "text": "Our policy says passwords need at least 12 characters and a symbol.",
+    "expect": "allow",
+    "categories": [],
+    "note": "en: Policy statement"
+  },
+  {
+    "id": "CC056",
+    "dataset": "challenge",
+    "title": "Password manager comparison",
+    "text": "Should I use 1Password or Bitwarden for the team?",
+    "expect": "allow",
+    "categories": [],
+    "note": "en: Password manager comparison"
+  },
+  {
+    "id": "CC057",
+    "dataset": "challenge",
+    "title": "Admin panel navigation",
+    "text": "Log in to the admin panel and open Settings, then Users.",
+    "expect": "allow",
+    "categories": [],
+    "note": "en: Admin panel navigation"
+  },
+  {
+    "id": "CC058",
+    "dataset": "challenge",
+    "title": "Run as root?",
+    "text": "Should I run this script as root or with sudo?",
+    "expect": "allow",
+    "categories": [],
+    "note": "en: Run as root?"
+  },
+  {
+    "id": "CC059",
+    "dataset": "challenge",
+    "title": "Admin account usage",
+    "text": "The admin user should not be used for daily work, create a personal account instead.",
+    "expect": "allow",
+    "categories": [],
+    "note": "en: Admin account usage"
+  },
+  {
+    "id": "CC060",
+    "dataset": "challenge",
+    "title": "Root directory",
+    "text": "Give the web server write access to the root directory of the site.",
+    "expect": "allow",
+    "categories": [],
+    "note": "en: Root directory"
+  },
+  {
+    "id": "CC061",
+    "dataset": "challenge",
+    "title": "Default username, own password",
+    "text": "The default username is admin; I set my own password during setup and saved it in the vault.",
+    "expect": "allow",
+    "categories": [],
+    "note": "en: Default username, own password"
+  },
+  {
+    "id": "CC062",
+    "dataset": "challenge",
+    "title": "Default login question",
+    "text": "What is the default login for a TP-Link router, and how do I change it?",
+    "expect": "allow",
+    "categories": [],
+    "note": "en: Default login question"
+  },
+  {
+    "id": "CC063",
+    "dataset": "challenge",
+    "title": "Weak password examples in training",
+    "text": "In the security training we showed why passwords like 123456 or password are a bad idea.",
+    "expect": "allow",
+    "categories": [],
+    "note": "en: Weak password examples in training"
+  },
+  {
+    "id": "CC064",
+    "dataset": "challenge",
+    "title": "Password expired message",
+    "text": "Windows says my password expired. Who do I ask to unlock the account?",
+    "expect": "allow",
+    "categories": [],
+    "note": "en: Password expired message"
+  },
+  {
+    "id": "CC065",
+    "dataset": "challenge",
+    "title": "Prompted for the password twice",
+    "text": "Why does Outlook keep asking for my password every morning?",
+    "expect": "allow",
+    "categories": [],
+    "note": "en: Prompted for the password twice"
+  },
+  {
+    "id": "CC066",
+    "dataset": "challenge",
+    "title": "Masked value",
+    "text": "The form shows ******** in the password field after I save it — is that normal?",
+    "expect": "allow",
+    "categories": [],
+    "note": "en: Masked value"
+  },
+  {
+    "id": "CC067",
+    "dataset": "challenge",
+    "title": "Placeholder in docs",
+    "text": "Set password: <your-password> in config.yml before you start the service.",
+    "expect": "allow",
+    "categories": [],
+    "note": "en: Placeholder in docs"
+  },
+  {
+    "id": "CC068",
+    "dataset": "challenge",
+    "title": "Placeholder API key",
+    "text": "client = OpenAI(api_key=\"YOUR_API_KEY\")",
+    "expect": "allow",
+    "categories": [],
+    "note": "en: Placeholder API key"
+  },
+  {
+    "id": "CC069",
+    "dataset": "challenge",
+    "title": "Placeholder connection string",
+    "text": "The URL format is postgres://user:password@localhost:5432/dbname",
+    "expect": "allow",
+    "categories": [],
+    "note": "en: Placeholder connection string"
+  },
+  {
+    "id": "CC070",
+    "dataset": "challenge",
+    "title": "Question sur un mot de passe solide",
+    "text": "Comment créer un mot de passe solide pour ma banque ?",
+    "expect": "allow",
+    "categories": [],
+    "note": "fr: Question sur un mot de passe solide"
+  },
+  {
+    "id": "CC071",
+    "dataset": "challenge",
+    "title": "Passwort ändern",
+    "text": "Wie ändere ich mein Passwort bei Outlook?",
+    "expect": "allow",
+    "categories": [],
+    "note": "de: Passwort ändern"
+  },
+  {
+    "id": "CC072",
+    "dataset": "challenge",
+    "title": "Cambio de contraseña del router",
+    "text": "¿Cada cuánto debo cambiar la contraseña del router?",
+    "expect": "allow",
+    "categories": [],
+    "note": "es: Cambio de contraseña del router"
+  },
+  {
+    "id": "CC073",
+    "dataset": "challenge",
+    "title": "PIN e password",
+    "text": "Qual è la differenza tra un PIN e una password?",
+    "expect": "allow",
+    "categories": [],
+    "note": "it: PIN e password"
+  },
+  {
+    "id": "CC074",
+    "dataset": "challenge",
+    "title": "Accès administrateur",
+    "text": "Je dois me connecter en tant qu'administrateur pour installer le logiciel ?",
+    "expect": "allow",
+    "categories": [],
+    "note": "fr: Accès administrateur"
+  },
+  {
+    "id": "CC075",
+    "dataset": "challenge",
+    "title": "Als root ausführen",
+    "text": "Muss ich das Skript als root ausführen oder reicht sudo?",
+    "expect": "allow",
+    "categories": [],
+    "note": "de: Als root ausführen"
+  },
+  {
+    "id": "CC076",
+    "dataset": "challenge",
+    "title": "TypeScript type",
+    "text": "interface Login { username: string; password: string }",
+    "expect": "allow",
+    "categories": [],
+    "note": "en: TypeScript type"
+  },
+  {
+    "id": "CC077",
+    "dataset": "challenge",
+    "title": "Python signature",
+    "text": "def login(user: str, password: str) -> bool:",
+    "expect": "allow",
+    "categories": [],
+    "note": "en: Python signature"
+  },
+  {
+    "id": "CC078",
+    "dataset": "challenge",
+    "title": "Env var reference",
+    "text": "password = os.environ[\"DB_PASSWORD\"]",
+    "expect": "allow",
+    "categories": [],
+    "note": "en: Env var reference"
+  },
+  {
+    "id": "CC079",
+    "dataset": "challenge",
+    "title": "Missing password check",
+    "text": "if (!password) throw new Error(\"missing password\")",
+    "expect": "allow",
+    "categories": [],
+    "note": "en: Missing password check"
+  },
+  {
+    "id": "CC080",
+    "dataset": "challenge",
+    "title": "HTML password input",
+    "text": "<input type=\"password\" name=\"pwd\" autocomplete=\"current-password\">",
+    "expect": "allow",
+    "categories": [],
+    "note": "en: HTML password input"
+  },
+  {
+    "id": "CC081",
+    "dataset": "challenge",
+    "title": "Shell variable",
+    "text": "PGPASSWORD=$PGPASSWORD psql -h db -U app",
+    "expect": "allow",
+    "categories": [],
+    "note": "en: Shell variable"
+  },
+  {
+    "id": "CC082",
+    "dataset": "challenge",
+    "title": "Hashing call",
+    "text": "hashed = bcrypt.hashpw(password.encode(), bcrypt.gensalt())",
+    "expect": "allow",
+    "categories": [],
+    "note": "en: Hashing call"
+  },
+  {
+    "id": "CC083",
+    "dataset": "challenge",
+    "title": "Request id (UUID)",
+    "text": "The request id 550e8400-e29b-41d4-a716-446655440000 failed with a 500, can you explain the log?",
+    "expect": "allow",
+    "categories": [],
+    "note": "en: Request id (UUID)"
+  },
+  {
+    "id": "CC084",
+    "dataset": "challenge",
+    "title": "Git commit SHA",
+    "text": "Please review commit 3f2a9c1e8b7d6a5f4e3d2c1b0a9f8e7d6c5b4a39 before we merge.",
+    "expect": "allow",
+    "categories": [],
+    "note": "en: Git commit SHA"
+  },
+  {
+    "id": "CC085",
+    "dataset": "challenge",
+    "title": "Product names with digits",
+    "text": "Is it worth upgrading to Windows11 and Office2021 this year?",
+    "expect": "allow",
+    "categories": [],
+    "note": "en: Product names with digits"
+  },
+  {
+    "id": "CC086",
+    "dataset": "challenge",
+    "title": "Release tag",
+    "text": "The build tag release-2024.11 broke the login page.",
+    "expect": "allow",
+    "categories": [],
+    "note": "en: Release tag"
+  },
+  {
+    "id": "CC087",
+    "dataset": "challenge",
+    "title": "Invoice reference",
+    "text": "Can you reword the reminder for invoice INV-2024-00871?",
+    "expect": "allow",
+    "categories": [],
+    "note": "en: Invoice reference"
+  },
+  {
+    "id": "CC088",
+    "dataset": "challenge",
+    "title": "Stripe test card",
+    "text": "Use 4242 4242 4242 4242 with any future expiry in Stripe test mode.",
+    "expect": "allow",
+    "categories": [],
+    "note": "en: Stripe test card"
+  },
+  {
+    "id": "CC089",
+    "dataset": "challenge",
+    "title": "Order number failing Luhn",
+    "text": "My order 4892 3290 1704 4474 hasn't arrived yet.",
+    "expect": "allow",
+    "categories": [],
+    "note": "en: Order number failing Luhn"
+  },
+  {
+    "id": "CC090",
+    "dataset": "challenge",
+    "title": "Dashed tracking number failing Luhn",
+    "text": "Tracking 5552-6899-3786-1949 shows \"in transit\" since Monday.",
+    "expect": "allow",
+    "categories": [],
+    "note": "en: Dashed tracking number failing Luhn"
+  },
+  {
+    "id": "CC091",
+    "dataset": "challenge",
+    "title": "PAN format question",
+    "text": "What is the format of an Indian PAN card number?",
+    "expect": "allow",
+    "categories": [],
+    "note": "en: PAN format question"
+  },
+  {
+    "id": "CC092",
+    "dataset": "challenge",
+    "title": "ABN lookup question",
+    "text": "How do I look up an ABN for a supplier?",
+    "expect": "allow",
+    "categories": [],
+    "note": "en: ABN lookup question"
+  },
+  {
+    "id": "CC093",
+    "dataset": "challenge",
+    "title": "TFN application question",
+    "text": "How long does it take to get a tax file number in Australia?",
+    "expect": "allow",
+    "categories": [],
+    "note": "en: TFN application question"
+  },
+  {
+    "id": "CC094",
+    "dataset": "challenge",
+    "title": "SSN question",
+    "text": "Can my employer ask for my Social Security number before I start?",
+    "expect": "allow",
+    "categories": [],
+    "note": "en: SSN question"
+  },
+  {
+    "id": "CC095",
+    "dataset": "challenge",
+    "title": "Public figure finance",
+    "text": "What is Warren Buffett's net worth?",
+    "expect": "allow",
+    "categories": [],
+    "note": "en: Public figure finance"
+  },
+  {
+    "id": "CC096",
+    "dataset": "challenge",
+    "title": "Public figure health",
+    "text": "Did Steve Jobs have pancreatic cancer?",
+    "expect": "allow",
+    "categories": [],
+    "note": "en: Public figure health"
+  },
+  {
+    "id": "CC097",
+    "dataset": "challenge",
+    "title": "General medical question",
+    "text": "What are the early symptoms of type 2 diabetes?",
+    "expect": "allow",
+    "categories": [],
+    "note": "en: General medical question"
+  },
+  {
+    "id": "CC098",
+    "dataset": "challenge",
+    "title": "General finance question",
+    "text": "What is a good savings rate for someone in their 30s?",
+    "expect": "allow",
+    "categories": [],
+    "note": "en: General finance question"
+  },
+  {
+    "id": "CC099",
+    "dataset": "challenge",
+    "title": "Pregunta general de finanzas",
+    "text": "¿Qué es una buena tasa de ahorro para alguien de 30 años?",
+    "expect": "allow",
+    "categories": [],
+    "note": "es: Pregunta general de finanzas"
+  },
+  {
+    "id": "CC100",
+    "dataset": "challenge",
+    "title": "Domanda sulla carta di test",
+    "text": "Posso usare 4242 4242 4242 4242 per provare i pagamenti in modalità test?",
+    "expect": "allow",
+    "categories": [],
+    "note": "it: Domanda sulla carta di test"
+  },
+  {
+    "id": "CC101",
+    "dataset": "challenge",
+    "title": "Numéro de commande",
+    "text": "Ma commande 4892 3290 1704 4474 n'est pas encore arrivée.",
+    "expect": "allow",
+    "categories": [],
+    "note": "fr: Numéro de commande"
+  },
+  {
+    "id": "CC102",
+    "dataset": "challenge",
+    "title": "Steuer-ID Frage",
+    "text": "Wo finde ich meine Steuer-ID für die Steuererklärung?",
+    "expect": "allow",
+    "categories": [],
+    "note": "de: Steuer-ID Frage"
+  },
+  {
+    "id": "CC103",
+    "dataset": "challenge",
+    "title": "Benign long prompt",
+    "text": "The quarterly planning notes cover the roadmap, hiring, the office move and the customer survey. Most items are on track; the survey closes on Friday and the results go to the leadership meeting. The quarterly planning notes cover the roadmap, hiring, the office move and the customer survey. Most items are on track; the survey closes on Friday and the results go to the leadership meeting. The quarterly planning notes cover the roadmap, hiring, the office move and the customer survey. Most items are on track; the survey closes on Friday and the results go to the leadership meeting. The quarterly planning notes cover the roadmap, hiring, the office move and the customer survey. Most items are on track; the survey closes on Friday and the results go to the leadership meeting. The quarterly planning notes cover the roadmap, hiring, the office move and the customer survey. Most items are on track; the survey closes on Friday and the results go to the leadership meeting. The quarterly planning notes cover the roadmap, hiring, the office move and the customer survey. Most items are on track; the survey closes on Friday and the results go to the leadership meeting. The quarterly planning notes cover the roadmap, hiring, the office move and the customer survey. Most items are on track; the survey closes on Friday and the results go to the leadership meeting. The quarterly planning notes cover the roadmap, hiring, the office move and the customer survey. Most items are on track; the survey closes on Friday and the results go to the leadership meeting. The quarterly planning notes cover the roadmap, hiring, the office move and the customer survey. Most items are on track; the survey closes on Friday and the results go to the leadership meeting. The quarterly planning notes cover the roadmap, hiring, the office move and the customer survey. Most items are on track; the survey closes on Friday and the results go to the leadership meeting. The quarterly planning notes cover the roadmap, hiring, the office move and the customer survey. Most items are on track; the survey closes on Friday and the results go to the leadership meeting. The quarterly planning notes cover the roadmap, hiring, the office move and the customer survey. Most items are on track; the survey closes on Friday and the results go to the leadership meeting. The quarterly planning notes cover the roadmap, hiring, the office move and the customer survey. Most items are on track; the survey closes on Friday and the results go to the leadership meeting. The quarterly planning notes cover the roadmap, hiring, the office move and the customer survey. Most items are on track; the survey closes on Friday and the results go to the leadership meeting. ",
+    "expect": "allow",
+    "categories": [],
+    "note": "en: Benign long prompt"
+  }
+]
