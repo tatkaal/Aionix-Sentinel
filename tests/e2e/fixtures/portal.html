@@ -9,17 +9,25 @@
       .editor { min-height: 60px; outline: none; white-space: pre-wrap; }
       .chips { display: flex; gap: 8px; margin-bottom: 8px; }
       .chip { border: 1px solid #666; border-radius: 8px; padding: 4px 8px; font-size: 12px; }
+      .early textarea { width: 100%; max-width: 720px; background: transparent; color: inherit; border: 1px dashed #666; font: inherit; }
       #log { margin-top: 16px; font-size: 13px; }
     </style>
   </head>
   <body>
     <!-- Structural replica of each portal's composer (selectors from src/extension/content/adapters). -->
+    <div id="early"></div>
     <div id="mount"></div>
     <div id="log"></div>
     <button id="direct-api" type="button">Send via API directly</button>
+    <button id="direct-api-record" type="button">Send a record via API directly</button>
+    <button id="direct-api-clean" type="button">Send a clean prompt via API directly</button>
     <script>
       // `chatgpt-anon` replicates signed-out ChatGPT (textarea + form-encoded `prompt`, verified live 2026-10-31).
-      const portal = location.pathname.split('/')[1];
+      // `<portal>-early` adds the input each portal serves before its app hydrates (verified live 2026-11-02):
+      // it takes typing and an early Enter, and the app sends that text once it has loaded.
+      const segment = location.pathname.split('/')[1];
+      const early = segment.endsWith('-early');
+      const portal = early ? segment.slice(0, -'-early'.length) : segment;
       const mount = document.getElementById('mount');
       const layouts = {
         claude: `<fieldset class="composer"><div class="chips" data-testid="file-thumbnail-list"></div>
@@ -35,18 +43,21 @@
           <rich-textarea><div class="ql-editor editor" contenteditable="true" role="textbox"></div></rich-textarea>
           <button type="button" class="send-button" aria-label="Send message">Send</button></div>`,
       };
+      const earlyLayouts = {
+        chatgpt: `<textarea id="pending-home-input" aria-label="Ask ChatGPT" rows="2" autofocus></textarea>`,
+        claude: `<div id="static-composer"><div id="static-composer-box"><textarea id="static-composer-input" data-testid="static-composer-input" rows="2" aria-label="Write your prompt to Claude"></textarea></div></div>`,
+        gemini: `<div class="initial-input-area"><div class="initial-input-area-container"><textarea class="gds-body-l" placeholder="Ask Gemini" rows="2"></textarea></div></div>`,
+      };
       const endpoints = {
         claude: '/api/organizations/org/chat_conversations/conv/completion',
         chatgpt: '/backend-api/conversation',
         'chatgpt-anon': '/unauth-mweb/conversation/updates',
         gemini: '/_/BardChatUi/data/assistant.lamda.BardFrontendService/StreamGenerate',
       };
-      mount.innerHTML = layouts[portal];
-      const editor = mount.querySelector('[contenteditable], textarea');
-      const chips = mount.querySelector('.chips');
-      const sendBtn = mount.querySelector('button');
       const log = (msg) => { const p = document.createElement('p'); p.className = 'sent'; p.textContent = msg; document.getElementById('log').append(p); };
       const pastes = [];
+      let editor = null;
+      let chips = null;
 
       const body = (text) =>
         portal === 'claude' ? JSON.stringify({ prompt: text, attachments: pastes.map((c) => ({ extracted_content: c })) })
@@ -54,8 +65,8 @@
         : portal === 'chatgpt-anon' ? new URLSearchParams({ conversationState: '{"messages":[]}', prompt: [text, ...pastes].join('\n\n'), proofToken: 'fixture' }).toString()
         : 'f.req=' + encodeURIComponent(JSON.stringify([null, JSON.stringify([[text]])]));
 
-      async function send() {
-        const text = (editor.value ?? editor.innerText).trim();
+      async function send(override) {
+        const text = override ?? (editor.value ?? editor.innerText).trim();
         if (!text && !pastes.length) return;
         try {
           await fetch(endpoints[portal], { method: 'POST', body: body(text) });
@@ -67,30 +78,70 @@
         chips.innerHTML = '';
         pastes.length = 0;
       }
-      sendBtn.addEventListener('click', (e) => { e.preventDefault(); send(); });
-      mount.querySelector('form')?.addEventListener('submit', (e) => { e.preventDefault(); send(); });
-      editor.addEventListener('keydown', (e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); send(); } });
-      editor.addEventListener('paste', (e) => {
-        const text = e.clipboardData.getData('text/plain');
-        e.preventDefault();
-        if (text.length >= 1200) {
-          pastes.push(text);
-          const chip = document.createElement('div');
-          chip.className = 'chip';
-          chip.setAttribute('data-testid', 'file-thumbnail');
-          chip.innerHTML = 'pasted-content.txt <button type="button" aria-label="Remove file">×</button>';
-          chip.querySelector('button').addEventListener('click', () => { pastes.splice(pastes.indexOf(text), 1); chip.remove(); });
-          chips.append(chip);
-        } else document.execCommand('insertText', false, text);
-      });
-      document.getElementById('direct-api').addEventListener('click', async () => {
-        try {
-          await fetch(endpoints[portal], { method: 'POST', body: body('use key AKIAQ3EGTRBX4M7PZK2N for the deploy') });
-          log('DIRECT-SENT');
-        } catch (e) {
-          log(`DIRECT-BLOCKED:${e.message}`);
-        }
-      });
+
+      // The app proper. In an -early page it mounts next to the pre-hydration input (?hydrate=ms delays it).
+      let hydrated = false;
+      let earlySubmit = false;
+      function mountApp() {
+        mount.innerHTML = layouts[portal];
+        editor = mount.querySelector('[contenteditable], textarea');
+        chips = mount.querySelector('.chips');
+        const sendBtn = mount.querySelector('button');
+        sendBtn.addEventListener('click', (e) => { e.preventDefault(); send(); });
+        mount.querySelector('form')?.addEventListener('submit', (e) => { e.preventDefault(); send(); });
+        editor.addEventListener('keydown', (e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); send(); } });
+        editor.addEventListener('paste', (e) => {
+          const text = e.clipboardData.getData('text/plain');
+          e.preventDefault();
+          if (text.length >= 1200) {
+            pastes.push(text);
+            const chip = document.createElement('div');
+            chip.className = 'chip';
+            chip.setAttribute('data-testid', 'file-thumbnail');
+            chip.innerHTML = 'pasted-content.txt <button type="button" aria-label="Remove file">×</button>';
+            chip.querySelector('button').addEventListener('click', () => { pastes.splice(pastes.indexOf(text), 1); chip.remove(); });
+            chips.append(chip);
+          } else document.execCommand('insertText', false, text);
+        });
+        hydrated = true;
+        if (earlySubmit) flushEarly();
+      }
+
+      // Like the live pre-hydration inputs: an early Enter is recorded, and the app sends that text itself.
+      let earlyInput = null;
+      function flushEarly() {
+        const text = earlyInput.value.trim();
+        earlySubmit = false;
+        earlyInput.value = '';
+        if (text) send(text);
+      }
+      if (early) {
+        document.getElementById('early').className = 'early';
+        document.getElementById('early').innerHTML = earlyLayouts[portal];
+        earlyInput = document.querySelector('#early textarea');
+        earlyInput.addEventListener('keydown', (e) => {
+          if (e.key !== 'Enter' || e.shiftKey) return;
+          e.preventDefault();
+          earlySubmit = true;
+          if (hydrated) flushEarly();
+        });
+        const delay = Number(new URLSearchParams(location.search).get('hydrate') ?? 0);
+        if (delay > 0) setTimeout(mountApp, delay); else mountApp();
+        earlyInput.focus();
+      } else mountApp();
+
+      const direct = (id, text, tag) =>
+        document.getElementById(id).addEventListener('click', async () => {
+          try {
+            await fetch(endpoints[portal], { method: 'POST', body: body(text) });
+            log(`${tag}-SENT`);
+          } catch (e) {
+            log(`${tag}-BLOCKED:${e.message}`);
+          }
+        });
+      direct('direct-api', 'use key AKIAQ3EGTRBX4M7PZK2N for the deploy', 'DIRECT');
+      direct('direct-api-record', 'Discharge summary for patient Harriet Lindqvist: admitted with pneumonia, discharged on amoxicillin 500 mg.', 'RECORD');
+      direct('direct-api-clean', 'What are the common early symptoms of type 2 diabetes?', 'CLEAN');
     </script>
   </body>
 </html>

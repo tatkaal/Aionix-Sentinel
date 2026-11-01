@@ -5,8 +5,10 @@ export const claudeAdapter: PortalAdapter = {
   label: 'Claude',
   hosts: ['claude.ai'],
   // Verified live (signed in) 2026-10-31: div.tiptap.ProseMirror[data-testid="chat-input"], send button
-  // [data-testid="chat-input-send"][aria-label="Send message"].
+  // [data-testid="chat-input-send"][aria-label="Send message"]. Until the app hydrates, the page serves
+  // textarea#static-composer-input, which records an early Enter and sends it once the app loads (2026-11-02).
   composerSelectors: ['div[data-testid="chat-input"][contenteditable="true"]', 'div.ProseMirror[contenteditable="true"]', 'fieldset [contenteditable="true"][role="textbox"]'],
+  preloadComposerSelectors: ['textarea#static-composer-input', 'textarea[data-testid="static-composer-input"]'],
   sendButtonSelectors: ['button[data-testid="chat-input-send"]', 'button[aria-label="Send message"]', 'button[aria-label="Send Message"]', 'fieldset button[type="submit"]'],
   chipContainerSelectors: ['[data-testid="file-thumbnail-list"]', 'fieldset'],
   chipSelectors: ['[data-testid="file-thumbnail"]', '[data-testid*="thumbnail" i]', '[data-aionix-chip]'],

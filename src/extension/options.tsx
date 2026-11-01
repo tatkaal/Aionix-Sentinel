@@ -246,7 +246,12 @@ function PromptRow({ p, k, copy, copied, protectedIds, kit }: { p: KitPrompt; k:
           {sample && <Badge tone={ready ? 'emerald' : 'amber'}>{ready ? `${sample.fileName} protected` : `protect ${sample.fileName} first`}</Badge>}
         </div>
         <pre className="mt-1.5 max-h-28 overflow-auto rounded-lg bg-obsidian p-2.5 font-mono text-xs whitespace-pre-wrap text-muted">{p.text}</pre>
-        {p.paste && <p className="mt-1 text-xs text-subtle">Also paste the attachment text ({p.paste.length.toLocaleString()} chars) — portals turn pastes ≥ 1,200 chars into a pasted-content chip.</p>}
+        {p.paste && (
+          <p className="mt-1 text-xs text-subtle">
+            First paste the attachment ({p.paste.length.toLocaleString()} chars) with Ctrl+V. Claude turns it into a “Pasted text” chip; ChatGPT and Gemini have it checked
+            as you paste, because ChatGPT uploads a long paste as a file as soon as it is added.
+          </p>
+        )}
         <p className="mt-1 text-xs text-subtle">{p.note}</p>
       </div>
       <div className="flex gap-2 sm:flex-col">

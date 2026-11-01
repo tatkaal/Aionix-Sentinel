@@ -44,6 +44,9 @@ interface BlockState {
   result: ScanResult;
 }
 
+/** A paste is not a Send: the 1 s Send budget does not apply, but the user is waiting for the text to appear. */
+const PASTE_BUDGET_MS = 3000;
+
 function withTimeout<T>(p: Promise<T>, ms: number): Promise<T | 'timeout'> {
   return Promise.race([p, new Promise<'timeout'>((r) => setTimeout(() => r('timeout'), ms))]);
 }
@@ -57,6 +60,10 @@ export class PromptInterceptor {
   /** Attachment ids whose paste-time pre-scan found something (chip gets a crimson outline). */
   private flagged = new Set<string>();
   private lastEditable: HTMLElement | null = null;
+  /** Set while a checked paste is replayed to the portal, so the replay is not intercepted again. */
+  private replayingPaste = false;
+  /** The composer the current send came from (portals can render more than one, e.g. while hydrating). */
+  private activeComposer: HTMLElement | null = null;
   private observer: MutationObserver | null = null;
   private teardown: (() => void)[] = [];
 
@@ -98,23 +105,55 @@ export class PromptInterceptor {
   }
 
   // ── Composer lookup (4 layers) ────────────────────────────────────────────
+  private get composerSelectors(): string[] {
+    return [...this.opts.adapter.composerSelectors, ...this.opts.adapter.preloadComposerSelectors, ...GENERIC_COMPOSER_SELECTORS];
+  }
+
+  /**
+   * The composer without an event to go on (send-button clicks, redaction). Portals can render two at
+   * once — ChatGPT and Claude serve a plain textarea that takes typing until the app hydrates — so the
+   * focused one wins, then a visible one with text, then any visible one.
+   */
   findComposer(): HTMLElement | null {
-    for (const sel of this.opts.adapter.composerSelectors) {
-      const el = this.root.querySelector<HTMLElement>(sel);
-      if (el) return el;
+    const found: HTMLElement[] = [];
+    for (const sel of this.composerSelectors) {
+      for (const el of this.root.querySelectorAll<HTMLElement>(sel)) if (!found.includes(el)) found.push(el);
     }
-    for (const sel of GENERIC_COMPOSER_SELECTORS) {
-      const el = this.root.querySelector<HTMLElement>(sel);
-      if (el) return el;
-    }
-    const active = document.activeElement as HTMLElement | null;
-    if (active && (active.isContentEditable || active instanceof HTMLTextAreaElement) && this.inScope(active)) return active;
+    const active = document.activeElement;
+    const focused = found.find((el) => active instanceof Node && (el === active || el.contains(active)));
+    if (focused) return focused;
+    const visible = found.filter(isVisible);
+    const best = visible.find((el) => readEditable(el).text.trim().length > 0) ?? visible[0] ?? found[0];
+    if (best) return best;
+    if (active instanceof HTMLElement && (active.isContentEditable || active instanceof HTMLTextAreaElement) && this.inScope(active)) return active;
     return this.lastEditable?.isConnected ? this.lastEditable : null;
   }
 
-  private findSendButton(): HTMLElement | null {
+  /**
+   * The composer an event came from. Matching the event target (not the first composer in the page)
+   * is what catches an Enter typed into a portal's pre-hydration textarea while its real editor is
+   * already mounted next to it.
+   */
+  composerFor(target: EventTarget | null): HTMLElement | null {
+    if (!(target instanceof Element) || !this.inScope(target)) return null;
+    for (const sel of this.composerSelectors) {
+      const el = target.closest<HTMLElement>(sel);
+      if (el) return el;
+    }
+    // Layers 3–4 only when the page has no recognisable composer (unknown DOM drift): never claim an
+    // unrelated field (rename, search) on a page whose composer we do know.
+    if (this.composerSelectors.some((sel) => this.root.querySelector(sel))) return null;
+    const editable = target.closest<HTMLElement>('textarea, [contenteditable="true"], [contenteditable=""]');
+    return editable && (editable === document.activeElement || editable === this.lastEditable) ? editable : null;
+  }
+
+  private findSendButton(composer: HTMLElement | null): HTMLElement | null {
+    // A pre-hydration input has no button of its own; the real editor's button would send that (empty) editor.
+    if (composer && this.opts.adapter.preloadComposerSelectors.some((sel) => composer.matches(sel))) return null;
+    // Prefer the button that belongs to this composer's form or fieldset.
+    const scope = composer?.closest('form, fieldset');
     for (const sel of this.opts.adapter.sendButtonSelectors) {
-      const el = this.root.querySelector<HTMLElement>(sel);
+      const el = scope?.querySelector<HTMLElement>(sel) ?? this.root.querySelector<HTMLElement>(sel);
       if (el) return el;
     }
     return null;
@@ -124,37 +163,45 @@ export class PromptInterceptor {
     return this.opts.scope instanceof Document ? true : this.opts.scope.contains(node);
   }
 
-  private isInComposer(target: EventTarget | null): boolean {
-    const composer = this.findComposer();
-    return !!composer && target instanceof Node && (composer === target || composer.contains(target));
-  }
-
   // ── Event hooks ───────────────────────────────────────────────────────────
   private onKeydown(e: KeyboardEvent) {
     if (e.key !== 'Enter' || e.shiftKey || e.isComposing || e.keyCode === 229) return;
-    if (!this.isInComposer(e.target)) return;
-    void this.handleSend(e, 'enter');
+    const composer = this.composerFor(e.target);
+    if (!composer) return;
+    void this.handleSend(e, 'enter', composer);
   }
 
   private onClick(e: MouseEvent) {
     const t = e.target as Element | null;
     if (!t?.closest) return;
-    const hit = this.opts.adapter.sendButtonSelectors.some((s) => t.closest(s));
-    if (!hit || !this.inScope(t)) return;
-    void this.handleSend(e, 'click');
+    const btn = this.opts.adapter.sendButtonSelectors.map((s) => t.closest<HTMLElement>(s)).find(Boolean);
+    if (!btn || !this.inScope(t)) return;
+    const scope = btn.closest('form, fieldset');
+    const own = scope ? this.composerSelectors.map((sel) => scope.querySelector<HTMLElement>(sel)).find(Boolean) : null;
+    void this.handleSend(e, 'click', own ?? this.findComposer());
   }
 
   private onSubmit(e: SubmitEvent) {
     const form = e.target as HTMLFormElement;
-    const composer = this.findComposer();
-    if (!composer || !form.contains(composer)) return;
-    void this.handleSend(e, 'submit');
+    const composer = this.composerSelectors.map((sel) => form.querySelector<HTMLElement>(sel)).find(Boolean);
+    if (!composer) return;
+    void this.handleSend(e, 'submit', composer);
   }
 
   private onPaste(e: ClipboardEvent) {
-    if (!this.isInComposer(e.target)) return;
+    if (this.replayingPaste) return;
+    const composer = this.composerFor(e.target);
+    if (!composer) return;
     const text = e.clipboardData?.getData('text/plain') ?? '';
     if (text.length < LARGE_PASTE_THRESHOLD) return;
+    const upload = this.opts.adapter.pasteUpload;
+    if (upload && text.length >= upload.minChars && e.target instanceof Element) {
+      // The portal would turn this into a file and upload it before Send: check it first.
+      e.preventDefault();
+      e.stopImmediatePropagation();
+      void this.checkPaste(composer, e.target, text);
+      return;
+    }
     // Captured before the portal converts it into a pasted-content.txt chip.
     const att = this.store.add(text);
     const pre = scanSync({ text: '', attachments: [{ id: att.id, name: att.name, text }] }, this.opts.tier3a());
@@ -212,8 +259,9 @@ export class PromptInterceptor {
       this.block = null;
       this.opts.events?.onStatus?.('lifted');
       this.drawer.show({ mode: 'lifted', portalLabel: this.opts.adapter.label, items: [], latencyMs: 0 }, this.handlers());
+      // Hide only this "lifted" notice: a network or paste drawer shown since must stay.
       setTimeout(() => {
-        if (!this.block) this.drawer.hide();
+        if (!this.block && this.drawer.mode === 'lifted') this.drawer.hide();
       }, 2600);
       return;
     }
@@ -222,23 +270,29 @@ export class PromptInterceptor {
   }
 
   // ── Send pipeline ─────────────────────────────────────────────────────────
-  private collectInput(): { input: ScanInput; composer: HTMLElement | null } {
-    const composer = this.findComposer();
+  /** The composer of the send in progress, if it is still in the page (hydration can replace it). */
+  private currentComposer(): HTMLElement | null {
+    return this.activeComposer?.isConnected ? this.activeComposer : this.findComposer();
+  }
+
+  private collectInput(from?: HTMLElement | null): { input: ScanInput; composer: HTMLElement | null } {
+    const composer = from ?? this.currentComposer();
     const text = composer ? readEditable(composer).text : '';
     const attachments = this.store.active().map((a) => ({ id: a.id, name: a.name, text: a.text }));
     return { input: { text, attachments }, composer };
   }
 
-  async handleSend(e: Event, trigger: 'enter' | 'click' | 'submit'): Promise<void> {
+  async handleSend(e: Event, trigger: 'enter' | 'click' | 'submit', from?: HTMLElement | null): Promise<void> {
     if (this.bypass) return;
     // The 1 s decision budget covers everything from the Send event: input collection, Tier 1 + 3A
     // and the offscreen round trip.
     const t0 = performance.now();
-    const { input } = this.collectInput();
+    const { input, composer } = this.collectInput(from ?? this.findComposer());
     if (!input.text.trim() && !input.attachments?.length) return;
     e.preventDefault();
     e.stopImmediatePropagation();
     if (this.pending) return;
+    this.activeComposer = composer;
 
     const sync = scanSync(input, this.opts.tier3a());
     if (sync.verdict === 'block') {
@@ -249,17 +303,10 @@ export class PromptInterceptor {
 
     this.pending = true;
     this.opts.events?.onStatus?.('scanning');
-    let merged = sync;
-    let incomplete = false;
-    const budget = this.opts.asyncTimeoutMs ?? 1000;
+    let merged: ScanResult;
+    let incomplete: boolean;
     try {
-      const remaining = Math.max(0, budget - (performance.now() - t0));
-      const asyncPart = this.opts.asyncScanner ? await withTimeout(this.opts.asyncScanner.scanAsync(input), remaining) : null;
-      incomplete = asyncPart === 'timeout';
-      merged = asyncPart === 'timeout' ? { ...sync, degradedReason: `Context check exceeded the ${budget.toLocaleString()} ms budget` } : mergeAsync(sync, asyncPart, performance.now() - t0);
-    } catch (err) {
-      incomplete = true;
-      merged = { ...sync, degradedReason: `Context check unavailable: ${(err as Error).message}` };
+      ({ merged, incomplete } = await this.contextCheck(input, sync, t0));
     } finally {
       this.pending = false;
     }
@@ -275,6 +322,145 @@ export class PromptInterceptor {
     this.opts.events?.onScan?.(merged, false, input);
     this.opts.events?.onVerified?.(promptDigest(input.text));
     this.resend(trigger);
+  }
+
+  /** Tier 2 + 3B from the offscreen engine, inside what is left of the budget (1 s for a Send) counted from t0. */
+  private async contextCheck(input: ScanInput, sync: ScanResult, t0: number, budgetMs?: number): Promise<{ merged: ScanResult; incomplete: boolean }> {
+    const budget = budgetMs ?? this.opts.asyncTimeoutMs ?? 1000;
+    try {
+      const remaining = Math.max(0, budget - (performance.now() - t0));
+      const asyncPart = this.opts.asyncScanner ? await withTimeout(this.opts.asyncScanner.scanAsync(input), remaining) : null;
+      if (asyncPart === 'timeout') return { merged: { ...sync, degradedReason: `Context check exceeded the ${budget.toLocaleString()} ms budget` }, incomplete: true };
+      return { merged: mergeAsync(sync, asyncPart, performance.now() - t0), incomplete: false };
+    } catch (err) {
+      return { merged: { ...sync, degradedReason: `Context check unavailable: ${(err as Error).message}` }, incomplete: true };
+    }
+  }
+
+  /**
+   * Network-layer check, asked for by the MAIN-world backstop when a prompt reaches the portal's send
+   * endpoint without having passed the composer check: typed before the page finished loading, an
+   * edited message, a retry. The same cascade runs on the request's prompt; resolves true only when the
+   * request may leave the browser.
+   */
+  async checkOutgoing(text: string): Promise<boolean> {
+    const t0 = performance.now();
+    const input: ScanInput = { text, attachments: [] };
+    const sync = scanSync(input, this.opts.tier3a());
+    const { merged, incomplete } = sync.verdict === 'block' ? { merged: sync, incomplete: false } : await this.contextCheck(input, sync, t0);
+    if (merged.verdict === 'block') {
+      this.opts.events?.onScan?.(merged, true, input);
+      this.showNetworkBlock(
+        merged.findings.map((f) => ({
+          id: f.id,
+          categoryLabel: `Cat ${f.category} · ${CATEGORIES[f.category].label}`,
+          label: f.label,
+          masked: maskValue(text.slice(f.rawStart, f.rawEnd)),
+          evidence: f.evidence,
+          route: PATH_LABELS[f.path],
+          source: 'request',
+        })),
+        merged.timings.total,
+      );
+      return false;
+    }
+    if (incomplete && (this.opts.asyncFailure ?? 'hold') === 'hold') {
+      return new Promise<boolean>((resolve) => {
+        const decide = (allow: boolean) => {
+          this.drawer.hide();
+          if (allow) this.opts.events?.onScan?.({ ...merged, degradedReason: `${merged.degradedReason ?? 'Context check incomplete'} — sent by the user without it` }, false, input);
+          resolve(allow);
+        };
+        this.drawer.show(
+          { mode: 'held', origin: 'network', portalLabel: this.opts.adapter.label, items: [], latencyMs: merged.timings.total, ...(merged.degradedReason ? { note: merged.degradedReason } : {}) },
+          { ...this.handlers(), onClose: () => decide(false), onSendAnyway: () => decide(true) },
+        );
+      });
+    }
+    this.opts.events?.onScan?.(merged, false, input);
+    return true;
+  }
+
+  /**
+   * A long paste on a portal that uploads it as a file at once: the full cascade runs on the clipboard
+   * text, and the paste reaches the portal only if it is clean (or the user decides to paste anyway).
+   */
+  private async checkPaste(composer: HTMLElement, target: Element, text: string) {
+    const t0 = performance.now();
+    const input: ScanInput = { text: '', attachments: [{ id: `paste-${Date.now().toString(36)}`, name: 'pasted text', text }] };
+    const sync = scanSync(input, this.opts.tier3a());
+    const { merged, incomplete } = sync.verdict === 'block' ? { merged: sync, incomplete: false } : await this.contextCheck(input, sync, t0, PASTE_BUDGET_MS);
+    const label = this.opts.adapter.label;
+    if (merged.verdict === 'block') {
+      this.opts.events?.onScan?.(merged, true, input);
+      this.drawer.show(
+        {
+          mode: 'blocked',
+          origin: 'paste',
+          portalLabel: label,
+          latencyMs: merged.timings.total,
+          note: `${label} turns a paste this long into a file attachment and uploads it as soon as it is added, before Send. So the paste was checked first and was not added. Paste a copy without the flagged items instead.`,
+          items: merged.findings.map((f) => ({
+            id: f.id,
+            categoryLabel: `Cat ${f.category} · ${CATEGORIES[f.category].label}`,
+            label: f.label,
+            masked: maskValue(text.slice(f.rawStart, f.rawEnd)),
+            evidence: f.evidence,
+            route: PATH_LABELS[f.path],
+            source: 'paste',
+          })),
+        },
+        { ...this.handlers(), onRedactAll: () => undefined, onRedactOne: () => undefined, onEdit: () => this.drawer.hide(), onClose: () => this.drawer.hide() },
+      );
+      return;
+    }
+    if (incomplete && (this.opts.asyncFailure ?? 'hold') === 'hold') {
+      this.drawer.show(
+        { mode: 'held', origin: 'paste', portalLabel: label, items: [], latencyMs: merged.timings.total, ...(merged.degradedReason ? { note: merged.degradedReason } : {}) },
+        {
+          ...this.handlers(),
+          onClose: () => this.drawer.hide(),
+          onSendAnyway: () => {
+            this.drawer.hide();
+            this.replayPaste(composer, target, text);
+          },
+        },
+      );
+      return;
+    }
+    this.replayPaste(composer, target, text);
+  }
+
+  /** Hands a checked paste to the portal as the same paste event, so it still becomes a chip there. */
+  private replayPaste(composer: HTMLElement, target: Element, text: string) {
+    const to = target.isConnected ? target : composer;
+    if (!(document.activeElement instanceof Node && composer.contains(document.activeElement))) composer.focus();
+    const data = new DataTransfer();
+    data.setData('text/plain', text);
+    const ev = new ClipboardEvent('paste', { clipboardData: data, bubbles: true, cancelable: true });
+    this.replayingPaste = true;
+    try {
+      to.dispatchEvent(ev);
+    } finally {
+      this.replayingPaste = false;
+    }
+    // Editors that paste natively (a plain textarea) ignore a synthetic paste: insert the text instead.
+    if (!ev.defaultPrevented) document.execCommand('insertText', false, text);
+  }
+
+  /** A request stopped at the network layer: there is nothing in the composer to redact, so no row actions. */
+  showNetworkBlock(items: DrawerItem[], latencyMs: number): void {
+    this.drawer.show(
+      {
+        mode: 'blocked',
+        origin: 'network',
+        portalLabel: this.opts.adapter.label,
+        items,
+        latencyMs,
+        note: `This message reached ${this.opts.adapter.label}'s send request without passing the composer check (for example, it was typed before the page finished loading, or it is an edited message). It was stopped before it left the browser. ${this.opts.adapter.label} may still show it in the thread, but it was not delivered.`,
+      },
+      { ...this.handlers(), onRedactAll: () => undefined, onRedactOne: () => undefined, onEdit: () => this.drawer.hide(), onClose: () => this.drawer.hide() },
+    );
   }
 
   /** Clean on Tier 1/3A, but the offscreen check did not answer: the user decides, nothing is sent yet. */
@@ -297,12 +483,13 @@ export class PromptInterceptor {
 
   /** Re-dispatches the original send exactly once, bypassing interception. */
   private resend(trigger: 'enter' | 'click' | 'submit') {
-    const btn = this.findSendButton();
+    const composer = this.currentComposer();
+    const btn = this.findSendButton(composer);
     this.bypass = true;
     try {
       if (btn) btn.click();
       else {
-        const composer = this.findComposer();
+        // No send button (a pre-hydration input): replay Enter on the composer itself.
         const form = composer?.closest('form');
         if (trigger === 'submit' && form) form.requestSubmit();
         else composer?.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter', code: 'Enter', bubbles: true, cancelable: true }));
@@ -377,7 +564,7 @@ export class PromptInterceptor {
       onRedactOne: (id: string) => this.redact(this.block?.result.findings.filter((f) => f.id === id) ?? []),
       onEdit: (id: string) => {
         const f = this.block?.result.findings.find((x) => x.id === id);
-        const composer = this.findComposer();
+        const composer = this.currentComposer();
         this.drawer.hide();
         if (f && composer) selectSpan(composer, f.rawStart, f.rawEnd);
       },
@@ -387,14 +574,14 @@ export class PromptInterceptor {
   }
 
   private async redact(findings: Finding[]) {
-    const composer = this.findComposer();
+    const composer = this.currentComposer();
     if (!composer || !this.block || findings.length === 0) return;
     replaceSpans(
       composer,
       findings.map((f) => ({ start: f.rawStart, end: f.rawEnd, text: redactionTag(f.type) })),
     );
     // Offsets shifted — re-inspect the edited prompt with the full cascade.
-    const { input } = this.collectInput();
+    const { input } = this.collectInput(composer);
     const t0 = performance.now();
     const sync = scanSync(input, this.opts.tier3a());
     this.block = { input, result: sync };
@@ -430,4 +617,8 @@ export class PromptInterceptor {
     }
     this.showDrawer('Remove the highlighted attachment from the composer to lift this block.');
   }
+}
+
+function isVisible(el: HTMLElement): boolean {
+  return el.isConnected && el.getClientRects().length > 0 && getComputedStyle(el).visibility !== 'hidden';
 }

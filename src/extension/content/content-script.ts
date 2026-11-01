@@ -18,7 +18,7 @@ function pickAdapter(): PortalAdapter | null {
   const byHost = adapterForHost(location.hostname);
   if (byHost) return byHost;
   if (__AIONIX_TEST_BUILD__ && location.hostname === 'localhost') {
-    const id = location.pathname.split('/')[1]!.replace(/-anon$/, '') as keyof typeof ADAPTERS;
+    const id = location.pathname.split('/')[1]!.replace(/-(?:anon|early)$/, '') as keyof typeof ADAPTERS;
     return ADAPTERS[id] ?? null;
   }
   return null;
@@ -115,36 +115,53 @@ if (adapter) {
   registerBrandFonts();
   interceptor.install();
 
-  // MAIN-world backstop reports requests it stopped (e.g. content that bypassed the composer).
+  // Wake the service worker (and through it the offscreen engine, if Chrome dropped it) when the user
+  // starts on a prompt, so a cold start is not paid inside the 1 s budget after Send.
+  let lastWarm = 0;
+  document.addEventListener(
+    'focusin',
+    (e) => {
+      if (Date.now() - lastWarm < 20_000 || !interceptor.composerFor(e.target)) return;
+      lastWarm = Date.now();
+      void send({ target: 'background', type: 'warm' }).catch(() => undefined);
+    },
+    true,
+  );
+
+  // MAIN-world backstop, step 1: Tier 1 there already stopped the request.
   document.addEventListener('aionix:backstop-block', (e) => {
     try {
-      const detail = JSON.parse((e as CustomEvent<string>).detail) as { items: { label: string; category: string; masked: string }[] };
-      drawer.show(
-        {
-          mode: 'blocked',
-          portalLabel: adapter.label,
-          latencyMs: 0,
-          note: 'The outgoing request carried high-risk data that did not pass through the composer check. It was stopped at the network layer.',
-          items: detail.items.map((it, i) => ({
-            id: `backstop-${i}`,
-            categoryLabel: it.category,
-            label: it.label,
-            masked: it.masked,
-            evidence: 'MAIN-world fetch backstop',
-            route: 'Tier 1 · Math',
-            source: 'attachment',
-          })),
-        },
-        {
-          onRedactAll: () => drawer.hide(),
-          onRedactOne: () => undefined,
-          onEdit: () => drawer.hide(),
-          onRemoveAttachment: () => drawer.hide(),
-          onClose: () => drawer.hide(),
-        },
+      const detail = JSON.parse((e as CustomEvent<string>).detail) as { items: { label: string; category: string; masked: string; evidence?: string }[]; latencyMs?: number };
+      interceptor.showNetworkBlock(
+        detail.items.map((it, i) => ({
+          id: `backstop-${i}`,
+          categoryLabel: it.category,
+          label: it.label,
+          masked: it.masked,
+          evidence: it.evidence ?? 'network backstop',
+          route: 'Tier 1 · Math · network backstop',
+          source: 'request',
+        })),
+        detail.latencyMs ?? 0,
       );
     } catch {
       /* malformed detail — ignore */
     }
+  });
+
+  // MAIN-world backstop, step 2: Tier 1 was clean but the prompt skipped the composer check, so the rest
+  // of the cascade runs here. Acknowledge at once; the verdict follows (possibly after the user decides).
+  document.addEventListener('aionix:backstop-scan', (e) => {
+    let req: { id: string; prompt: string };
+    try {
+      req = JSON.parse((e as CustomEvent<string>).detail) as { id: string; prompt: string };
+    } catch {
+      return;
+    }
+    document.dispatchEvent(new CustomEvent('aionix:backstop-ack', { detail: req.id }));
+    void interceptor
+      .checkOutgoing(req.prompt)
+      .catch(() => false)
+      .then((allow) => document.dispatchEvent(new CustomEvent('aionix:backstop-verdict', { detail: JSON.stringify({ id: req.id, allow }) })));
   });
 }

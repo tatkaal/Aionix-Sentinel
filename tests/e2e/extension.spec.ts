@@ -63,6 +63,57 @@ for (const portal of ['claude', 'chatgpt', 'gemini']) {
   });
 }
 
+// Live 2026-11-02: each portal serves a plain textarea that takes typing and an early Enter before its
+// app hydrates, and for a moment it sits next to the real editor. The first message typed there once
+// reached the network backstop instead of the composer check.
+const EARLY_INPUT: Record<string, string> = {
+  chatgpt: '#pending-home-input',
+  claude: '#static-composer-input',
+  gemini: '.initial-input-area textarea',
+};
+for (const portal of ['chatgpt', 'claude', 'gemini']) {
+  test(`${portal}: an Enter in the pre-hydration input is checked like the composer, and redaction sends`, async () => {
+    const page = await open(`${portal}-early`);
+    const early = page.locator(EARLY_INPUT[portal]!);
+    await early.fill('So i want to get the best protection for my application login. Curerntly i am using HeyJude781@ as my password.');
+    await early.press('Enter');
+    await expect(drawer(page).getByText('Send blocked')).toBeVisible();
+    await expect(drawer(page).getByText('in composer').first()).toBeVisible();
+    await expect(sent(page)).toHaveCount(0);
+
+    await drawer(page).getByRole('button', { name: /Auto-redact/ }).click();
+    await expect(early).toHaveValue(/\[REDACTED_[A-Z_]+\]/);
+    await early.press('Enter');
+    await expect(sent(page)).toHaveCount(1);
+    await expect(sent(page).first()).not.toContainText('HeyJude781@');
+    await page.close();
+  });
+}
+
+test('chatgpt: a clean prompt typed before hydration is sent once the app loads', async () => {
+  const page = await open('chatgpt-early?hydrate=1500');
+  const early = page.locator('#pending-home-input');
+  await early.fill('Summarise the main causes of the 2008 financial crisis in five bullet points.');
+  await early.press('Enter');
+  await expect(sent(page)).toHaveCount(1, { timeout: 5000 });
+  await expect(sent(page).first()).toContainText('SENT:Summarise the main causes');
+  await expect(drawer(page)).toHaveCount(0);
+  await page.close();
+});
+
+test('backstop runs the full cascade: a record that skipped the composer is stopped, a clean prompt goes out', async () => {
+  const page = await open('claude');
+  await page.locator('#direct-api-record').click();
+  await expect(page.locator('#log')).toContainText('RECORD-BLOCKED');
+  await expect(drawer(page).getByText('Medical records').first()).toBeVisible();
+  await expect(drawer(page).getByText(/in outgoing request/).first()).toBeVisible();
+  await drawer(page).getByRole('button', { name: 'Dismiss' }).click();
+
+  await page.locator('#direct-api-clean').click();
+  await expect(page.locator('#log')).toContainText('CLEAN-SENT');
+  await page.close();
+});
+
 test('claude: Tier 2 (offscreen) blocks a named patient record, allows a general question', async () => {
   const page = await open('claude');
   const editor = page.locator('[contenteditable="true"]');
@@ -97,6 +148,52 @@ test('chatgpt: a flagged pasted-content chip blocks, and removing the chip lifts
   await drawer(page).getByRole('button', { name: 'Remove file' }).click();
   await expect(drawer(page).getByText('Block lifted')).toBeVisible();
   await expect(page.locator('[data-testid="file-thumbnail"]')).toHaveCount(0);
+  await page.close();
+});
+
+const pasteInto = (page: Page, text: string) =>
+  page.evaluate((t) => {
+    const dt = new DataTransfer();
+    dt.setData('text/plain', t);
+    document.querySelector('[contenteditable="true"]')!.dispatchEvent(new ClipboardEvent('paste', { clipboardData: dt, bubbles: true, cancelable: true }));
+  }, text);
+
+test('chatgpt: a long paste is checked before ChatGPT can turn it into an uploaded file', async () => {
+  const page = await open('chatgpt');
+  const filler = 'The engineering handbook covers planning, reviews, testing and release steps. '.repeat(60);
+  await page.locator('[contenteditable="true"]').focus();
+  await pasteInto(page, `${filler}\nstaging DATABASE_URL=postgres://deploy:Qx7!vR2#pLm9@staging-db.internal:5432/app\n${filler}`);
+  await expect(drawer(page).getByText('The paste was not added')).toBeVisible();
+  await expect(drawer(page).getByText('in pasted text').first()).toBeVisible();
+  await expect(page.locator('[data-testid="file-thumbnail"]')).toHaveCount(0);
+  await expect(page.locator('[contenteditable="true"]')).toHaveText('');
+  await drawer(page).getByRole('button', { name: 'Dismiss' }).click();
+
+  // A clean paste of the same size reaches the portal unchanged and still becomes its chip.
+  await pasteInto(page, filler);
+  await expect(page.locator('[data-testid="file-thumbnail"]')).toHaveCount(1);
+  await expect(drawer(page)).toHaveCount(0);
+  await page.close();
+});
+
+test('claude: a long paste stays a chip until Send, and removing the chip lifts the block', async () => {
+  const page = await open('claude');
+  const filler = 'The engineering handbook covers planning, reviews, testing and release steps. '.repeat(60);
+  await page.locator('[contenteditable="true"]').focus();
+  await pasteInto(page, `${filler}\nstaging DATABASE_URL=postgres://deploy:Qx7!vR2#pLm9@staging-db.internal:5432/app\n${filler}`);
+  await expect(page.locator('[data-testid="file-thumbnail"]')).toHaveCount(1);
+  await page.locator('[contenteditable="true"]').fill('summarise the attachment');
+  await page.locator('[contenteditable="true"]').press('Enter');
+  await expect(drawer(page).getByText('Database credentials')).toBeVisible();
+  await drawer(page).getByRole('button', { name: 'Remove file' }).click();
+  await expect(drawer(page).getByText('Block lifted')).toBeVisible();
+  await expect(sent(page)).toHaveCount(0);
+
+  // The "Block lifted" notice hides itself after 2.6 s; that timer must not close a drawer shown since.
+  await page.locator('#direct-api-record').click();
+  await expect(drawer(page).getByText('Medical records').first()).toBeVisible();
+  await page.waitForTimeout(3000);
+  await expect(drawer(page).getByText('Medical records').first()).toBeVisible();
   await page.close();
 });
 
@@ -209,5 +306,30 @@ test('offscreen check unavailable: a clean-on-Tier-1 prompt is held for the user
   await expect
     .poll(() => popup.evaluate(async () => ((await chrome.runtime.sendMessage({ target: 'background', type: 'status' })) as { engine?: { pathAReady?: boolean } })?.engine?.pathAReady ?? false), { timeout: 60_000, intervals: [500] })
     .toBe(true);
+  await popup.close();
+});
+
+test('the engine loads once: an idle-stopped service worker leaves the offscreen engine running', async () => {
+  const popup = await context.newPage();
+  await popup.goto(`chrome-extension://${extId}/popup.html`);
+  const startedAt = () =>
+    popup.evaluate(async () => ((await chrome.runtime.sendMessage({ target: 'background', type: 'status', quick: true })) as { engine?: { startedAt?: number } })?.engine?.startedAt ?? null);
+  const before = await startedAt();
+  expect(before).toBeGreaterThan(0);
+  await expect(popup.getByTestId('engine-uptime')).toContainText('Engine loaded once at');
+
+  // Stop the worker the way Chrome does after ~30 s idle, then wake it with the next message.
+  const cdp = await context.newCDPSession(popup);
+  const versions: string[] = [];
+  cdp.on('ServiceWorker.workerVersionUpdated', (e: { versions: { versionId: string; runningStatus: string }[] }) => {
+    for (const v of e.versions) if (v.runningStatus === 'running' && !versions.includes(v.versionId)) versions.push(v.versionId);
+  });
+  await cdp.send('ServiceWorker.enable');
+  await expect.poll(() => versions.length, { timeout: 5000 }).toBeGreaterThan(0);
+  for (const versionId of versions) await cdp.send('ServiceWorker.stopWorker', { versionId });
+  await popup.waitForTimeout(500);
+
+  expect(await startedAt()).toBe(before);
+  await cdp.detach();
   await popup.close();
 });

@@ -1,6 +1,8 @@
 // MAIN-world network backstop. Wraps window.fetch and XMLHttpRequest for each portal's prompt
-// endpoint. Bodies whose prompt digest the content script already verified pass straight through;
-// anything else gets a synchronous Tier 1 scan before it is allowed onto the network.
+// endpoint. Bodies whose prompt digest the content script already verified pass straight through.
+// Anything else (typed before the page finished loading, an edited message, a retry) gets Tier 1 here,
+// synchronously, and then the rest of the cascade (Tier 3A, and Tier 2 + 3B in the offscreen engine)
+// from the content script before it is allowed onto the network.
 import { promptDigest } from '../engine/digest';
 import { maskValue } from '../engine/redact';
 import { scanTier1 } from '../engine/tier1';
@@ -10,6 +12,10 @@ import { ADAPTERS, adapterForHost, type PortalAdapter } from './content/adapters
 declare const __AIONIX_TEST_BUILD__: boolean;
 
 const VERIFIED_TTL_MS = 30_000;
+/** The content script answers the hand-off synchronously; no answer means it is gone (extension reloaded). */
+const ACK_MS = 300;
+/** Upper bound while the user decides in a "Check incomplete" drawer. */
+const VERDICT_MAX_MS = 120_000;
 
 class AionixBlockedError extends TypeError {
   constructor() {
@@ -21,7 +27,7 @@ function pickAdapter(): PortalAdapter | null {
   const a = adapterForHost(location.hostname);
   if (a) return a;
   if (__AIONIX_TEST_BUILD__ && location.hostname === 'localhost') {
-    return ADAPTERS[location.pathname.split('/')[1]!.replace(/-anon$/, '') as keyof typeof ADAPTERS] ?? null;
+    return ADAPTERS[location.pathname.split('/')[1]!.replace(/-(?:anon|early)$/, '') as keyof typeof ADAPTERS] ?? null;
   }
   return null;
 }
@@ -35,21 +41,61 @@ if (adapter) {
     if (typeof digest === 'string') verified.set(digest, Date.now() + VERIFIED_TTL_MS);
   });
 
-  /** Returns true when the body must be blocked. */
-  const inspect = (body: string): boolean => {
+  // Hand-off to the content script (isolated world) for the full cascade. Details cross worlds as JSON.
+  let seq = 0;
+  const waiters = new Map<string, { ack(): void; done(allow: boolean): void }>();
+  document.addEventListener('aionix:backstop-ack', (e) => waiters.get(String((e as CustomEvent<unknown>).detail))?.ack());
+  document.addEventListener('aionix:backstop-verdict', (e) => {
+    try {
+      const { id, allow } = JSON.parse(String((e as CustomEvent<unknown>).detail)) as { id: string; allow: boolean };
+      waiters.get(id)?.done(allow === true);
+    } catch {
+      /* malformed — the waiter times out */
+    }
+  });
+
+  /** Resolves true when the request may go out. */
+  const fullCheck = (prompt: string): Promise<boolean> =>
+    new Promise((resolve) => {
+      const id = `${Date.now().toString(36)}-${++seq}`;
+      let acked = false;
+      const finish = (allow: boolean) => {
+        clearTimeout(ackTimer);
+        clearTimeout(maxTimer);
+        waiters.delete(id);
+        resolve(allow);
+      };
+      // Tier 1 already passed; without a content script there is nothing more to run.
+      const ackTimer = setTimeout(() => !acked && finish(true), ACK_MS);
+      const maxTimer = setTimeout(() => finish(false), VERDICT_MAX_MS);
+      waiters.set(id, { ack: () => (acked = true), done: finish });
+      document.dispatchEvent(new CustomEvent('aionix:backstop-scan', { detail: JSON.stringify({ id, prompt }) }));
+    });
+
+  type Verdict = { kind: 'allow' } | { kind: 'block' } | { kind: 'check'; prompt: string };
+
+  const inspect = (body: string): Verdict => {
     const prompt = adapter.extractPrompt(body) ?? body;
-    const digest = promptDigest(prompt);
-    const exp = verified.get(digest);
-    if (exp && exp > Date.now()) return false;
+    if (!prompt.trim()) return { kind: 'allow' };
+    const exp = verified.get(promptDigest(prompt));
+    if (exp && exp > Date.now()) return { kind: 'allow' };
+    const t0 = performance.now();
     const findings = scanTier1(prompt);
-    if (!findings.length) return false;
+    if (!findings.length) return { kind: 'check', prompt };
     const items = findings.map((f) => ({
       label: f.label,
       category: `Cat ${f.category} · ${CATEGORIES[f.category].label}`,
       masked: maskValue(prompt.slice(f.rawStart, f.rawEnd)),
+      evidence: f.evidence,
     }));
-    document.dispatchEvent(new CustomEvent('aionix:backstop-block', { detail: JSON.stringify({ items }) }));
-    return true;
+    document.dispatchEvent(new CustomEvent('aionix:backstop-block', { detail: JSON.stringify({ items, latencyMs: performance.now() - t0 }) }));
+    return { kind: 'block' };
+  };
+
+  /** Resolves true when the body must be blocked. */
+  const mustBlock = async (body: string): Promise<boolean> => {
+    const v = inspect(body);
+    return v.kind === 'check' ? !(await fullCheck(v.prompt)) : v.kind === 'block';
   };
 
   const bodyText = async (input: RequestInfo | URL, init?: RequestInit): Promise<string | null> => {
@@ -67,7 +113,7 @@ if (adapter) {
     const url = typeof input === 'string' ? input : input instanceof URL ? input.href : input.url;
     if (adapter.completionEndpoint.test(url)) {
       const body = await bodyText(input, init).catch(() => null);
-      if (body != null && inspect(body)) throw new AionixBlockedError();
+      if (body != null && (await mustBlock(body))) throw new AionixBlockedError();
     }
     return origFetch.call(this ?? window, input, init);
   } as typeof window.fetch;
@@ -83,8 +129,15 @@ if (adapter) {
     const url = urls.get(this) ?? '';
     if (adapter.completionEndpoint.test(url)) {
       const text = typeof body === 'string' ? body : body instanceof URLSearchParams ? body.toString() : null;
-      if (text != null && inspect(text)) {
-        setTimeout(() => this.dispatchEvent(new ProgressEvent('error')), 0);
+      const v = text == null ? ({ kind: 'allow' } as const) : inspect(text);
+      const fail = () => this.dispatchEvent(new ProgressEvent('error'));
+      if (v.kind === 'block') {
+        setTimeout(fail, 0);
+        return;
+      }
+      if (v.kind === 'check') {
+        // An opened XHR may be sent later: hold it until the full check answers.
+        void fullCheck(v.prompt).then((allow) => (allow ? origSend.call(this, body) : fail()));
         return;
       }
     }

@@ -12,7 +12,8 @@ export interface DrawerItem {
   masked: string;
   evidence: string;
   route: string;
-  source: 'composer' | 'attachment';
+  /** request: found in an outgoing request by the network backstop (nothing in the composer to act on). */
+  source: 'composer' | 'attachment' | 'request' | 'paste';
   attachmentId?: string;
   attachmentName?: string;
 }
@@ -20,6 +21,11 @@ export interface DrawerItem {
 export interface DrawerState {
   /** held: Tier 1/3A were clean but the offscreen check (Tier 2/3B) could not answer — the user decides. */
   mode: 'blocked' | 'lifted' | 'held';
+  /**
+   * network: decided by the MAIN-world backstop on a request that skipped the composer check.
+   * paste: a long paste checked before the portal could turn it into an uploaded file.
+   */
+  origin?: 'composer' | 'network' | 'paste';
   portalLabel: string;
   items: DrawerItem[];
   latencyMs: number;
@@ -89,13 +95,20 @@ export class BlockDrawer {
     if (e.key === 'Escape') this.handlers?.onClose();
   };
   private handlers: DrawerHandlers | null = null;
+  private state: DrawerState | null = null;
 
   get isOpen(): boolean {
     return !!this.host?.isConnected;
   }
 
+  /** What the drawer is showing now (null when closed). */
+  get mode(): DrawerState['mode'] | null {
+    return this.isOpen ? (this.state?.mode ?? null) : null;
+  }
+
   show(state: DrawerState, handlers: DrawerHandlers): void {
     this.handlers = handlers;
+    this.state = state;
     if (!this.host || !this.host.isConnected) {
       this.host = document.createElement('aionix-sentinel-drawer');
       // Closed in production so page scripts cannot read findings; open only in the e2e test build.
@@ -153,11 +166,16 @@ export class BlockDrawer {
       );
       wrap.appendChild(s);
       if (state.note) wrap.appendChild(text('div', state.note, 'note'));
-      wrap.appendChild(text('p', 'Press Enter to check again, or send without the context check.', 'lifted'));
+      const prompt = {
+        network: ['This request skipped the composer check. Keep it unsent, or send it without the context check.', 'Keep it unsent', 'Send anyway'],
+        paste: [`${state.portalLabel} uploads a paste this long as a file as soon as it is added. Leave it out, or paste it without the context check.`, 'Leave it out', 'Paste anyway'],
+        composer: ['Press Enter to check again, or send without the context check.', 'Keep editing', 'Send anyway'],
+      }[state.origin ?? 'composer'];
+      wrap.appendChild(text('p', prompt[0]!, 'lifted'));
       const footer = el('footer');
-      const cancel = text('button', 'Keep editing', 'b primary');
+      const cancel = text('button', prompt[1]!, 'b primary');
       cancel.addEventListener('click', () => h.onClose());
-      const anyway = text('button', 'Send anyway', 'b danger');
+      const anyway = text('button', prompt[2]!, 'b danger');
       anyway.addEventListener('click', () => h.onSendAnyway?.());
       footer.append(cancel, anyway);
       wrap.appendChild(footer);
@@ -182,7 +200,8 @@ export class BlockDrawer {
     const h2 = text('h2', `${n} high-risk item${n === 1 ? '' : 's'} stopped before reaching ${state.portalLabel}`);
     h2.id = 'aionix-title';
     const p = el('p');
-    p.append('Nothing was sent. Inspected locally in ', text('span', `${state.latencyMs.toFixed(1)} ms`, 'mono'), '.');
+    const lead = { network: 'Stopped before the request left the browser', paste: 'The paste was not added, and nothing was uploaded', composer: 'Nothing was sent' }[state.origin ?? 'composer'];
+    p.append(`${lead}. Inspected locally in `, text('span', `${state.latencyMs.toFixed(1)} ms`, 'mono'), '.');
     summary.append(h2, p);
     wrap.appendChild(summary);
     if (state.note) wrap.appendChild(text('div', state.note, 'note'));
@@ -197,7 +216,7 @@ export class BlockDrawer {
         const rm = text('button', 'Remove file', 'b danger');
         rm.addEventListener('click', () => h.onRemoveAttachment(item.attachmentId!));
         actions.appendChild(rm);
-      } else {
+      } else if (item.source === 'composer') {
         const red = text('button', 'Redact', 'b ghost');
         red.addEventListener('click', () => h.onRedactOne(item.id));
         const edit = text('button', 'Edit', 'b ghost');
@@ -208,7 +227,8 @@ export class BlockDrawer {
       const line = el('div');
       line.append(text('span', item.label, 'lbl'), ' ', text('span', item.masked, 'masked'));
       li.appendChild(line);
-      const where = item.source === 'attachment' ? `in ${item.attachmentName ?? 'attachment'}` : 'in composer';
+      const where =
+        item.source === 'attachment' ? `in ${item.attachmentName ?? 'attachment'}` : item.source === 'request' ? 'in outgoing request' : item.source === 'paste' ? 'in pasted text' : 'in composer';
       li.appendChild(text('div', `${item.evidence} · ${item.route} · ${where}`, 'meta'));
       list.appendChild(li);
     }
@@ -221,7 +241,7 @@ export class BlockDrawer {
       all.addEventListener('click', () => h.onRedactAll());
       footer.appendChild(all);
     }
-    const dismiss = text('button', 'Edit manually', 'b ghost');
+    const dismiss = text('button', state.origin === 'network' || state.origin === 'paste' ? 'Dismiss' : 'Edit manually', 'b ghost');
     dismiss.addEventListener('click', () => h.onClose());
     footer.appendChild(dismiss);
     wrap.appendChild(footer);

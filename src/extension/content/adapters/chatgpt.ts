@@ -5,11 +5,17 @@ import type { PortalAdapter } from './types';
 //    div.ProseMirror[role="textbox"][aria-label="Ask ChatGPT"] in a form), JSON POST to /backend-api/(f/)conversation;
 //  - signed out: <textarea name="prompt"> (#mobile-composer-prompt), form-encoded POST to
 //    /unauth-mweb/conversation/updates whose `prompt` field carries the message.
+// Before the app hydrates, the signed-in home page serves <textarea id="pending-home-input"> (verified
+// 2026-11-02): it takes typing and an early Enter, and the app sends that text once it loads.
 export const chatgptAdapter: PortalAdapter = {
   id: 'chatgpt',
   label: 'ChatGPT',
   hosts: ['chatgpt.com', 'chat.openai.com'],
   composerSelectors: ['div#prompt-textarea[contenteditable="true"]', '#prompt-textarea', 'form div.ProseMirror[contenteditable="true"][role="textbox"]', 'textarea[name="prompt"]', '#mobile-composer-prompt', 'textarea[data-id="root"]'],
+  preloadComposerSelectors: ['textarea#pending-home-input'],
+  // Long pastes become pasted.txt, a file attachment (reported at 5k chars on consumer plans, 10k on
+  // Enterprise/Edu); ChatGPT uploads attachments when they are attached, so they are checked at paste time.
+  pasteUpload: { minChars: 4000 },
   sendButtonSelectors: ['button[data-testid="send-button"]', '#composer-submit-button', 'button[aria-label="Send prompt"]', 'button[aria-label="Send message"]'],
   chipContainerSelectors: ['[data-testid="composer-attachments"]', 'form'],
   chipSelectors: ['[data-testid*="attachment" i]', '[data-testid*="file" i]', '[data-aionix-chip]'],
