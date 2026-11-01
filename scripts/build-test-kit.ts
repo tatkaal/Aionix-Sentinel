@@ -22,6 +22,17 @@ const memo = read('data/vault/project-chronos-memo.md').split('\n\n');
 const netting = read('data/test-kit/settlement-netting-engine.ts').split('\n');
 const pricing = read('data/test-kit/halcyon-pricing-memo.md').split('\n\n');
 const edgeCases = JSON.parse(read('data/datasets/edge-cases.json')) as BenchSample[];
+const filler = read('data/test-kit/large-paste-filler.md').trim();
+
+/**
+ * Live-test attachments: the flagged text buried mid-way in ~24,000 characters of a benign handbook,
+ * so every portal treats the paste as an attachment (measured on claude.ai 2026-11-02: a chip from
+ * 4,000–5,000 characters; ChatGPT is reported at 5,000 or 10,000). The edge-case dataset itself is unchanged.
+ */
+const livePaste = (core: string) => {
+  const part = (n: number) => `Part ${n} of 4\n\n${filler}`;
+  return [part(1), part(2), core, part(3), part(4)].join('\n\n');
+};
 
 const T1 = 'Tier 1 (content script, synchronous)';
 const T2 = 'Tier 2 (offscreen: person ↔ sensitive-term graph + MiniLM validator)';
@@ -165,7 +176,7 @@ const kit: TestKit = {
       prompts: [
         { title: '15 lines of the bundled proprietary router', text: `Can you optimise this?\n\n${router.slice(10, 25).join('\n')}`, expect: 'block', note: `${T3A}`, needs: 'demo-vault' },
         { title: 'Paragraph from the bundled board memo', text: `Rewrite this for the board deck:\n\n${memo[3]}`, expect: 'block', note: `${T3A} + ${T3B}`, needs: 'demo-vault' },
-        { title: 'Large paste → pasted-content chip', text: 'Summarise the attached memo for my team in five bullet points.', paste: memo.slice(3, 7).join('\n\n'), expect: 'block', note: `${T3A} on the attachment; removing the chip lifts the block`, needs: 'demo-vault' },
+        { title: 'Large paste → pasted-content chip', text: 'Summarise the attached memo for my team in five bullet points.', paste: livePaste(memo.slice(3, 7).join('\n\n')), expect: 'block', note: `${T3A} on the attachment. Claude: chip, Send blocked, removing the chip lifts the block. ChatGPT / Gemini: checked at paste time and kept out (they may upload long pastes as files)`, needs: 'demo-vault' },
         { title: 'Excerpt of your protected code', text: `Refactor this for readability:\n\n${netting.slice(15, 30).join('\n')}`, expect: 'block', note: `${T3A} · after protecting the sample code`, needs: 'sample:settlement-netting-engine' },
         { title: 'Paragraph of your protected document', text: `Make this sound friendlier:\n\n${pricing[3]}`, expect: 'block', note: `${T3A} + ${T3B} · after protecting the sample memo`, needs: 'sample:halcyon-pricing-memo' },
         { title: 'Generic code question', text: 'How do I debounce a function in TypeScript without a library?', expect: 'allow', note: 'Not in the vault — must pass' },
@@ -178,8 +189,8 @@ const kit: TestKit = {
     expect: c.expect,
     categories: c.categories,
     text: c.text,
-    ...(c.attachments?.length ? { paste: c.attachments[0]!.text } : {}),
-    ...(c.steps ? { steps: c.steps.map((s) => ({ text: s.text, expect: s.expect, ...(s.attachments?.length ? { paste: s.attachments[0]!.text } : {}) })) } : {}),
+    ...(c.attachments?.length ? { paste: livePaste(c.attachments[0]!.text) } : {}),
+    ...(c.steps ? { steps: c.steps.map((s) => ({ text: s.text, expect: s.expect, ...(s.attachments?.length ? { paste: livePaste(s.attachments[0]!.text) } : {}) })) } : {}),
   })),
   samples: [
     { id: 'settlement-netting-engine', type: 'code', title: 'Halcyon settlement netting engine', fileName: 'settlement-netting-engine.ts', text: read('data/test-kit/settlement-netting-engine.ts') },
@@ -192,4 +203,4 @@ const kit: TestKit = {
 // The synthetic AWS key id is written as a JSON escape so secret scanners (GitHub push protection)
 // don't take the fixture for a leaked key; JSON.parse restores the exact text.
 writeFileSync(resolve(root, 'assets/engine/test-kit.json'), JSON.stringify(kit, null, 2).replace(/\bAKIA/g, 'AKI\\u0041') + '\n');
-console.log(`test-kit.json: ${kit.categories.reduce((n, c) => n + c.prompts.length, 0)} category prompts, ${kit.edgeCases.length} edge cases, ${kit.samples.length} samples`);
+console.log(`test-kit.json: ${kit.categories.reduce((n, c) => n + c.prompts.length, 0)} category prompts, ${kit.edgeCases.length} edge cases, ${kit.samples.length} samples, live attachments ${livePaste('').length.toLocaleString()}+ chars`);

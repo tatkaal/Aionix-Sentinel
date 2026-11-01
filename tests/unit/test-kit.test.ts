@@ -48,6 +48,19 @@ describe.skipIf(!ready)('live test kit — every prompt behaves as the options p
     });
   }
 
+  it('live attachments are long enough to become chips, and their filler alone is clean', async () => {
+    const pastes = [
+      ...kit.categories.flatMap((c) => c.prompts.map((p) => p.paste)),
+      ...kit.edgeCases.flatMap((c) => [c.paste, ...(c.steps ?? []).map((s) => s.paste)]),
+    ].filter((x): x is string => !!x);
+    expect(pastes.length).toBeGreaterThan(1);
+    // claude.ai chips from 4,000–5,000 characters (measured); ChatGPT is reported at 5,000 or 10,000.
+    for (const p of pastes) expect(p.length).toBeGreaterThan(20_000);
+    const filler = readFileSync(resolve(root, 'data/test-kit/large-paste-filler.md'), 'utf8').trim();
+    const r = await scan('Summarise the attached handbook for new joiners.', [1, 2, 3, 4].map((n) => `Part ${n} of 4\n\n${filler}`).join('\n\n'));
+    expect(r.findings.map((f) => f.label)).toEqual([]);
+  });
+
   it('removing a protected sample stops the exact-match block', async () => {
     const p = kit.categories.find((c) => c.id === 9)!.prompts.find((x) => x.needs === 'sample:halcyon-patients')!;
     expect((await scan(p.text)).verdict).toBe('block');
