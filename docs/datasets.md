@@ -11,7 +11,7 @@ All sampling is seeded, so re-running the script produces the same rows.
 | Enron Email Corpus | [`LLM-PBE/enron-email`](https://huggingface.co/datasets/LLM-PBE/enron-email) (CMU Enron emails, via the HF datasets-server rows API) | Apache-2.0 (dataset card) | Yes (sample) | Benign enterprise stress test; measures the false-positive rate (FPR) |
 | Presidio synthetic PII | [`synth_dataset_v2.json`](https://github.com/data-privacy-stack/presidio-research/blob/main/data/synth_dataset_v2.json) (`presidio-research`) | MIT | Yes | Mixed PII; tests precision on PII outside our block policy and recall on cards/SSN/IBAN |
 | AI4Privacy PII-200k | [`ai4privacy/pii-masking-200k`](https://huggingface.co/datasets/ai4privacy/pii-masking-200k) | No licence stated on the card | **No** (gitignored; fetched at setup/CI) | Multilingual (en/fr/de/it) spans, plus obfuscation augmentation |
-| Stakeholder edge cases | Hand-authored from the blueprint (see [edge-cases.md](edge-cases.md)) | Project | Yes | 24 mandatory acceptance scenarios |
+| Stakeholder edge cases | Written from the brief's edge-case list (see [edge-cases.md](edge-cases.md)) | Project | Yes | 24 mandatory acceptance scenarios |
 | English disclosure probes | Hand-authored after the stakeholder reported `my current psw is …` passing (`scripts/datasets/english-probes.ts`) | Project | Yes | 137 English phrasings across Categories 1–10 plus benign near-misses, incl. the stakeholder brief's formats (spaces/dashes, code blocks, JSON, CSV, unlabelled passwords, code that names a password field). Used to find and fix gaps, so it is a regression suite (`curated`), not an unbiased estimate |
 
 ### Labelling policy
@@ -36,7 +36,7 @@ All sampling is seeded, so re-running the script produces the same rows.
   Their scores are therefore **optimistic, in-sample** numbers.
 - **Held-out splits** (`enron-holdout`, `ai4privacy-holdout`) were drawn from different corpus offsets after rule development finished. They are only ever *evaluated*. Their misclassifications are reviewed solely to fix wrong ground-truth labels, never to change rules. **Quote the held-out numbers** as the expected real-world behaviour.
 - **Adjudications** are recorded in `data/datasets/enron-adjudications.json`, each with its reason. Two Enron emails turned out to share real credentials (`Password: WELCOME`, `password is ENRON`) and are labelled `block`.
-- **Release gate.** `bench-gate.json` is a regression guard set just below the measured results. The blueprint targets (F2 ≥ 0.97, FPR < 0.05 %) are shown separately as targets and are not yet met on held-out data.
+- **Release gate.** `bench-gate.json` is a regression guard set just below the measured results. The design targets from the original plan (F2 ≥ 0.978, FPR < 0.02 %) are shown separately as targets and are not yet met on held-out data.
 
 ### Known failure modes on held-out data
 

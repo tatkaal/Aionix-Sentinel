@@ -1,6 +1,6 @@
 # Stakeholder Adversarial Edge-Case Suite (N = 24)
 
-These cases are derived from the blueprint. They are the mandatory acceptance scenarios.
+These cases were written from the stakeholder brief's edge-case list when the first plan was drafted. They are the mandatory acceptance scenarios.
 
 - **Executable copy:** [`data/datasets/edge-cases.json`](../data/datasets/edge-cases.json).
 - **Unit tests:** run against Path A by `tests/unit/edge-cases.test.ts`.

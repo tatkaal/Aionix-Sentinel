@@ -34,7 +34,7 @@ Aionix Sentinel is a Manifest V3 Chrome extension that inspects prompts on claud
 1. **Git**: commits are attributed only to the local git user. Never add `Co-Authored-By` or any AI trailer. Conventional Commits, one short subject line (`feat(engine): …`, `fix: …`, `docs: …`).
 2. **Zero remote code, zero runtime downloads**: ORT wasm is served from the extension (`wasmPaths` → `chrome.runtime.getURL('ort/')`), and the Path B tagger ships in `assets/engine/pathb/`. The extension's only host permissions are the three portals.
 3. **Memory**: offscreen ceiling 150 MB (warn 105 MB). Path A target < 50 MB. Path B is evicted/degraded to Path A if the steady-state host footprint exceeds the ceiling. Report measured numbers, never assumed ones.
-4. **Honest metrics**: every number shown in Benchmarks, Telemetry and the Presentation comes from an actual run. Blueprint figures may only appear labelled as *targets*.
+4. **Honest metrics**: every number shown in Benchmarks, Telemetry and the Presentation comes from an actual run. Design targets from the original plan may only appear labelled as *targets*.
 5. **Zero-knowledge telemetry**: store category, tier, path, portal, latency, timestamp and a salted truncated hash. Never raw prompt text or secrets.
 6. **Content script stays React-free** and synchronous for Tier 1 + Tier 3A; anything async goes to the offscreen document.
 
@@ -57,4 +57,5 @@ Aionix Sentinel is a Manifest V3 Chrome extension that inspects prompts on claud
 - New detectors need a vitest case in `tests/unit/` and, if they change block decisions, a probe in `scripts/datasets/english-probes.ts` (the 24 stakeholder edge cases in `data/datasets/edge-cases.json` stay fixed).
 - Tier 2: a name directly after a record role (patient, client, customer …) or a record identifier (MRN, DOB, labelled ID) is a record without the MiniLM validator; the validator only arbitrates uncued names. Lay condition / debt terms go in `data/lexicons/medical-synonyms.txt` / `financial-terms.txt` (then `npm run data:fst`).
 - Portal selectors live only in `src/extension/content/adapters/*`. When a live site changes, update the adapter, not the core, and add the new shape to `tests/e2e/fixtures/portal.html` (e.g. `chatgpt-anon`) and `tests/unit/adapters.test.ts`.
+- Adapters also list the portal's pre-hydration input (`preloadComposerSelectors`: the plain textarea served before the app loads, which accepts an early Enter) and whether long pastes become an uploaded file (`pasteUpload`: checked at paste time). Check both when a portal changes; the interceptor resolves the composer from the event target, never from the first match in the page.
 - Tier 1 rules must never fire on their own redaction tags (`[REDACTED_<TYPE>]`); `tests/unit/english-probes.test.ts` checks every blocked probe passes after auto-redaction.

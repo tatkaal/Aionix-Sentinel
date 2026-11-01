@@ -44,11 +44,21 @@ To install the extension: open `chrome://extensions`, enable **Developer mode**,
 
 ## Live testing in Chrome
 
-1. **Load the extension** (above). Pin it, then open the popup: it shows the Tier 2 route (`Path B · Neural tagger (CPU)` once loaded), offscreen memory against the 150 MB ceiling, and counters.
+1. **Load the extension** (above). Pin it, then open the popup: it shows the Tier 2 route (`Path B · Neural tagger (CPU)` once loaded), offscreen memory against the 150 MB ceiling, counters, and when the engine was loaded. The engine loads once (at browser start or install) and stays loaded for every tab; opening the popup or switching portals does not restart it.
 2. **Open "Protected data & test kit"** from the popup (or right-click the icon → Options).
    - **Live test kit** tab: copy-ready prompts for every category 1–10 and all 24 stakeholder edge cases, each with the expected outcome and the tier that decides it.
    - **Protected data** tab: Categories 8–10 depend on what your organisation protects. Load one of the four fictional samples (code, memo, customer CSV, patient CSV) and press **Protect**. Only fingerprints are stored — never the text.
 3. **Paste a prompt into claude.ai, chatgpt.com or gemini.google.com and press Enter.** A high-risk prompt is stopped before anything leaves the browser: the drawer lists each finding (masked), with **Auto-redact**, per-item **Redact** / **Edit**, and **Remove file** for flagged pasted-content chips. A clean prompt is sent normally.
+
+**Every way a prompt can leave is checked:**
+
+| Route | Where it is checked |
+|---|---|
+| Enter, the Send button or a form submit in the composer | Content script, before the portal sees the event |
+| The plain input ChatGPT, Claude and Gemini show until their app has loaded (a first message typed straight after opening the page) | Same check: the composer is resolved from the element the key was pressed in |
+| A long paste on ChatGPT or Gemini (ChatGPT turns it into `pasted.txt`, a file it uploads when attached) | At paste time, with the full cascade; a flagged paste never enters the composer |
+| A long paste on Claude (a "Pasted text" chip that travels with the message) | On Send; removing the chip lifts the block |
+| Anything else that reaches the portal's send endpoint (an edited message, a retry, a script) | The MAIN-world network backstop runs the same cascade before the request leaves |
 
 | Stakeholder report, live ChatGPT | Named patient, live Gemini (Tier 2 neural) |
 |---|---|
@@ -62,14 +72,14 @@ To install the extension: open `chrome://extensions`, enable **Developer mode**,
 
 | The brief says we will test… | Try | Expected | Live evidence |
 |---|---|---|---|
-| Large pastes that Claude and ChatGPT turn into attachment chips; removing the chip lifts the block | Kit · 10 · "Large paste → pasted-content chip" (copy the attachment, paste, add the prompt, Enter; then remove the chip) | Blocked "in pasted-content.txt" → **Remove file** → "Block lifted" | [Claude replica chip](docs/live-test/55-claude-replica-chip-blocked.png) → [removed](docs/live-test/56-claude-replica-chip-removed.png); [live ChatGPT large paste](docs/live-test/29-chatgpt-large-paste.png) (signed out it stays inline) |
+| Large pastes that Claude and ChatGPT turn into attachment chips; removing the chip lifts the block | Kit · 10 · "Large paste → pasted-content chip": **Copy attachment** (about 22,000 characters, past every portal's chip threshold), Ctrl+V, add the prompt, Enter | **Claude:** a "Pasted text" chip; Send blocked "in pasted-content.txt" → **Remove file** → "Block lifted". **ChatGPT / Gemini:** checked as you paste; "The paste was not added, and nothing was uploaded" | [Claude replica chip](docs/live-test/55-claude-replica-chip-blocked.png) → [removed](docs/live-test/56-claude-replica-chip-removed.png); [live ChatGPT, paste stopped](docs/live-test/29-chatgpt-large-paste.png) |
 | A sensitive item buried in a long prompt | Kit · edge cases · EC23 | Blocked; the drawer masks only that token | Edge-case suite (`npm test`) |
 | Benign look-alikes: `4242 4242 4242 4242`, code naming a password field, order numbers, public figures, general medical / finance questions | Kit "Expect: sent" prompts in categories 2, 5, 8, 9 · EC06, EC11, EC12, EC18, EC19, EC21 | Sent untouched | [Code that reads a password from the environment, sent to live Gemini](docs/live-test/35-gemini-allowed-code-password-field.png); [question answered by live ChatGPT](docs/live-test/24-chatgpt-allowed-question.png) |
 | Values with spaces or dashes, in other languages, in code blocks, JSON or CSV, or an unlabelled password | Kit · 2 "Password inside a code block / JSON body", "Other language", "Unlabelled password"; 3 "SSN with spaces", "SSNs in a CSV"; 4 "TFN with dashes", "TFN inside JSON"; 5 "Card inside JSON"; 8/9 "… as JSON / CSV" | Blocked | [Unlabelled password](docs/live-test/26-chatgpt-cat2-unlabelled-password.png) · [customer JSON](docs/live-test/27-chatgpt-cat8-customer-json.png) · [SSNs in CSV](docs/live-test/28-chatgpt-cat3-ssn-csv.png) · [patients CSV on Gemini](docs/live-test/34-gemini-cat9-patients-csv.png) |
 | Benign text mixed with one real secret | Kit · 1 "OpenAI key in code" · EC23 | Blocked; one finding | [OpenAI key](docs/live-test/12-chatgpt-cat1-openai-key.png) |
-| The block can't be bypassed by sending again; the user can fix the prompt | Press Enter / click Send again while blocked; then **Auto-redact**, **Redact**, **Edit** or **Edit manually** | Every send is re-checked; a cleaned prompt sends | [Two findings](docs/live-test/50-claude-replica-two-findings.png) → [auto-redacted](docs/live-test/52-claude-replica-auto-redacted.png) → [sent](docs/live-test/53-claude-replica-sent-redacted.png); [direct `fetch` refused](docs/live-test/25-chatgpt-backstop.png) |
+| The block can't be bypassed by sending again; the user can fix the prompt | Press Enter / click Send again while blocked; then **Auto-redact**, **Redact**, **Edit** or **Edit manually** | Every send is re-checked; a cleaned prompt sends | [Two findings](docs/live-test/50-claude-replica-two-findings.png) → [auto-redacted](docs/live-test/52-claude-replica-auto-redacted.png) → [sent](docs/live-test/53-claude-replica-sent-redacted.png); [direct `fetch` refused](docs/live-test/25-chatgpt-backstop.png); [patient record sent past the composer, stopped at the network layer](docs/live-test/58-claude-replica-backstop-record.png); [Enter before the page finished loading](docs/live-test/59-chatgpt-replica-early-input.png) |
 
-**Timing.** Enter → decision through the real content script: a clean prompt is sent in 20 ms p50 (max 43 ms) on Path B, a Tier 2 block shows in 34 ms p50 (max 52 ms), against a 1,000 ms budget counted from the Send event (`npm run measure:ext`, ADR-005).
+**Timing.** Enter → decision through the real content script: a clean prompt is sent in 20 ms p50 (max 37 ms) on Path B, a Tier 2 block shows in 31 ms p50 (max 53 ms), against a 1,000 ms budget counted from the Send event (`npm run measure:ext`, ADR-005).
 
 All screenshots come from `npx tsx scripts/capture-live-guide.ts`, which drives the built extension on **live chatgpt.com and gemini.google.com (signed out)** and on the local Claude replica (claude.ai needs a sign-in). Its network guard aborts any request that carries a should-be-blocked prompt; per-trial outcomes and any such request are recorded in `docs/live-test/capture-results.json`.
 
@@ -104,7 +114,7 @@ cd ../.. && npx tsx scripts/bakeoff.ts <id> ...                          # compa
 .venv/Scripts/python scripts/ml/package_pathb.py <out>                   # → assets/engine/pathb
 ```
 
-> Every figure shown in the Benchmarks, Telemetry and Presentation workspaces comes from an actual run of the shipping engine. Blueprint targets are shown only as labelled targets.
+> Every figure shown in the Benchmarks, Telemetry and Presentation workspaces comes from an actual run of the shipping engine. Design targets from the original plan are shown only as labelled targets.
 
 ## Measured results
 
@@ -113,16 +123,16 @@ Document-level detection, positive = "must block". **Dev** splits were used for 
 
 | Dataset | Split | n | Path A P / R | Path A F2 | Path A FPR | Path A p50 / p95 | Path B P / R | Path B F2 | Path B FPR | Path B p50 / p95 |
 |---|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|
-| 24 Stakeholder Edge Cases | curated | 25 | 1.000 / 1.000 | 1.000 | 0.00% | 5.3 ms / 34 ms | 1.000 / 1.000 | 1.000 | 0.00% | 10 ms / 52 ms |
-| English Disclosure Probes | curated | 137 | 1.000 / 1.000 | 1.000 | 0.00% | 0.2 ms / 5.4 ms | 1.000 / 1.000 | 1.000 | 0.00% | 2.6 ms / 9.3 ms |
-| Enron Email Corpus | dev | 300 | 1.000 / 1.000 | 1.000 | 0.00% | 30 ms / 123 ms | 0.500 / 1.000 | 0.833 | 0.33% | 43 ms / 187 ms |
-| Presidio Synthetic PII | dev | 488 | 1.000 / 1.000 | 1.000 | 0.00% | 3.2 ms / 7.0 ms | 1.000 / 1.000 | 1.000 | 0.00% | 5.6 ms / 11 ms |
-| AI4Privacy Multilingual | dev | 584 | 0.993 / 0.818 | 0.848 | 0.24% | 8.1 ms / 15 ms | 0.980 / 0.847 | 0.871 | 0.72% | 12 ms / 19 ms |
-| Enron · held-out | holdout | 300 | 0.200 / 1.000 | 0.556 | 1.34% | 28 ms / 101 ms | 0.125 / 1.000 | 0.417 | 2.34% | 40 ms / 160 ms |
-| AI4Privacy · held-out | holdout | 500 | 0.898 / 0.646 | 0.685 | 1.44% | 8.3 ms / 16 ms | 0.881 / 0.720 | 0.747 | 1.91% | 12 ms / 20 ms |
+| 24 Stakeholder Edge Cases | curated | 25 | 1.000 / 1.000 | 1.000 | 0.00% | 5.6 ms / 35 ms | 1.000 / 1.000 | 1.000 | 0.00% | 8.8 ms / 52 ms |
+| English Disclosure Probes | curated | 137 | 1.000 / 1.000 | 1.000 | 0.00% | 0.2 ms / 6.0 ms | 1.000 / 1.000 | 1.000 | 0.00% | 2.6 ms / 8.8 ms |
+| Enron Email Corpus | dev | 300 | 1.000 / 1.000 | 1.000 | 0.00% | 29 ms / 120 ms | 0.500 / 1.000 | 0.833 | 0.33% | 44 ms / 186 ms |
+| Presidio Synthetic PII | dev | 488 | 1.000 / 1.000 | 1.000 | 0.00% | 3.1 ms / 7.2 ms | 1.000 / 1.000 | 1.000 | 0.00% | 5.6 ms / 10 ms |
+| AI4Privacy Multilingual | dev | 584 | 0.993 / 0.818 | 0.848 | 0.24% | 8.1 ms / 15 ms | 0.980 / 0.847 | 0.871 | 0.72% | 12 ms / 20 ms |
+| Enron · held-out | holdout | 300 | 0.200 / 1.000 | 0.556 | 1.34% | 27 ms / 97 ms | 0.125 / 1.000 | 0.417 | 2.34% | 41 ms / 162 ms |
+| AI4Privacy · held-out | holdout | 500 | 0.898 / 0.646 | 0.685 | 1.44% | 8.0 ms / 15 ms | 0.881 / 0.720 | 0.747 | 1.91% | 12 ms / 20 ms |
 
-Blueprint targets (F2 ≥ 0.978, FPR < 0.02%) on Path A: met on 24 Stakeholder Edge Cases, English Disclosure Probes, Enron Email Corpus, Presidio Synthetic PII; **not met on AI4Privacy Multilingual, Enron · held-out, AI4Privacy · held-out.**
-Blueprint targets (F2 ≥ 0.978, FPR < 0.02%) on Path B: met on 24 Stakeholder Edge Cases, English Disclosure Probes, Presidio Synthetic PII; **not met on Enron Email Corpus, AI4Privacy Multilingual, Enron · held-out, AI4Privacy · held-out.**
+Design targets (F2 ≥ 0.978, FPR < 0.02%) on Path A: met on 24 Stakeholder Edge Cases, English Disclosure Probes, Enron Email Corpus, Presidio Synthetic PII; **not met on AI4Privacy Multilingual, Enron · held-out, AI4Privacy · held-out.**
+Design targets (F2 ≥ 0.978, FPR < 0.02%) on Path B: met on 24 Stakeholder Edge Cases, English Disclosure Probes, Presidio Synthetic PII; **not met on Enron Email Corpus, AI4Privacy Multilingual, Enron · held-out, AI4Privacy · held-out.**
 
 **English only.** AI4Privacy rows the dataset annotates as English. Enron, Presidio, the edge cases and the probes are English throughout.
 
@@ -135,11 +145,11 @@ Blueprint targets (F2 ≥ 0.978, FPR < 0.02%) on Path B: met on 24 Stakeholder E
 - **Earlier Path B** (openai/privacy-filter (q4f16, WebGPU) · intel · gen-12lp, recorded 2026-10-30): held-out AI4Privacy F2 0.770 at FPR 14.83%; Enron FPR 6.35%. It needed 958 MB of host memory and was replaced (ADR-007).
 - **Node runs:** Path A 2026-11-01, Path B 2026-11-01 (aionix-pathb-6L (Multilingual-MiniLM, trimmed vocab, INT8)); Node v22.14.0, 12th Gen Intel(R) Core(TM) i7-12700H. Latency is the whole cascade per observation.
 - **Browser run (Path A):** recorded 2026-10-30 in the Workbench engine worker, ONNX Runtime wasm (CPU) · 20 logical cores; same detections as the Node run.
-- **Inside the extension** (path-a-only (Path B evicted, recycled document), Chromium via Playwright): offscreen memory 87.2 MB (measureUserAgentSpecificMemory after forced GC (raw CDP, offscreen document)); Tier 2 route A, p50 / p95 0.1 ms / 2.3 ms; Tier 3B p50 / p95 6.3 ms / 8.6 ms.
-  - Enter → decision, real content script on the fixture portal: clean prompt sent p50 16 ms / p95 33 ms / max 33 ms (n=12); Tier 2 block shown p50 23 ms / p95 50 ms / max 50 ms (n=5); Tier 1 block shown p50 7.3 ms / p95 15 ms / max 15 ms (n=5). Budget: 1,000 ms from Send.
-- **Inside the extension** (auto (Path B allowed), Chromium via Playwright): offscreen memory 110.4 MB (measureUserAgentSpecificMemory after forced GC (raw CDP, offscreen document)); Tier 2 route B, p50 / p95 6.8 ms / 11 ms; Tier 3B p50 / p95 6.3 ms / 8.2 ms.
-  - Path B ready after 200 ms: aionix-pathb-6L (Multilingual-MiniLM, trimmed vocab, INT8) · CPU (ONNX Runtime wasm) · host 118 MB after load (measureUserAgentSpecificMemory).
-  - Enter → decision, real content script on the fixture portal: clean prompt sent p50 20 ms / p95 43 ms / max 43 ms (n=12); Tier 2 block shown p50 34 ms / p95 52 ms / max 52 ms (n=5); Tier 1 block shown p50 9.4 ms / p95 13 ms / max 13 ms (n=5). Budget: 1,000 ms from Send.
+- **Inside the extension** (path-a-only (Path B evicted, recycled document), Chromium via Playwright): offscreen memory 87.1 MB (measureUserAgentSpecificMemory after forced GC (raw CDP, offscreen document)); Tier 2 route A, p50 / p95 0.1 ms / 3.0 ms; Tier 3B p50 / p95 6.3 ms / 8.5 ms.
+  - Enter → decision, real content script on the fixture portal: clean prompt sent p50 17 ms / p95 39 ms / max 39 ms (n=12); Tier 2 block shown p50 28 ms / p95 54 ms / max 54 ms (n=5); Tier 1 block shown p50 7.8 ms / p95 17 ms / max 17 ms (n=5). Budget: 1,000 ms from Send.
+- **Inside the extension** (auto (Path B allowed), Chromium via Playwright): offscreen memory 109.6 MB (measureUserAgentSpecificMemory after forced GC (raw CDP, offscreen document)); Tier 2 route B, p50 / p95 7.1 ms / 11 ms; Tier 3B p50 / p95 6.4 ms / 8.1 ms.
+  - Path B ready after 218 ms: aionix-pathb-6L (Multilingual-MiniLM, trimmed vocab, INT8) · CPU (ONNX Runtime wasm) · host 111 MB after load (performance.memory JS heap + wasm linear memory).
+  - Enter → decision, real content script on the fixture portal: clean prompt sent p50 20 ms / p95 37 ms / max 37 ms (n=12); Tier 2 block shown p50 31 ms / p95 53 ms / max 53 ms (n=5); Tier 1 block shown p50 8.4 ms / p95 12 ms / max 12 ms (n=5). Budget: 1,000 ms from Send.
 
 **Path B bake-off** (model selection, 2026-10-30). Dev splits only, `graph` policy, full cascade. Recorded before the English Tier 1 fixes, which changed both paths equally. Tagger latency is ONNX Runtime CPU with 4 threads, per text.
 
@@ -160,11 +170,63 @@ Blueprint targets (F2 ≥ 0.978, FPR < 0.02%) on Path B: met on 24 Stakeholder E
 - **When the offscreen check cannot answer** (engine starting, recycled or unreachable; > 1,000 ms), a prompt that is clean on Tier 1/3A is **held** with *Send anyway* rather than sent silently (ADR-005). In one of four full live capture runs the engine became unreachable mid-session; the root cause is not yet identified.
 - **Implicit passwords with no credential or strength word** ("I use Summer2024! for everything") are not detected; a mixed token alone is not evidence. Strength questions ("is Summer2024! strong enough?") are.
 - **Tier 2 cannot tell who has the condition.** A named colleague next to a condition in a work context ("Team member Sarah Lee will present our diabetes research") is blocked when the validator reads it as personal.
-- **Signed-in ChatGPT chips are verified on the fixture only.** Signed-out ChatGPT keeps a large paste inline (checked live 2026-11-01, blocked on Enter); Claude's chips are covered on the replica. If a portal uploads a pasted file before Send, that upload is outside the Send-time check.
+- **Long pastes.** Measured on signed-in claude.ai (2026-11-02, benign text): pastes from 4,000–5,000 characters become a "Pasted text" chip, which travels with the message and is checked on Send. Signed-out Gemini kept a 30,000-character paste inline; signed-out ChatGPT keeps long pastes inline. Signed-in ChatGPT is reported to turn pastes over 5,000 (consumer) or 10,000 (Enterprise / Edu) characters into `pasted.txt`; because ChatGPT uploads attachments when they are attached, Aionix checks pastes of 4,000+ characters on ChatGPT and Gemini at paste time. That ChatGPT chip was not verified on a signed-in account (it would have saved a file to the account's library). Files added with the attach button are not inspected.
+- **The network backstop trusts the page's DOM events.** A page script could forge the content script's "verified" signal; the threat model is accidental disclosure by employees, not a hostile portal.
 - **Held-out recall on AI4Privacy is the weak spot.** Unlabelled national IDs and unlabelled passwords without login cues are missed by both paths. Path B's government-ID and secret findings stay off: on the dev splits they added more false alarms than detections (ADR-007).
 - **Path B trades a little precision for recall.** On held-out data it raises AI4Privacy recall but also raises the false-positive rate, Enron's by 1.00 point (table above). Its multilingual training data is thin: about 4k synthetic finance documents per non-English language.
 - **Memory headroom.** With Path B loaded the offscreen document measures 110 MB, under the 150 MB ceiling but above the 105 MB warning watermark. MiniLM (validator + EDM) and the tagger are still two ONNX sessions; sharing one encoder is the next memory step.
 - **Memory readings.** The extension offscreen document reports `measureUserAgentSpecificMemory()`. A plain Web Worker cannot, so the Workbench reports page + worker together.
+
+## Project structure
+
+```
+.github/workflows/release-gate.yml   CI: typecheck → unit → both bench gates → build → e2e
+assets/
+  brand/aionix-mark.svg              logo mark
+  engine/                            committed runtime binaries
+    medical.fst.bin (+ .json)        ICD-10-CM + RxNorm + lay terms, 65,938 entries, 3.4 MB
+    corporate-vault.bin              Tier 3A Bloom + MinHash of the demo vault
+    vault-edm.bin                    Tier 3B vectors + salted field hashes of the demo vault
+    pathb/                           Path B tagger: model_int8.onnx (22.9 MB), tokenizer, labels, NOTICE
+    test-kit.json                    options-page live test kit (generated)
+  icons/                             16 / 32 / 48 / 128 px
+  models/, ort/                      fetched, gitignored: MiniLM-L6 INT8, ONNX Runtime wasm
+bench-gate.json                      CI thresholds (Path A, and "pathB")
+bench-results/                       every measured result (Node runs, browser runs, extension, bake-off)
+data/
+  datasets/                          edge cases, English probes, Enron (+ adjudications), Presidio; AI4Privacy fetched
+  lexicons/                          first names, surnames, public figures, medical synonyms / stoplist, financial terms
+  test-kit/                          fictional samples to protect + the large-paste filler
+  vault/                             demo vault: proprietary router, board memo, CRM export, trial registry
+docs/
+  architecture.md                    category taxonomy, ADR-001 … ADR-008
+  datasets.md, edge-cases.md         dataset licences / splits, the 24 acceptance scenarios
+  live-test/                         live screenshots, capture-results.json, audit-sample.json
+scripts/
+  build-extension.mjs, vite-extension-files.ts   extension build (prod + test)
+  build-medical-fst.ts, build-vault.ts, build-test-kit.ts, gen-icons.mjs, fetch-*.{ts,mjs}
+  bench.ts, report-results.ts, bakeoff.ts, measure-extension.ts, capture-live-guide.ts
+  datasets/                          edge-case, probe and synthetic-value generators
+  lib/                               Node engine, embedder and tagger (benchmarks run the shipping engine)
+  ml/                                Python Path B pipeline: corpus → vocab trim → train → ONNX/INT8 → package
+src/
+  engine/                            pure TypeScript, no DOM or chrome.*
+    tier1/                           normaliser candidates, patterns, secrets, checksums, entropy
+    tier2/                           FST, nodes, proximity graph, validator, lexicon + neural paths
+    tier3/                           shingles, Bloom, MinHash, EDM, custom (protected) vault
+    embed/, runtime/                 tokenizers, MiniLM / tagger on ONNX Runtime
+    pipeline.ts, host.ts, memory-governor.ts, redact.ts, telemetry.ts, digest.ts, types.ts
+    bench/                           harness, metrics, dataset registry
+  extension/
+    content/                         content script, interceptor core, drawer, attachment store, adapters/
+    main-world-interceptor.ts        fetch / XHR network backstop
+    background-sw.ts, offscreen-onnx-worker.ts, popup.tsx, options.tsx, messages.ts, manifest.json
+  shared/brand/                      logo paths, tokens, <AionixLogo/>
+  workbench/                         React 19 Workbench: 6 workspaces, zustand stores, engine worker
+tests/
+  unit/                              10 vitest suites (521 tests)
+  e2e/                               Playwright: extension.spec.ts, portal fixture, fixture server
+```
 
 ## Datasets & licences
 
