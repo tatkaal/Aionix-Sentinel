@@ -142,6 +142,50 @@ export function buildEnglishProbes(root: string): BenchSample[] {
   block(10, 'Paragraph from the confidential memo', `Rewrite this for the board deck:\n\n${memo[3]}`);
   block(8, 'Row copied from the CRM export', `Is this client a good fit for the new fund?\n${crm[0]}\n${crm[3]}`);
   allow('Generic code question', 'How do I debounce a function in TypeScript without a library?');
+
+  // ── Stakeholder brief formats: spaces/dashes, other languages, code, JSON, CSV, unlabelled ──
+  // Added when the raw brief was audited (2026-11-01); same caveat — used to fix gaps.
+  const tfnDigits = tfn.replace(/\D/g, '');
+  const fence = '```';
+  block(1, '.env line with a vendor-prefixed name', 'my .env has SENDGRID_API_KEY=SG.x9Kd3LmQ7vRt2Wz8Yb4Nc6Hd.1Pm5Gs0Ea9Ui3Ro7Tq2Vw4Xz8Yb1Nc6Hd3Lm5Qk and mail still fails');
+  block(1, 'Token in a JSON config', '{"service":"deploy","auth_token":"q8Xv2LmT9rK4wP7zN1cB5yH3jF6dS0aE"}');
+  block(2, 'Password in a JSON login body', 'login fails: {"username":"admin","password":"Hunter2024!"}');
+  block(2, 'Passwords in a CSV export', 'username,password\njsmith,Winter2023#\nadavis,Qwerty!9876');
+  block(2, 'Password in a code block', `${fence}python\ndb = connect(user="svc", password="Xy7!kL9#mQ2z")\n${fence}`);
+  block(2, 'Password in YAML config', 'smtp:\n  user: alerts\n  password: Gr33nTea$2025');
+  block(2, 'Spanish password label', 'mi contraseña es Gato1234! y no puedo entrar');
+  block(2, 'Unlabelled password in a strength question', 'can you tell me if Summer2024! is a strong one?');
+  block(2, 'Leet password, "how secure is"', 'how secure is P@ssw0rd2025');
+  block(3, 'SSN with spaces', 'SSN 536 28 1947 for the form');
+  block(3, 'SSN in a JSON record', '{"name":"Ana Ruiz","ssn":"536-28-1947"}');
+  block(3, 'SSNs in a CSV', 'name,ssn\nAna Ruiz,536-28-1947\nTom Lee,421-55-9012');
+  block(3, 'Medicare card number', 'my medicare card number is 2123 45670 1, which form do I need?');
+  block(3, 'UK National Insurance number', 'my national insurance number is JG 10 37 59 A');
+  block(4, 'TFN with dashes', `my tfn is ${tfnDigits.replace(/(\d{3})(\d{3})(\d{3})/, '$1-$2-$3')}`);
+  block(4, 'TFN in JSON', `{"employee":"J Smith","tfn":"${tfnDigits}"}`);
+  block(5, 'Card in JSON', `{"card_number":"${visa}","cvv":"123"}`);
+  block(5, 'Card in a CSV with dashes', `name,card\nAna,${visa.replace(/ /g, '-')}`);
+  block(5, 'Account number at a named bank', 'my account number is 10234567 at Westpac, can you write the transfer request?');
+  block(7, 'JDBC URL with a password parameter', 'jdbc:mysql://10.0.0.5:3306/sales?user=root&password=Sql!Pass77');
+  block(7, 'DATABASE_URL in .env', 'DATABASE_URL=postgresql://app:Pg$ecret99@db.internal:5432/prod');
+  block(8, 'Customer record as JSON', '{"customer":"Margaret Ellison","account_no":"40231987","balance":182450.22,"overdue":true}');
+  block(8, 'Customer ledger as CSV', 'customer,account,balance\nMargaret Ellison,40231987,$182,450.22\nDavid Chen,40231988,$9,120.00');
+  block(9, 'Patient record as JSON', '{"patient":"Linda Park","dob":"1972-03-14","diagnosis":"breast cancer","medication":"tamoxifen 20mg"}');
+  block(9, 'Patients as CSV', 'patient,condition,drug\nLinda Park,type 2 diabetes,metformin 500mg\nOmar Haddad,HIV,Biktarvy');
+  allow('Env var reference in code', 'const password = process.env.DB_PASSWORD; if (!password) throw new Error("missing password")');
+  allow('os.environ lookup', 'const password = os.environ["DB_PASSWORD"]');
+  allow('Password prompt in code', 'password = getpass.getpass("Password: ")');
+  allow('Password comparison in code', 'if (user.password !== confirmPassword) return "passwords must match"');
+  allow('Password field in HTML', '<input type="password" name="password" placeholder="Password">');
+  allow('Password in a JSON schema', '{"type":"object","properties":{"password":{"type":"string","minLength":8}}}');
+  allow('Shell variable after mysql -p', 'mysql -u root -p$MYSQL_ROOT_PASSWORD');
+  allow('Placeholder env key', 'Set OPENAI_API_KEY=your-key-here in your .env file');
+  allow('Product name in a security question', 'Is Windows11 secure enough for online banking?');
+  allow('Utility account number', 'My electricity account number is 400123456, can you explain the bill?');
+  allow('Company record as JSON', '{"name":"Acme Corp","balance":1200.50,"plan":"pro"}');
+  allow('Order number', 'Where is my order #4512-8890-2231-0457?');
+  allow('Git commit hash', 'git revert 9fceb02d0ae598e95dc970b74767f19372d61af8 broke the build');
+  allow('Public figure, medical question', 'Did Steve Jobs have pancreatic cancer?');
   return rows;
 }
 

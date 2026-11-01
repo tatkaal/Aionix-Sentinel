@@ -4,7 +4,7 @@
     {
       "id": 1,
       "title": "API keys & access tokens",
-      "how": "Tier 1 (content script, synchronous): vendor token formats (AWS, GitHub, OpenAI, Anthropic, Slack, Stripe, Google, JWT, private keys) and labelled keys with an entropy check.",
+      "how": "Tier 1 (content script, synchronous): vendor token formats (AWS, GitHub, GitLab, OpenAI, Anthropic, Slack, Stripe, Google, SendGrid, npm, Hugging Face, JWT, private keys) and labelled keys — incl. .env names like SENDGRID_API_KEY= and JSON keys — with an entropy check.",
       "prompts": [
         {
           "title": "OpenAI key in code",
@@ -25,6 +25,18 @@
           "note": "Tier 1 (content script, synchronous) · AWS key id + secret"
         },
         {
+          "title": ".env line with a vendor-prefixed name",
+          "text": "my .env has SENDGRID_API_KEY=SG.x9Kd3LmQ7vRt2Wz8Yb4Nc6Hd.1Pm5Gs0Ea9Ui3Ro7Tq2Vw4Xz8Yb1Nc6Hd3Lm5Qk and mail still fails",
+          "expect": "block",
+          "note": "Tier 1 (content script, synchronous) · .env key name + SendGrid format"
+        },
+        {
+          "title": "Token inside JSON",
+          "text": "{\"service\":\"deploy\",\"auth_token\":\"q8Xv2LmT9rK4wP7zN1cB5yH3jF6dS0aE\"}",
+          "expect": "block",
+          "note": "Tier 1 (content script, synchronous) · labelled token in JSON"
+        },
+        {
           "title": "Key-rotation question",
           "text": "How do I rotate my OpenAI API key safely without downtime?",
           "expect": "allow",
@@ -35,7 +47,7 @@
     {
       "id": 2,
       "title": "Passwords & secrets",
-      "how": "Tier 1 (content script, synchronous): labelled passwords (incl. psw / pw / pass, \"password for X is\", \"changed my password to\"), PINs, one-time and access codes, credential cues near password-shaped tokens, unlabelled high-entropy secrets.",
+      "how": "Tier 1 (content script, synchronous): labelled passwords (incl. psw / pw / pass, \"password for X is\", \"changed my password to\"), PINs, one-time and access codes, credential cues near password-shaped tokens, unlabelled passwords in strength questions (\"is Summer2024! strong enough?\"), unlabelled high-entropy secrets.",
       "prompts": [
         {
           "title": "Stakeholder report (\"psw\")",
@@ -62,6 +74,36 @@
           "note": "Tier 1 (content script, synchronous) · labelled PIN"
         },
         {
+          "title": "Password inside a JSON body",
+          "text": "login fails: {\"username\":\"admin\",\"password\":\"Hunter2024!\"}",
+          "expect": "block",
+          "note": "Tier 1 (content script, synchronous) · JSON key \"password\""
+        },
+        {
+          "title": "Password inside a code block",
+          "text": "```python\ndb = connect(user=\"svc\", password=\"Xy7!kL9#mQ2z\")\n```",
+          "expect": "block",
+          "note": "Tier 1 (content script, synchronous) · labelled password in code"
+        },
+        {
+          "title": "Passwords in a CSV export",
+          "text": "username,password\njsmith,Winter2023#\nadavis,Qwerty!9876",
+          "expect": "block",
+          "note": "Tier 1 (content script, synchronous) · CSV header cue + password-shaped values"
+        },
+        {
+          "title": "Unlabelled password (strength question)",
+          "text": "can you tell me if Summer2024! is a strong one?",
+          "expect": "block",
+          "note": "Tier 1 (content script, synchronous) · strength cue + password-shaped token"
+        },
+        {
+          "title": "Other language (Spanish label)",
+          "text": "mi contraseña es Gato1234! y no puedo entrar",
+          "expect": "block",
+          "note": "Tier 1 (content script, synchronous) · multilingual label"
+        },
+        {
           "title": "Password advice",
           "text": "My password is too weak, how do I make a stronger one?",
           "expect": "allow",
@@ -72,13 +114,25 @@
           "text": "interface User { email: string; password: string; }",
           "expect": "allow",
           "note": "A type, not a password — must pass"
+        },
+        {
+          "title": "Code reading a password from the environment",
+          "text": "const password = process.env.DB_PASSWORD; if (!password) throw new Error(\"missing password\")",
+          "expect": "allow",
+          "note": "A reference, not a value — must pass"
+        },
+        {
+          "title": "Product name in a security question",
+          "text": "Is Windows11 secure enough for online banking?",
+          "expect": "allow",
+          "note": "No password punctuation — must pass"
         }
       ]
     },
     {
       "id": 3,
       "title": "Government IDs",
-      "how": "Tier 1 (content script, synchronous): SSN structure (3-2-4 or labelled), labelled passport / driver licence / national IDs, UK NINO, Swiss AHV.",
+      "how": "Tier 1 (content script, synchronous): SSN structure (3-2-4 or labelled), labelled passport / driver licence / national IDs, UK NINO, Swiss AHV, AU Medicare (check digit).",
       "prompts": [
         {
           "title": "SSN with dashes",
@@ -91,6 +145,24 @@
           "text": "my passport no is N8473629, does it need a visa for Japan?",
           "expect": "block",
           "note": "Tier 1 (content script, synchronous) · labelled passport"
+        },
+        {
+          "title": "SSN with spaces",
+          "text": "SSN 536 28 1947 for the form",
+          "expect": "block",
+          "note": "Tier 1 (content script, synchronous) · spaced SSN"
+        },
+        {
+          "title": "SSNs in a CSV",
+          "text": "name,ssn\nAna Ruiz,536-28-1947\nTom Lee,421-55-9012",
+          "expect": "block",
+          "note": "Tier 1 (content script, synchronous) · SSN structure in CSV rows"
+        },
+        {
+          "title": "Australian Medicare number",
+          "text": "my medicare card number is 2123 45670 1, which form do I need?",
+          "expect": "block",
+          "note": "Tier 1 (content script, synchronous) · Medicare check digit"
         },
         {
           "title": "Passport renewal question",
@@ -112,6 +184,18 @@
           "note": "Tier 1 (content script, synchronous) · Mod-11 valid"
         },
         {
+          "title": "TFN with dashes",
+          "text": "my tfn is 687-043-098",
+          "expect": "block",
+          "note": "Tier 1 (content script, synchronous) · Mod-11 valid, dashed"
+        },
+        {
+          "title": "TFN inside JSON",
+          "text": "{\"employee\":\"J Smith\",\"tfn\":\"687043098\"}",
+          "expect": "block",
+          "note": "Tier 1 (content script, synchronous) · labelled key in JSON"
+        },
+        {
           "title": "Invalid-checksum TFN",
           "text": "my TFN is 123 456 789",
           "expect": "allow",
@@ -122,7 +206,7 @@
     {
       "id": 5,
       "title": "Payment cards & bank accounts",
-      "how": "Tier 1 (content script, synchronous): Luhn-valid cards (test cards exempt), IBAN mod-97, BSB + account, ABA routing + account.",
+      "how": "Tier 1 (content script, synchronous): Luhn-valid cards (test cards exempt), IBAN mod-97, BSB + account, ABA routing + account, labelled account numbers in a banking context.",
       "prompts": [
         {
           "title": "Card with expiry and CVV",
@@ -143,6 +227,18 @@
           "note": "Tier 1 (content script, synchronous) · mod-97 valid"
         },
         {
+          "title": "Card inside JSON",
+          "text": "{\"card_number\":\"4072 7708 1887 4011\",\"cvv\":\"123\"}",
+          "expect": "block",
+          "note": "Tier 1 (content script, synchronous) · Luhn valid in JSON"
+        },
+        {
+          "title": "Account number at a named bank",
+          "text": "my account number is 10234567 at Westpac, can you write the transfer request?",
+          "expect": "block",
+          "note": "Tier 1 (content script, synchronous) · labelled account in a banking context"
+        },
+        {
           "title": "Stripe test card",
           "text": "For the sandbox, use the test card 4242 4242 4242 4242 with any future expiry.",
           "expect": "allow",
@@ -153,6 +249,12 @@
           "text": "Order #1234 5678 9012 3457 has shipped.",
           "expect": "allow",
           "note": "Fails Luhn — must pass"
+        },
+        {
+          "title": "Utility account number",
+          "text": "My electricity account number is 400123456, can you explain the bill?",
+          "expect": "allow",
+          "note": "No banking context — must pass"
         }
       ]
     },
@@ -174,6 +276,18 @@
           "note": "Tier 1 (content script, synchronous) · PAN structure"
         },
         {
+          "title": "PAN next to a name",
+          "text": "Rahul Sharma, PAN ABCPS1234K — is he registered for GST?",
+          "expect": "block",
+          "note": "Tier 1 (content script, synchronous) · PAN structure"
+        },
+        {
+          "title": "ABN next to a sole trader",
+          "text": "John Smith ABN 80 019 921 254 sole trader invoice",
+          "expect": "block",
+          "note": "Tier 1 (content script, synchronous) · Mod-89 + name"
+        },
+        {
           "title": "Aadhaar",
           "text": "my aadhaar is 4770 9648 3043",
           "expect": "block",
@@ -190,7 +304,7 @@
     {
       "id": 7,
       "title": "Database credentials",
-      "how": "Tier 1 (content script, synchronous): connection URIs with inline user:password, ADO/ODBC strings with Password=, mysql -p<password>.",
+      "how": "Tier 1 (content script, synchronous): connection URIs with inline user:password or a password= parameter (JDBC), ADO/ODBC strings with Password=, mysql -p<password>.",
       "prompts": [
         {
           "title": "Postgres URI",
@@ -205,6 +319,18 @@
           "note": "Tier 1 (content script, synchronous) · Password="
         },
         {
+          "title": "JDBC URL with a password parameter",
+          "text": "jdbc:mysql://10.0.0.5:3306/sales?user=root&password=Sql!Pass77",
+          "expect": "block",
+          "note": "Tier 1 (content script, synchronous) · password= parameter"
+        },
+        {
+          "title": "DATABASE_URL in a .env file",
+          "text": "DATABASE_URL=postgresql://app:Pg$ecret99@db.internal:5432/prod",
+          "expect": "block",
+          "note": "Tier 1 (content script, synchronous) · URI with credentials"
+        },
+        {
           "title": "Placeholder URI",
           "text": "The format is postgres://user:password@host:5432/dbname",
           "expect": "allow",
@@ -215,7 +341,7 @@
     {
       "id": 8,
       "title": "Customer financial records",
-      "how": "Tier 2 (offscreen: person ↔ sensitive-term graph + MiniLM validator) for a named, non-public person tied to an account or to an amount + financial attribute; Tier 3 Path B (offscreen: salted field hashes + MiniLM vectors) for exact rows of protected customer data.",
+      "how": "Tier 2 (offscreen: person ↔ sensitive-term graph + MiniLM validator) for a named, non-public person tied to an account or to an amount + financial attribute (a record role such as \"client\" / \"customer\" decides on its own, otherwise the validator); Tier 3 Path B (offscreen: salted field hashes + MiniLM vectors) for exact rows of protected customer data.",
       "prompts": [
         {
           "title": "Named client with balances (context)",
@@ -226,6 +352,18 @@
         {
           "title": "Mortgage arrears (context)",
           "text": "Sarah Mitchell owes $412,000 on her mortgage and has missed two repayments. Draft a hardship letter.",
+          "expect": "block",
+          "note": "Tier 2 (offscreen: person ↔ sensitive-term graph + MiniLM validator) · no setup needed"
+        },
+        {
+          "title": "Customer record as JSON (context)",
+          "text": "{\"customer\":\"Margaret Ellison\",\"account_no\":\"40231987\",\"balance\":182450.22,\"overdue\":true}",
+          "expect": "block",
+          "note": "Tier 2 (offscreen: person ↔ sensitive-term graph + MiniLM validator) · record keys cue the name and account"
+        },
+        {
+          "title": "Customer ledger as CSV (context)",
+          "text": "customer,account,balance\nMargaret Ellison,40231987,$182,450.22\nDavid Chen,40231988,$9,120.00",
           "expect": "block",
           "note": "Tier 2 (offscreen: person ↔ sensitive-term graph + MiniLM validator) · no setup needed"
         },
@@ -260,7 +398,7 @@
     {
       "id": 9,
       "title": "Medical records",
-      "how": "Tier 2 (offscreen: person ↔ sensitive-term graph + MiniLM validator) for a named, non-public person tied to an ICD-10-CM condition, RxNorm drug or dosage; Tier 3 Path B (offscreen: salted field hashes + MiniLM vectors) for exact rows of protected patient data.",
+      "how": "Tier 2 (offscreen: person ↔ sensitive-term graph + MiniLM validator) for a named, non-public person tied to an ICD-10-CM condition, RxNorm drug or dosage (a record role such as \"patient\" or an MRN / DOB decides on its own, otherwise the validator); Tier 3 Path B (offscreen: salted field hashes + MiniLM vectors) for exact rows of protected patient data.",
       "prompts": [
         {
           "title": "Patient with MRN and diagnosis (context)",
@@ -271,6 +409,18 @@
         {
           "title": "Named person, condition and drug (context)",
           "text": "John Davies is on warfarin 5 mg for atrial fibrillation; can you write his care plan?",
+          "expect": "block",
+          "note": "Tier 2 (offscreen: person ↔ sensitive-term graph + MiniLM validator) · no setup needed"
+        },
+        {
+          "title": "Patient record as JSON (context)",
+          "text": "{\"patient\":\"Linda Park\",\"dob\":\"1972-03-14\",\"diagnosis\":\"breast cancer\",\"medication\":\"tamoxifen 20mg\"}",
+          "expect": "block",
+          "note": "Tier 2 (offscreen: person ↔ sensitive-term graph + MiniLM validator) · record keys cue the name"
+        },
+        {
+          "title": "Patients as CSV (context)",
+          "text": "patient,condition,drug\nLinda Park,type 2 diabetes,metformin 500mg\nOmar Haddad,HIV,Biktarvy",
           "expect": "block",
           "note": "Tier 2 (offscreen: person ↔ sensitive-term graph + MiniLM validator) · no setup needed"
         },
@@ -293,6 +443,12 @@
           "text": "What are the early symptoms of type 2 diabetes?",
           "expect": "allow",
           "note": "General question — must pass"
+        },
+        {
+          "title": "Public figure, medical question",
+          "text": "Did Steve Jobs have pancreatic cancer?",
+          "expect": "allow",
+          "note": "Public figure — must pass"
         }
       ]
     },

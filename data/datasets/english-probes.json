@@ -910,5 +910,367 @@
     "text": "How do I debounce a function in TypeScript without a library?",
     "expect": "allow",
     "categories": []
+  },
+  {
+    "id": "EP099",
+    "dataset": "probes",
+    "title": ".env line with a vendor-prefixed name",
+    "text": "my .env has SENDGRID_API_KEY=SG.x9Kd3LmQ7vRt2Wz8Yb4Nc6Hd.1Pm5Gs0Ea9Ui3Ro7Tq2Vw4Xz8Yb1Nc6Hd3Lm5Qk and mail still fails",
+    "expect": "block",
+    "categories": [
+      1
+    ]
+  },
+  {
+    "id": "EP100",
+    "dataset": "probes",
+    "title": "Token in a JSON config",
+    "text": "{\"service\":\"deploy\",\"auth_token\":\"q8Xv2LmT9rK4wP7zN1cB5yH3jF6dS0aE\"}",
+    "expect": "block",
+    "categories": [
+      1
+    ]
+  },
+  {
+    "id": "EP101",
+    "dataset": "probes",
+    "title": "Password in a JSON login body",
+    "text": "login fails: {\"username\":\"admin\",\"password\":\"Hunter2024!\"}",
+    "expect": "block",
+    "categories": [
+      2
+    ]
+  },
+  {
+    "id": "EP102",
+    "dataset": "probes",
+    "title": "Passwords in a CSV export",
+    "text": "username,password\njsmith,Winter2023#\nadavis,Qwerty!9876",
+    "expect": "block",
+    "categories": [
+      2
+    ]
+  },
+  {
+    "id": "EP103",
+    "dataset": "probes",
+    "title": "Password in a code block",
+    "text": "```python\ndb = connect(user=\"svc\", password=\"Xy7!kL9#mQ2z\")\n```",
+    "expect": "block",
+    "categories": [
+      2
+    ]
+  },
+  {
+    "id": "EP104",
+    "dataset": "probes",
+    "title": "Password in YAML config",
+    "text": "smtp:\n  user: alerts\n  password: Gr33nTea$2025",
+    "expect": "block",
+    "categories": [
+      2
+    ]
+  },
+  {
+    "id": "EP105",
+    "dataset": "probes",
+    "title": "Spanish password label",
+    "text": "mi contraseña es Gato1234! y no puedo entrar",
+    "expect": "block",
+    "categories": [
+      2
+    ]
+  },
+  {
+    "id": "EP106",
+    "dataset": "probes",
+    "title": "Unlabelled password in a strength question",
+    "text": "can you tell me if Summer2024! is a strong one?",
+    "expect": "block",
+    "categories": [
+      2
+    ]
+  },
+  {
+    "id": "EP107",
+    "dataset": "probes",
+    "title": "Leet password, \"how secure is\"",
+    "text": "how secure is P@ssw0rd2025",
+    "expect": "block",
+    "categories": [
+      2
+    ]
+  },
+  {
+    "id": "EP108",
+    "dataset": "probes",
+    "title": "SSN with spaces",
+    "text": "SSN 536 28 1947 for the form",
+    "expect": "block",
+    "categories": [
+      3
+    ]
+  },
+  {
+    "id": "EP109",
+    "dataset": "probes",
+    "title": "SSN in a JSON record",
+    "text": "{\"name\":\"Ana Ruiz\",\"ssn\":\"536-28-1947\"}",
+    "expect": "block",
+    "categories": [
+      3
+    ]
+  },
+  {
+    "id": "EP110",
+    "dataset": "probes",
+    "title": "SSNs in a CSV",
+    "text": "name,ssn\nAna Ruiz,536-28-1947\nTom Lee,421-55-9012",
+    "expect": "block",
+    "categories": [
+      3
+    ]
+  },
+  {
+    "id": "EP111",
+    "dataset": "probes",
+    "title": "Medicare card number",
+    "text": "my medicare card number is 2123 45670 1, which form do I need?",
+    "expect": "block",
+    "categories": [
+      3
+    ]
+  },
+  {
+    "id": "EP112",
+    "dataset": "probes",
+    "title": "UK National Insurance number",
+    "text": "my national insurance number is JG 10 37 59 A",
+    "expect": "block",
+    "categories": [
+      3
+    ]
+  },
+  {
+    "id": "EP113",
+    "dataset": "probes",
+    "title": "TFN with dashes",
+    "text": "my tfn is 436-612-687",
+    "expect": "block",
+    "categories": [
+      4
+    ]
+  },
+  {
+    "id": "EP114",
+    "dataset": "probes",
+    "title": "TFN in JSON",
+    "text": "{\"employee\":\"J Smith\",\"tfn\":\"436612687\"}",
+    "expect": "block",
+    "categories": [
+      4
+    ]
+  },
+  {
+    "id": "EP115",
+    "dataset": "probes",
+    "title": "Card in JSON",
+    "text": "{\"card_number\":\"4167 5985 1520 9041\",\"cvv\":\"123\"}",
+    "expect": "block",
+    "categories": [
+      5
+    ]
+  },
+  {
+    "id": "EP116",
+    "dataset": "probes",
+    "title": "Card in a CSV with dashes",
+    "text": "name,card\nAna,4167-5985-1520-9041",
+    "expect": "block",
+    "categories": [
+      5
+    ]
+  },
+  {
+    "id": "EP117",
+    "dataset": "probes",
+    "title": "Account number at a named bank",
+    "text": "my account number is 10234567 at Westpac, can you write the transfer request?",
+    "expect": "block",
+    "categories": [
+      5
+    ]
+  },
+  {
+    "id": "EP118",
+    "dataset": "probes",
+    "title": "JDBC URL with a password parameter",
+    "text": "jdbc:mysql://10.0.0.5:3306/sales?user=root&password=Sql!Pass77",
+    "expect": "block",
+    "categories": [
+      7
+    ]
+  },
+  {
+    "id": "EP119",
+    "dataset": "probes",
+    "title": "DATABASE_URL in .env",
+    "text": "DATABASE_URL=postgresql://app:Pg$ecret99@db.internal:5432/prod",
+    "expect": "block",
+    "categories": [
+      7
+    ]
+  },
+  {
+    "id": "EP120",
+    "dataset": "probes",
+    "title": "Customer record as JSON",
+    "text": "{\"customer\":\"Margaret Ellison\",\"account_no\":\"40231987\",\"balance\":182450.22,\"overdue\":true}",
+    "expect": "block",
+    "categories": [
+      8
+    ]
+  },
+  {
+    "id": "EP121",
+    "dataset": "probes",
+    "title": "Customer ledger as CSV",
+    "text": "customer,account,balance\nMargaret Ellison,40231987,$182,450.22\nDavid Chen,40231988,$9,120.00",
+    "expect": "block",
+    "categories": [
+      8
+    ]
+  },
+  {
+    "id": "EP122",
+    "dataset": "probes",
+    "title": "Patient record as JSON",
+    "text": "{\"patient\":\"Linda Park\",\"dob\":\"1972-03-14\",\"diagnosis\":\"breast cancer\",\"medication\":\"tamoxifen 20mg\"}",
+    "expect": "block",
+    "categories": [
+      9
+    ]
+  },
+  {
+    "id": "EP123",
+    "dataset": "probes",
+    "title": "Patients as CSV",
+    "text": "patient,condition,drug\nLinda Park,type 2 diabetes,metformin 500mg\nOmar Haddad,HIV,Biktarvy",
+    "expect": "block",
+    "categories": [
+      9
+    ]
+  },
+  {
+    "id": "EP124",
+    "dataset": "probes",
+    "title": "Env var reference in code",
+    "text": "const password = process.env.DB_PASSWORD; if (!password) throw new Error(\"missing password\")",
+    "expect": "allow",
+    "categories": []
+  },
+  {
+    "id": "EP125",
+    "dataset": "probes",
+    "title": "os.environ lookup",
+    "text": "const password = os.environ[\"DB_PASSWORD\"]",
+    "expect": "allow",
+    "categories": []
+  },
+  {
+    "id": "EP126",
+    "dataset": "probes",
+    "title": "Password prompt in code",
+    "text": "password = getpass.getpass(\"Password: \")",
+    "expect": "allow",
+    "categories": []
+  },
+  {
+    "id": "EP127",
+    "dataset": "probes",
+    "title": "Password comparison in code",
+    "text": "if (user.password !== confirmPassword) return \"passwords must match\"",
+    "expect": "allow",
+    "categories": []
+  },
+  {
+    "id": "EP128",
+    "dataset": "probes",
+    "title": "Password field in HTML",
+    "text": "<input type=\"password\" name=\"password\" placeholder=\"Password\">",
+    "expect": "allow",
+    "categories": []
+  },
+  {
+    "id": "EP129",
+    "dataset": "probes",
+    "title": "Password in a JSON schema",
+    "text": "{\"type\":\"object\",\"properties\":{\"password\":{\"type\":\"string\",\"minLength\":8}}}",
+    "expect": "allow",
+    "categories": []
+  },
+  {
+    "id": "EP130",
+    "dataset": "probes",
+    "title": "Shell variable after mysql -p",
+    "text": "mysql -u root -p$MYSQL_ROOT_PASSWORD",
+    "expect": "allow",
+    "categories": []
+  },
+  {
+    "id": "EP131",
+    "dataset": "probes",
+    "title": "Placeholder env key",
+    "text": "Set OPENAI_API_KEY=your-key-here in your .env file",
+    "expect": "allow",
+    "categories": []
+  },
+  {
+    "id": "EP132",
+    "dataset": "probes",
+    "title": "Product name in a security question",
+    "text": "Is Windows11 secure enough for online banking?",
+    "expect": "allow",
+    "categories": []
+  },
+  {
+    "id": "EP133",
+    "dataset": "probes",
+    "title": "Utility account number",
+    "text": "My electricity account number is 400123456, can you explain the bill?",
+    "expect": "allow",
+    "categories": []
+  },
+  {
+    "id": "EP134",
+    "dataset": "probes",
+    "title": "Company record as JSON",
+    "text": "{\"name\":\"Acme Corp\",\"balance\":1200.50,\"plan\":\"pro\"}",
+    "expect": "allow",
+    "categories": []
+  },
+  {
+    "id": "EP135",
+    "dataset": "probes",
+    "title": "Order number",
+    "text": "Where is my order #4512-8890-2231-0457?",
+    "expect": "allow",
+    "categories": []
+  },
+  {
+    "id": "EP136",
+    "dataset": "probes",
+    "title": "Git commit hash",
+    "text": "git revert 9fceb02d0ae598e95dc970b74767f19372d61af8 broke the build",
+    "expect": "allow",
+    "categories": []
+  },
+  {
+    "id": "EP137",
+    "dataset": "probes",
+    "title": "Public figure, medical question",
+    "text": "Did Steve Jobs have pancreatic cancer?",
+    "expect": "allow",
+    "categories": []
   }
 ]
