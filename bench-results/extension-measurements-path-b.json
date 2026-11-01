@@ -1,70 +1,71 @@
 {
   "mode": "auto (Path B allowed)",
-  "measuredAt": "2026-11-01T03:35:58.370Z",
+  "measuredAt": "2026-11-01T15:44:46.155Z",
   "offscreenMemory": {
-    "mb": 110.4,
+    "mb": 109.6,
     "method": "measureUserAgentSpecificMemory after forced GC (raw CDP, offscreen document)",
     "byType": {
-      "JavaScript @ Window:offscreen.html": 110,
-      "Shared @ ": 0.3
+      "Shared @ ": 0.3,
+      "JavaScript @ Window:offscreen.html": 109.3
     }
   },
   "pathBOutcome": {
     "state": "ready",
-    "reason": "aionix-pathb-6L (Multilingual-MiniLM, trimmed vocab, INT8) · CPU (ONNX Runtime wasm) · host 118 MB after load (measureUserAgentSpecificMemory)",
-    "loadMs": 199.56999999284744,
-    "memoryMB": 118.40115547180176,
-    "memoryMethod": "measureUserAgentSpecificMemory"
+    "reason": "aionix-pathb-6L (Multilingual-MiniLM, trimmed vocab, INT8) · CPU (ONNX Runtime wasm) · host 111 MB after load (performance.memory JS heap + wasm linear memory)",
+    "loadMs": 218.03499999642372,
+    "memoryMB": 111.48081684112549,
+    "memoryMethod": "performance.memory JS heap + wasm linear memory"
   },
   "engine": {
     "route": "B",
     "mode": "auto",
     "pathAReady": true,
     "pathBState": "ready",
-    "pathBReason": "aionix-pathb-6L (Multilingual-MiniLM, trimmed vocab, INT8) · CPU (ONNX Runtime wasm) · host 118 MB after load (measureUserAgentSpecificMemory)",
+    "pathBReason": "aionix-pathb-6L (Multilingual-MiniLM, trimmed vocab, INT8) · CPU (ONNX Runtime wasm) · host 111 MB after load (performance.memory JS heap + wasm linear memory)",
     "pathBProgress": null,
     "pathBModel": "aionix-pathb-6L (Multilingual-MiniLM, trimmed vocab, INT8)",
     "hardware": {
-      "webgpu": true,
-      "eligible": true,
-      "reason": "intel gen-12lp · 2048 MB binding · q4f16",
-      "dtype": "q4f16",
-      "vendor": "intel",
-      "architecture": "gen-12lp",
+      "webgpu": false,
+      "eligible": false,
+      "reason": "Not probed: the extension runs Path B on the CPU",
+      "dtype": "q4",
+      "vendor": "",
+      "architecture": "",
       "description": "",
       "isFallbackAdapter": false,
-      "maxStorageBufferBindingSize": 2147483644,
-      "maxBufferSize": 2147483648,
-      "shaderF16": true,
+      "maxStorageBufferBindingSize": 0,
+      "maxBufferSize": 0,
+      "shaderF16": false,
       "deviceMemoryGB": 32
     },
-    "adapterSummary": "intel · gen-12lp",
-    "memoryMB": 110.40825271606445,
+    "adapterSummary": "No WebGPU",
+    "memoryMB": 109.61629486083984,
     "memoryMethod": "measureUserAgentSpecificMemory",
     "memoryStale": true,
     "memoryByType": {
-      "unattributed": 0,
-      "JavaScript @ Window:offscreen.html": 110,
+      "JavaScript @ Window:offscreen.html": 109.3,
       "Shared": 0.3,
+      "unattributed": 0,
       "DOM": 0.1
     },
     "ceilingMB": 150,
-    "fstEntries": 82058,
-    "fstBytes": 3634020,
+    "fstEntries": 65938,
+    "fstBytes": 3561356,
     "edmVectors": 105,
     "edmFields": 250,
     "loadMs": {
-      "pathA": 692.3249999880791,
-      "pathB": 199.56999999284744
-    }
+      "pathA": 655.7249999940395,
+      "pathB": 218.03499999642372
+    },
+    "startedAt": 1793547823743
   },
   "tier2": {
-    "p50": 6.83500000834465,
-    "p95": 10.700000017881393
+    "p50": 7.090000003576279,
+    "p95": 10.610000014305115
   },
   "tier3b": {
-    "p50": 6.314999997615814,
-    "p95": 8.180000007152557
+    "p50": 6.4000000059604645,
+    "p95": 8.125
   },
   "routes": [
     "B"
@@ -74,21 +75,21 @@
     "method": "fixture portal, Enter → page send handler (clean) or drawer shown (blocked), ms",
     "clean": {
       "n": 12,
-      "p50": 19.8,
-      "p95": 43.2,
-      "max": 43.2
+      "p50": 20.3,
+      "p95": 37.2,
+      "max": 37.2
     },
     "blockedTier2": {
       "n": 5,
-      "p50": 33.9,
-      "p95": 52.4,
-      "max": 52.4
+      "p50": 30.7,
+      "p95": 53,
+      "max": 53
     },
     "blockedTier1": {
       "n": 5,
-      "p50": 9.4,
-      "p95": 12.5,
-      "max": 12.5
+      "p50": 8.4,
+      "p95": 11.9,
+      "max": 11.9
     }
   }
 }

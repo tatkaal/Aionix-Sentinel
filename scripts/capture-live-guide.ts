@@ -23,6 +23,8 @@ const prompt = (cat: number, title: string): KitPrompt => {
   if (!p) throw new Error(`kit prompt not found: ${cat} · ${title}`);
   return p;
 };
+// Leak marker for the large-paste trials: the flagged memo text, not the benign handbook filler around it.
+const memoMarker = readFileSync(resolve(root, 'data/vault/project-chronos-memo.md'), 'utf8').split('\n\n')[3]!.slice(0, 48);
 const results: { shot: string; portal: string; title: string; expect: string; observed: string; note?: string; engine?: string }[] = [];
 let statusPage: Page | null = null;
 /** Engine state before each trial, so a failed async verdict can be told apart from a detection miss. */
@@ -193,24 +195,23 @@ try {
     const box = await composerOf(gpt, 'chatgpt');
     await box.fill('');
   }
-  // Large paste (real clipboard paste). Signed-out ChatGPT keeps it inline rather than as a chip
-  // (checked 2026-11-01); the whole text is still inspected on Enter.
+  // Large paste (real clipboard paste, ~22,000 characters). ChatGPT turns a paste this long into
+  // pasted.txt, a file it uploads when attached, so Aionix checks it at paste time: a flagged paste is
+  // kept out of the composer entirely (nothing to upload, nothing to send).
   await ctx.grantPermissions(['clipboard-read', 'clipboard-write'], { origin: 'https://chatgpt.com' });
   {
     const memoPaste = prompt(10, 'Large paste → pasted-content chip');
     const engine = await engineState();
     const box = await composerOf(gpt, 'chatgpt');
-    marker = memoPaste.paste!.slice(0, 48);
+    marker = memoMarker;
     await gpt.evaluate((t) => navigator.clipboard.writeText(t), memoPaste.paste!);
     await box.click();
     await gpt.keyboard.press('Control+V');
-    await gpt.keyboard.press('Control+End');
-    await gpt.keyboard.type(` ${memoPaste.text}`);
-    await box.press('Enter');
     await gpt.waitForTimeout(2200);
-    const observed = await outcome(gpt, 'chatgpt', memoPaste.paste!);
+    const drawerUp = await gpt.evaluate(() => !!document.querySelector('aionix-sentinel-drawer')?.isConnected);
+    const inComposer = await box.evaluate((n) => ('value' in n ? (n as HTMLTextAreaElement).value : (n as HTMLElement).innerText).length);
     await shoot(gpt, '29-chatgpt-large-paste');
-    results.push({ shot: '29-chatgpt-large-paste', portal: 'chatgpt', title: 'Large paste (inline when signed out)', expect: 'block', observed, note: memoPaste.note, engine });
+    results.push({ shot: '29-chatgpt-large-paste', portal: 'chatgpt', title: `Large paste (${memoPaste.paste!.length.toLocaleString()} chars) checked at paste time`, expect: 'block', observed: drawerUp && inComposer < 100 ? 'block' : 'sent', note: memoPaste.note, engine });
     marker = null;
     await closeDrawer(gpt);
     await box.fill('');
@@ -281,7 +282,7 @@ try {
   await shoot(cl, '53-claude-replica-sent-redacted');
   // Large paste → pasted-content chip → block → remove chip → block lifted.
   const memoChip = prompt(10, 'Large paste → pasted-content chip');
-  marker = memoChip.paste!.slice(0, 48);
+  marker = memoMarker;
   await editor.focus();
   await cl.evaluate((text) => {
     const dt = new DataTransfer();
@@ -298,6 +299,32 @@ try {
   await cl.waitForTimeout(1500);
   await shoot(cl, '56-claude-replica-chip-removed');
   marker = null;
+  // A request that skipped the composer check (here a direct API call with a patient record and no
+  // Tier 1 hit) gets the full cascade at the network layer.
+  await closeDrawer(cl);
+  marker = 'Discharge summary for patient Harriet';
+  await cl.locator('#direct-api-record').click();
+  await cl.waitForTimeout(1500);
+  await shoot(cl, '58-claude-replica-backstop-record');
+  results.push({ shot: '58-claude-replica-backstop-record', portal: 'claude-replica', title: 'Patient record sent past the composer (network check, full cascade)', expect: 'block', observed: (await cl.locator('#log').innerText()).includes('RECORD-BLOCKED') ? 'block' : 'sent' });
+  marker = null;
+  await closeDrawer(cl);
+  // Typed before the page finished loading: ChatGPT's pre-hydration input sits next to the real editor.
+  {
+    const early = await test.ctx.newPage();
+    await early.goto('http://localhost:4173/chatgpt-early');
+    const box = early.locator('#pending-home-input');
+    const text = 'So i want to get the best protection for my application login. Curerntly i am using HeyJude781@ as my password.';
+    marker = text.slice(0, 48);
+    await box.fill(text);
+    await box.press('Enter');
+    await early.waitForTimeout(1200);
+    await early.addStyleTag({ content: '#early textarea { outline: 3px solid #9553fb; outline-offset: 3px; }' });
+    await shoot(early, '59-chatgpt-replica-early-input');
+    results.push({ shot: '59-chatgpt-replica-early-input', portal: 'chatgpt-replica', title: 'Enter in the pre-hydration input (first message after load)', expect: 'block', observed: (await early.locator('#log .sent').count()) === 0 && (await early.evaluate(() => !!document.querySelector('aionix-sentinel-drawer'))) ? 'block' : 'sent' });
+    marker = null;
+    await early.close();
+  }
   // Held: the offscreen engine is made unreachable (as seen once in a live run) — the prompt is held.
   const [testSw] = test.ctx.serviceWorkers();
   await testSw!.evaluate(async () => {

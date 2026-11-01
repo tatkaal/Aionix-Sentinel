@@ -1,5 +1,5 @@
 {
-  "capturedAt": "2026-11-01T03:43:01.367Z",
+  "capturedAt": "2026-11-01T15:49:42.179Z",
   "leaks": [],
   "results": [
     {
@@ -149,10 +149,10 @@
     {
       "shot": "29-chatgpt-large-paste",
       "portal": "chatgpt",
-      "title": "Large paste (inline when signed out)",
+      "title": "Large paste (22,377 chars) checked at paste time",
       "expect": "block",
       "observed": "block",
-      "note": "Tier 3 Path A (content script: Bloom + MinHash fingerprints) on the attachment; removing the chip lifts the block",
+      "note": "Tier 3 Path A (content script: Bloom + MinHash fingerprints) on the attachment. Claude: chip, Send blocked, removing the chip lifts the block. ChatGPT / Gemini: checked at paste time and kept out (they may upload long pastes as files)",
       "engine": "ready/B"
     },
     {
@@ -225,6 +225,20 @@
       "observed": "sent",
       "note": "A reference, not a value — must pass",
       "engine": "ready/B"
+    },
+    {
+      "shot": "58-claude-replica-backstop-record",
+      "portal": "claude-replica",
+      "title": "Patient record sent past the composer (network check, full cascade)",
+      "expect": "block",
+      "observed": "block"
+    },
+    {
+      "shot": "59-chatgpt-replica-early-input",
+      "portal": "chatgpt-replica",
+      "title": "Enter in the pre-hydration input (first message after load)",
+      "expect": "block",
+      "observed": "block"
     },
     {
       "shot": "57-claude-replica-held",

@@ -1,12 +1,12 @@
 {
   "mode": "path-a-only (Path B evicted, recycled document)",
-  "measuredAt": "2026-11-01T03:38:05.085Z",
+  "measuredAt": "2026-11-01T15:45:52.076Z",
   "offscreenMemory": {
-    "mb": 87.2,
+    "mb": 87.1,
     "method": "measureUserAgentSpecificMemory after forced GC (raw CDP, offscreen document)",
     "byType": {
-      "JavaScript @ Window:offscreen.html": 86.7,
-      "Shared @ ": 0.4
+      "Shared @ ": 0.4,
+      "JavaScript @ Window:offscreen.html": 86.7
     }
   },
   "pathBOutcome": null,
@@ -19,46 +19,47 @@
     "pathBProgress": null,
     "pathBModel": null,
     "hardware": {
-      "webgpu": true,
-      "eligible": true,
-      "reason": "intel gen-12lp · 2048 MB binding · q4f16",
-      "dtype": "q4f16",
-      "vendor": "intel",
-      "architecture": "gen-12lp",
+      "webgpu": false,
+      "eligible": false,
+      "reason": "Not probed: the extension runs Path B on the CPU",
+      "dtype": "q4",
+      "vendor": "",
+      "architecture": "",
       "description": "",
       "isFallbackAdapter": false,
-      "maxStorageBufferBindingSize": 2147483644,
-      "maxBufferSize": 2147483648,
-      "shaderF16": true,
+      "maxStorageBufferBindingSize": 0,
+      "maxBufferSize": 0,
+      "shaderF16": false,
       "deviceMemoryGB": 32
     },
-    "adapterSummary": "intel · gen-12lp",
-    "memoryMB": 87.16774845123291,
+    "adapterSummary": "No WebGPU",
+    "memoryMB": 87.11394023895264,
     "memoryMethod": "measureUserAgentSpecificMemory",
     "memoryStale": true,
     "memoryByType": {
-      "DOM": 0.1,
-      "JavaScript @ Window:offscreen.html": 86.7,
       "unattributed": 0,
-      "Shared": 0.4
+      "DOM": 0.1,
+      "Shared": 0.4,
+      "JavaScript @ Window:offscreen.html": 86.7
     },
     "ceilingMB": 150,
-    "fstEntries": 82058,
-    "fstBytes": 3634020,
+    "fstEntries": 65938,
+    "fstBytes": 3561356,
     "edmVectors": 105,
     "edmFields": 250,
     "loadMs": {
-      "pathA": 393.2549999952316,
+      "pathA": 357.32000002264977,
       "pathB": null
-    }
+    },
+    "startedAt": 1793547890023
   },
   "tier2": {
-    "p50": 0.13999998569488525,
-    "p95": 2.310000002384186
+    "p50": 0.12000000476837158,
+    "p95": 2.9899999797344208
   },
   "tier3b": {
-    "p50": 6.344999998807907,
-    "p95": 8.564999997615814
+    "p50": 6.33500000834465,
+    "p95": 8.525000005960464
   },
   "routes": [
     "A"
@@ -68,21 +69,21 @@
     "method": "fixture portal, Enter → page send handler (clean) or drawer shown (blocked), ms",
     "clean": {
       "n": 12,
-      "p50": 16,
-      "p95": 32.8,
-      "max": 32.8
+      "p50": 16.8,
+      "p95": 38.7,
+      "max": 38.7
     },
     "blockedTier2": {
       "n": 5,
-      "p50": 22.5,
-      "p95": 49.8,
-      "max": 49.8
+      "p50": 27.9,
+      "p95": 54.3,
+      "max": 54.3
     },
     "blockedTier1": {
       "n": 5,
-      "p50": 7.3,
-      "p95": 14.5,
-      "max": 14.5
+      "p50": 7.8,
+      "p95": 16.9,
+      "max": 16.9
     }
   }
 }
