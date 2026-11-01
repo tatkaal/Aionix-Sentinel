@@ -1,12 +1,12 @@
 {
   "mode": "path-a-only (Path B evicted, recycled document)",
-  "measuredAt": "2026-10-31T12:49:56.993Z",
+  "measuredAt": "2026-11-01T03:38:05.085Z",
   "offscreenMemory": {
-    "mb": 87.1,
+    "mb": 87.2,
     "method": "measureUserAgentSpecificMemory after forced GC (raw CDP, offscreen document)",
     "byType": {
-      "Shared @ ": 0.4,
-      "JavaScript @ Window:offscreen.html": 86.6
+      "JavaScript @ Window:offscreen.html": 86.7,
+      "Shared @ ": 0.4
     }
   },
   "pathBOutcome": null,
@@ -33,35 +33,56 @@
       "deviceMemoryGB": 32
     },
     "adapterSummary": "intel · gen-12lp",
-    "memoryMB": 87.05915927886963,
+    "memoryMB": 87.16774845123291,
     "memoryMethod": "measureUserAgentSpecificMemory",
     "memoryStale": true,
     "memoryByType": {
       "DOM": 0.1,
-      "JavaScript @ Window:offscreen.html": 86.6,
+      "JavaScript @ Window:offscreen.html": 86.7,
       "unattributed": 0,
       "Shared": 0.4
     },
     "ceilingMB": 150,
-    "fstEntries": 81984,
-    "fstBytes": 3632884,
+    "fstEntries": 82058,
+    "fstBytes": 3634020,
     "edmVectors": 105,
     "edmFields": 250,
     "loadMs": {
-      "pathA": 347.72499999403954,
+      "pathA": 393.2549999952316,
       "pathB": null
     }
   },
   "tier2": {
-    "p50": 6.149999976158142,
-    "p95": 9.270000010728836
+    "p50": 0.13999998569488525,
+    "p95": 2.310000002384186
   },
   "tier3b": {
-    "p50": 0.24500000476837158,
-    "p95": 5.800000011920929
+    "p50": 6.344999998807907,
+    "p95": 8.564999997615814
   },
   "routes": [
     "A"
   ],
-  "samples": 16
+  "samples": 16,
+  "sendToDecision": {
+    "method": "fixture portal, Enter → page send handler (clean) or drawer shown (blocked), ms",
+    "clean": {
+      "n": 12,
+      "p50": 16,
+      "p95": 32.8,
+      "max": 32.8
+    },
+    "blockedTier2": {
+      "n": 5,
+      "p50": 22.5,
+      "p95": 49.8,
+      "max": 49.8
+    },
+    "blockedTier1": {
+      "n": 5,
+      "p50": 7.3,
+      "p95": 14.5,
+      "max": 14.5
+    }
+  }
 }

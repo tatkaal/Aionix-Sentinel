@@ -94,12 +94,18 @@ type ExtMeasure = {
   tier2: { p50: number; p95: number };
   tier3b: { p50: number; p95: number };
   routes: (string | null)[];
+  sendToDecision?: Record<'clean' | 'blockedTier2' | 'blockedTier1', { n: number; p50: number; p95: number; max: number }>;
 };
 for (const route of ['a', 'b']) {
   const m = read<ExtMeasure>(`bench-results/extension-measurements-path-${route}.json`);
   if (!m) continue;
   lines.push(`- **Inside the extension** (${m.mode}, Chromium via Playwright): offscreen memory ${m.offscreenMemory.mb.toFixed(1)} MB (${m.offscreenMemory.method}); Tier 2 route ${m.routes.join('/')}, p50 / p95 ${ms(m.tier2.p50)} / ${ms(m.tier2.p95)}; Tier 3B p50 / p95 ${ms(m.tier3b.p50)} / ${ms(m.tier3b.p95)}.`);
   if (m.pathBOutcome && route === 'b') lines.push(`  - Path B ${m.pathBOutcome.state}${m.pathBOutcome.loadMs != null ? ` after ${m.pathBOutcome.loadMs.toFixed(0)} ms` : ''}: ${m.pathBOutcome.reason}.`);
+  const sd = m.sendToDecision;
+  if (sd) {
+    const d = (x: { n: number; p50: number; p95: number; max: number }) => `p50 ${ms(x.p50)} / p95 ${ms(x.p95)} / max ${ms(x.max)} (n=${x.n})`;
+    lines.push(`  - Enter → decision, real content script on the fixture portal: clean prompt sent ${d(sd.clean)}; Tier 2 block shown ${d(sd.blockedTier2)}; Tier 1 block shown ${d(sd.blockedTier1)}. Budget: 1,000 ms from Send.`);
+  }
 }
 
 type Bakeoff = {

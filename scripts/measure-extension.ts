@@ -86,6 +86,7 @@ try {
     `Client ${names[(r + 1) % 5]}: holdings $${(4.8 + r).toFixed(1)}m, cash balance $${198 + r},699.76, margin loan $${310 + r},000.`,
     `Please summarise ${topics[r]} for the platform team and list the open risks.`,
   ];
+  const p = (xs: number[], q: number) => [...xs].sort((a, b) => a - b)[Math.min(xs.length - 1, Math.floor((q / 100) * xs.length))] ?? null;
   const latencies: { tier2: number; tier3b: number; route: string | null }[] = [];
   for (let round = 0; round < 5; round++) {
     for (const text of promptsFor(round)) {
@@ -96,6 +97,48 @@ try {
       if (round > 0) latencies.push({ tier2: r.timings.tier2, tier3b: r.timings.tier3b, route: r.tier2Route });
     }
   }
+
+  // Send → decision as the user experiences it: the real content script on the fixture portal, from
+  // just before the Enter key press to the prompt reaching the page's own send handler (clean) or the
+  // drawer opening (blocked). Includes Playwright's key dispatch, so it slightly overstates the delay.
+  const portal = await context.newPage();
+  await portal.goto('http://localhost:4173/chatgpt');
+  await portal.evaluate(() => {
+    const t = { sent: [] as number[], drawer: [] as number[] };
+    (window as unknown as { __aionixT: typeof t }).__aionixT = t;
+    new MutationObserver((ms) => ms.forEach((m) => m.addedNodes.forEach((n) => n instanceof HTMLElement && n.classList.contains('sent') && t.sent.push(performance.now())))).observe(document.getElementById('log')!, { childList: true });
+    new MutationObserver((ms) => ms.forEach((m) => m.addedNodes.forEach((n) => n instanceof HTMLElement && n.tagName === 'AIONIX-SENTINEL-DRAWER' && t.drawer.push(performance.now())))).observe(document.documentElement, { childList: true, subtree: true });
+  });
+  const editor = portal.locator('[contenteditable="true"]');
+  const counts = () => portal.evaluate(() => ({ sent: (window as unknown as { __aionixT: { sent: number[] } }).__aionixT.sent.length, drawer: (window as unknown as { __aionixT: { drawer: number[] } }).__aionixT.drawer.length }));
+  async function sendOnce(text: string, expect: 'sent' | 'drawer'): Promise<number> {
+    await editor.fill(text);
+    const before = await counts();
+    const t0 = await portal.evaluate(() => performance.now());
+    await editor.press('Enter');
+    try {
+      await portal.waitForFunction(([k, n]) => (window as unknown as { __aionixT: Record<string, number[]> }).__aionixT[k as string]!.length > (n as number), [expect, before[expect]] as const, { timeout: 5000 });
+    } catch {
+      const seen = await portal.evaluate(() => ({ log: document.getElementById('log')!.innerText.slice(-200), drawer: document.querySelector('aionix-sentinel-drawer')?.shadowRoot?.textContent?.slice(0, 200) ?? null }));
+      throw new Error(`expected ${expect} for ${JSON.stringify(text)}; page shows ${JSON.stringify(seen)}`);
+    }
+    const t1 = await portal.evaluate((k) => (window as unknown as { __aionixT: Record<string, number[]> }).__aionixT[k]!.at(-1)!, expect);
+    if (expect === 'drawer') {
+      await portal.locator('aionix-sentinel-drawer').getByRole('button', { name: 'Close' }).click();
+      await portal.locator('aionix-sentinel-drawer').waitFor({ state: 'detached' });
+      await editor.fill('');
+    }
+    return t1 - t0;
+  }
+  const subjects = ['the release checklist', 'our vendor shortlist', 'the Q3 roadmap', 'the onboarding guide', 'the incident timeline', 'the hiring plan', 'the API changelog', 'the support macros', 'the design review', 'the pricing FAQ', 'the migration plan', 'the retro notes'];
+  const clean: number[] = [];
+  for (const [i, s] of subjects.entries()) clean.push(await sendOnce(`Draft a short summary of ${s} for the team, version ${i + 2}.`, 'sent'));
+  const blockedT2: number[] = [];
+  for (const [i, n] of names.entries()) blockedT2.push(await sendOnce(`Patient ${n} was admitted with ${conditions[i]} and started metformin ${500 + i * 250} mg.`, 'drawer'));
+  const blockedT1: number[] = [];
+  for (let i = 0; i < 5; i++) blockedT1.push(await sendOnce(`my current psw is Ohlalala${i}${i + 3}%x — can you suggest a better one?`, 'drawer'));
+  await portal.close();
+  const dist = (xs: number[]) => ({ n: xs.length, p50: +p(xs, 50)!.toFixed(1), p95: +p(xs, 95)!.toFixed(1), max: +Math.max(...xs).toFixed(1) });
   // Ground truth: attach to the offscreen document over raw CDP, force a GC, then measure inside it.
   // (Chrome resolves measureUserAgentSpecificMemory at the next GC, which an idle page may not run.)
   const { cdp, close } = await offscreenCdp();
@@ -121,7 +164,6 @@ try {
   close();
   if (!direct) throw new Error('no attributable offscreen memory reading after 5 attempts');
   const engine = (await status()).engine;
-  const p = (xs: number[], q: number) => [...xs].sort((a, b) => a - b)[Math.min(xs.length - 1, Math.floor((q / 100) * xs.length))] ?? null;
   const report = {
     mode: pathAOnly ? 'path-a-only (Path B evicted, recycled document)' : 'auto (Path B allowed)',
     measuredAt: new Date().toISOString(),
@@ -132,6 +174,7 @@ try {
     tier3b: { p50: p(latencies.map((l) => l.tier3b), 50), p95: p(latencies.map((l) => l.tier3b), 95) },
     routes: [...new Set(latencies.map((l) => l.route))],
     samples: latencies.length,
+    sendToDecision: { method: 'fixture portal, Enter → page send handler (clean) or drawer shown (blocked), ms', clean: dist(clean), blockedTier2: dist(blockedT2), blockedTier1: dist(blockedT1) },
   };
   mkdirSync(resolve(root, 'bench-results'), { recursive: true });
   writeFileSync(resolve(root, `bench-results/extension-measurements-path-${pathAOnly ? 'a' : 'b'}.json`), JSON.stringify(report, null, 2) + '\n');

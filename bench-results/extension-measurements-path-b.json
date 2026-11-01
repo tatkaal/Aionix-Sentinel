@@ -1,19 +1,19 @@
 {
   "mode": "auto (Path B allowed)",
-  "measuredAt": "2026-10-31T12:47:50.343Z",
+  "measuredAt": "2026-11-01T03:35:58.370Z",
   "offscreenMemory": {
-    "mb": 110.3,
+    "mb": 110.4,
     "method": "measureUserAgentSpecificMemory after forced GC (raw CDP, offscreen document)",
     "byType": {
-      "Shared @ ": 0.3,
-      "JavaScript @ Window:offscreen.html": 109.9
+      "JavaScript @ Window:offscreen.html": 110,
+      "Shared @ ": 0.3
     }
   },
   "pathBOutcome": {
     "state": "ready",
     "reason": "aionix-pathb-6L (Multilingual-MiniLM, trimmed vocab, INT8) · CPU (ONNX Runtime wasm) · host 118 MB after load (measureUserAgentSpecificMemory)",
-    "loadMs": 172.5,
-    "memoryMB": 118.36941432952881,
+    "loadMs": 199.56999999284744,
+    "memoryMB": 118.40115547180176,
     "memoryMethod": "measureUserAgentSpecificMemory"
   },
   "engine": {
@@ -39,35 +39,56 @@
       "deviceMemoryGB": 32
     },
     "adapterSummary": "intel · gen-12lp",
-    "memoryMB": 110.27749633789062,
+    "memoryMB": 110.40825271606445,
     "memoryMethod": "measureUserAgentSpecificMemory",
     "memoryStale": true,
     "memoryByType": {
       "unattributed": 0,
-      "DOM": 0.1,
+      "JavaScript @ Window:offscreen.html": 110,
       "Shared": 0.3,
-      "JavaScript @ Window:offscreen.html": 109.9
+      "DOM": 0.1
     },
     "ceilingMB": 150,
-    "fstEntries": 81984,
-    "fstBytes": 3632884,
+    "fstEntries": 82058,
+    "fstBytes": 3634020,
     "edmVectors": 105,
     "edmFields": 250,
     "loadMs": {
-      "pathA": 677.9749999940395,
-      "pathB": 172.5
+      "pathA": 692.3249999880791,
+      "pathB": 199.56999999284744
     }
   },
   "tier2": {
-    "p50": 13.379999995231628,
-    "p95": 17.915000021457672
+    "p50": 6.83500000834465,
+    "p95": 10.700000017881393
   },
   "tier3b": {
-    "p50": 0.23499998450279236,
-    "p95": 6.129999995231628
+    "p50": 6.314999997615814,
+    "p95": 8.180000007152557
   },
   "routes": [
     "B"
   ],
-  "samples": 16
+  "samples": 16,
+  "sendToDecision": {
+    "method": "fixture portal, Enter → page send handler (clean) or drawer shown (blocked), ms",
+    "clean": {
+      "n": 12,
+      "p50": 19.8,
+      "p95": 43.2,
+      "max": 43.2
+    },
+    "blockedTier2": {
+      "n": 5,
+      "p50": 33.9,
+      "p95": 52.4,
+      "max": 52.4
+    },
+    "blockedTier1": {
+      "n": 5,
+      "p50": 9.4,
+      "p95": 12.5,
+      "max": 12.5
+    }
+  }
 }
