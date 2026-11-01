@@ -39,11 +39,30 @@ interface GpuAdapterLike {
 }
 
 interface NavigatorLike {
-  gpu?: { requestAdapter(opts?: { powerPreference?: string }): Promise<GpuAdapterLike | null> };
+  gpu?: { requestAdapter(): Promise<GpuAdapterLike | null> };
   deviceMemory?: number;
 }
 
 const MB = 1024 * 1024;
+
+/** Report for runtimes that never use WebGPU (the extension's CPU-only Path B). */
+export function cpuOnlyReport(): HardwareReport {
+  const nav = (globalThis as { navigator?: NavigatorLike }).navigator;
+  return {
+    webgpu: false,
+    eligible: false,
+    reason: 'Not probed: the extension runs Path B on the CPU',
+    dtype: 'q4',
+    vendor: '',
+    architecture: '',
+    description: '',
+    isFallbackAdapter: false,
+    maxStorageBufferBindingSize: 0,
+    maxBufferSize: 0,
+    shaderF16: false,
+    deviceMemoryGB: typeof nav?.deviceMemory === 'number' ? nav.deviceMemory : null,
+  };
+}
 
 export async function probeHardware(thresholds: HardwareThresholds = DEFAULT_THRESHOLDS): Promise<HardwareReport> {
   const nav = (globalThis as { navigator?: NavigatorLike }).navigator;
@@ -64,7 +83,8 @@ export async function probeHardware(thresholds: HardwareThresholds = DEFAULT_THR
   if (!nav?.gpu) return { ...base, reason: 'WebGPU not exposed (navigator.gpu missing — disabled by policy or unsupported)' };
   let adapter: GpuAdapterLike | null = null;
   try {
-    adapter = await nav.gpu.requestAdapter({ powerPreference: 'high-performance' });
+    // No powerPreference: Chrome ignores it on Windows and logs a warning for it (crbug.com/369219127).
+    adapter = await nav.gpu.requestAdapter();
   } catch (err) {
     return { ...base, reason: `requestAdapter failed: ${(err as Error).message}` };
   }

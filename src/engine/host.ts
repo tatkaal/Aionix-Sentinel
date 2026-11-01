@@ -13,6 +13,9 @@ import { createWebGpuPath, type NeuralNer } from './tier2/webgpu-path';
 import { createEdmDetector, decodeEdm, encodeEdm, type EdmDetector, type EdmSourceDoc } from './tier3/edm';
 import type { Finding, FindingSource, ScanInput } from './types';
 
+/** Fresh follow-up readings an over-ceiling reading must survive before Path B is evicted. */
+const CEILING_CONFIRMATIONS = 2;
+
 export type RouteMode = 'auto' | 'force-a' | 'force-b';
 export type PathBState = 'unavailable' | 'idle' | 'loading' | 'ready' | 'failed' | 'evicted';
 
@@ -37,6 +40,8 @@ export interface EngineStatus {
   edmVectors: number;
   edmFields: number;
   loadMs: { pathA: number | null; pathB: number | null };
+  /** Epoch ms when this engine instance started; unchanged for as long as the instance lives. */
+  startedAt: number;
 }
 
 export interface PathBProvider {
@@ -61,6 +66,8 @@ export interface HostDeps {
   enforceCeiling: boolean;
   /** Remembers an eviction so a restart does not re-load ~0.8 GB just to evict it again. */
   evictionStore?: { get(): string | null; set(reason: string): void };
+  /** Bytes of wasm linear memory in this runtime, for the memory fallback (see memory-governor.ts). */
+  wasmBytes?(): number;
 }
 
 const now = () => performance.now();
@@ -88,7 +95,11 @@ export class EngineHost {
   private initPromise: Promise<void> | null = null;
   /** Protected items added inside the extension (options page), by id. */
   private readonly customIds = new Set<string>();
-  private readonly memory = createMemoryProbe(() => this.trackedBytes);
+  private readonly memory = createMemoryProbe(
+    () => this.trackedBytes,
+    () => this.deps.wasmBytes?.() ?? 0,
+  );
+  private readonly startedAt = Date.now();
 
   constructor(private readonly deps: HostDeps) {}
 
@@ -206,7 +217,16 @@ export class EngineHost {
    * tracked model bytes (incl. the downloaded Path B weights) is used as a labelled lower bound.
    */
   private async checkCeiling(): Promise<{ keep: boolean; note: string }> {
-    const reading = (await this.memory.measureFresh()) ?? this.memory.estimate();
+    let reading = (await this.memory.measureFresh()) ?? this.memory.estimate();
+    if (reading.mb === null) return { keep: true, note: 'host memory not measurable after load' };
+    // The ceiling is about the steady state, and an eviction is remembered. One reading right after the
+    // load can still include load buffers the next GC frees (seen once: 212 MB, then 118 MB on re-runs),
+    // so an over-ceiling reading must hold on two fresh follow-ups; the lowest one decides.
+    for (let i = 0; i < CEILING_CONFIRMATIONS && reading.mb !== null && reading.mb > MEMORY_CEILING_MB; i++) {
+      const next = await this.memory.measureFresh();
+      if (!next || next.mb === null) break;
+      if (next.mb < reading.mb) reading = next;
+    }
     if (reading.mb === null) return { keep: true, note: 'host memory not measurable after load' };
     const measured = `host ${reading.mb.toFixed(0)} MB after load (${reading.method})`;
     if (reading.mb <= MEMORY_CEILING_MB) return { keep: true, note: measured };
@@ -305,9 +325,18 @@ export class EngineHost {
     }
   }
 
-  async status(): Promise<EngineStatus> {
-    // Measuring mid-initialisation captures transient load buffers, so wait until Path A is up.
-    const reading: MemoryReading = this.pathA ? await this.memory.measure(1500) : { mb: null, method: 'engine initialising', at: 0 };
+  /**
+   * @param memoryWaitMs how long to wait for a fresh memory reading (Chrome resolves it at a GC, often
+   *   seconds later). The popup asks for ~0 and shows the newest reading; measurement runs wait longer.
+   */
+  async status(memoryWaitMs = 1500): Promise<EngineStatus> {
+    // Measuring mid-initialisation (or mid Path B load) captures transient load buffers, and Chrome can
+    // fold a status-triggered measurement into the ceiling check's — so report the newest reading then.
+    const reading: MemoryReading = !this.pathA
+      ? { mb: null, method: 'engine initialising', at: 0 }
+      : this.pathBState === 'loading'
+        ? { ...this.memory.last, stale: true }
+        : await this.memory.measure(memoryWaitMs);
     const route = this.activeRoute().route;
     const hw = this.hardware;
     return {
@@ -330,6 +359,7 @@ export class EngineHost {
       edmVectors: this.edm?.vectorCount ?? 0,
       edmFields: this.edm?.fieldCount ?? 0,
       loadMs: this.loadMs,
+      startedAt: this.startedAt,
     };
   }
 }

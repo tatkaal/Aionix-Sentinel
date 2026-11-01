@@ -8,8 +8,28 @@ import { createOrtWebTagger } from '../engine/runtime/ort-web-tagger';
 import { DEFAULT_NEURAL_POLICY } from '../engine/tier2/neural-path';
 import { fromBase64, toBase64 } from '../engine/tier3/custom-vault';
 import { decodeEdm } from '../engine/tier3/edm';
-import { probeHardware } from '../engine/tier2/hardware-probe';
+import { cpuOnlyReport } from '../engine/tier2/hardware-probe';
 import type { IndexedEdm, OffscreenRequest, ProtectedEdm } from './messages';
+
+// Every wasm memory this document creates (ONNX Runtime's threaded build makes its shared memory in JS;
+// other builds export it). Linear memory never shrinks, so its size is the bulk of this document's footprint.
+const wasmMemories = new Set<WebAssembly.Memory>();
+WebAssembly.Memory = new Proxy(WebAssembly.Memory, {
+  construct(target, args: [WebAssembly.MemoryDescriptor]) {
+    const memory = Reflect.construct(target, args) as WebAssembly.Memory;
+    wasmMemories.add(memory);
+    return memory;
+  },
+});
+const recordExports = <T>(result: T): T => {
+  const exports = ((result as { instance?: WebAssembly.Instance }).instance ?? (result as WebAssembly.Instance)).exports;
+  for (const v of Object.values(exports ?? {})) if (v instanceof WebAssembly.Memory) wasmMemories.add(v);
+  return result;
+};
+const nativeInstantiate = WebAssembly.instantiate.bind(WebAssembly);
+WebAssembly.instantiate = ((...args: Parameters<typeof WebAssembly.instantiate>) => nativeInstantiate(...args).then(recordExports)) as typeof WebAssembly.instantiate;
+const nativeStreaming = WebAssembly.instantiateStreaming.bind(WebAssembly);
+WebAssembly.instantiateStreaming = ((...args: Parameters<typeof WebAssembly.instantiateStreaming>) => nativeStreaming(...args).then(recordExports)) as typeof WebAssembly.instantiateStreaming;
 
 const base = chrome.runtime.getURL('');
 // Versioned per Path B model: an eviction of the earlier privacy-filter must not block the tagger.
@@ -22,10 +42,13 @@ const host = new EngineHost({
     return res.arrayBuffer();
   },
   createEmbedder: () => createOrtWebEmbedder(base),
-  probeHardware: () => probeHardware(),
+  // Path B runs on the CPU (ADR-007), so the extension never asks for a WebGPU adapter: that request
+  // only spun up the GPU process and logged Chrome's powerPreference warning on Windows.
+  probeHardware: async () => cpuOnlyReport(),
   pathB: { device: 'cpu', create: (_dtype, onProgress) => createOrtWebTagger(base, onProgress), policy: DEFAULT_NEURAL_POLICY },
   autoLoadPathB: true,
   enforceCeiling: true,
+  wasmBytes: () => [...wasmMemories].reduce((n, m) => n + m.buffer.byteLength, 0),
   evictionStore: {
     get: () => {
       try {
@@ -76,7 +99,7 @@ async function handle(msg: OffscreenRequest): Promise<unknown> {
       await host.setRouteMode(msg.mode);
       return host.status();
     case 'status':
-      return host.status();
+      return host.status(msg.memoryWaitMs);
     case 'edm-index': {
       // The text is embedded and hashed here, then dropped; only fingerprints go back.
       const bytes = await host.indexProtected(msg.doc);

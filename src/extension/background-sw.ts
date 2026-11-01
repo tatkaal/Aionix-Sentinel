@@ -2,12 +2,12 @@
 // scripts and the offscreen inference engine, and zero-knowledge telemetry in chrome.storage.local.
 import { randomSalt, type ScanRecord } from '../engine/telemetry';
 import { CUSTOM_VAULT_KEY, type CustomVaultRecord } from '../engine/tier3/custom-vault';
-import { emptyCounters, type BackgroundRequest, type Counters, type EngineStatus, type OffscreenRequest, type ProtectedEdm, type StatusResponse } from './messages';
+import { emptyCounters, LAST_ENGINE_KEY, STORE_KEYS, type BackgroundRequest, type Counters, type EngineStatus, type OffscreenRequest, type ProtectedEdm, type StatusResponse } from './messages';
 
 const OFFSCREEN_PATH = 'offscreen.html';
 const MAX_RECORDS = 500;
 const OFFSCREEN_START_TIMEOUT_MS = 10_000;
-const K = { counters: 'aionix.counters', records: 'aionix.records', salt: 'aionix.salt' } as const;
+const K = STORE_KEYS;
 
 let creating: Promise<void> | null = null;
 let recycling: Promise<void> | null = null;
@@ -20,11 +20,16 @@ async function ensureOffscreen(): Promise<void> {
   // Bounded: a start that never settles must not wedge every later request (they would all wait on
   // the same promise); after the timeout the next request tries again.
   creating ??= Promise.race([
-    chrome.offscreen.createDocument({
-      url: OFFSCREEN_PATH,
-      reasons: [chrome.offscreen.Reason.WORKERS],
-      justification: 'Runs the local Tier 2 / Tier 3 DLP inference engine (ONNX Runtime, FST lexicon) for prompt inspection.',
-    }),
+    chrome.offscreen
+      .createDocument({
+        url: OFFSCREEN_PATH,
+        reasons: [chrome.offscreen.Reason.WORKERS],
+        justification: 'Runs the local Tier 2 / Tier 3 DLP inference engine (ONNX Runtime, FST lexicon) for prompt inspection.',
+      })
+      .catch((err: unknown) => {
+        // Two wake-ups racing (install + start-up): the other one already created it.
+        if (!/single offscreen/i.test(String(err))) throw err;
+      }),
     new Promise<never>((_, reject) => setTimeout(() => reject(new Error('offscreen document did not start')), OFFSCREEN_START_TIMEOUT_MS)),
   ]).finally(() => {
     creating = null;
@@ -91,11 +96,12 @@ async function record(rec: ScanRecord): Promise<void> {
   await chrome.action.setBadgeText({ text: counters.blocked ? String(Math.min(counters.blocked, 999)) : '' });
 }
 
-async function status(): Promise<StatusResponse> {
+async function status(quick = false): Promise<StatusResponse> {
   const data = await chrome.storage.local.get([K.counters, K.records]);
   let engine: EngineStatus | null = null;
   try {
-    engine = await toOffscreen<EngineStatus>({ target: 'offscreen', type: 'status' });
+    engine = await toOffscreen<EngineStatus>({ target: 'offscreen', type: 'status', ...(quick ? { memoryWaitMs: 50 } : {}) });
+    if (engine && !('error' in engine)) await chrome.storage.session.set({ [LAST_ENGINE_KEY]: engine }).catch(() => undefined);
   } catch {
     engine = null;
   }
@@ -121,7 +127,10 @@ async function handle(msg: BackgroundRequest): Promise<unknown> {
     case 'salt':
       return getSalt();
     case 'status':
-      return status();
+      return status(msg.quick);
+    case 'warm':
+      await ensureOffscreen();
+      return { ok: true };
     case 'set-route':
       return toOffscreen({ target: 'offscreen', type: 'set-route', mode: msg.mode });
     case 'vault-index':
@@ -151,8 +160,10 @@ chrome.storage.onChanged.addListener((changes, area) => {
   void protectedEdm().then((items) => toOffscreen({ target: 'offscreen', type: 'edm-sync', items }).catch(() => undefined));
 });
 
-chrome.runtime.onInstalled.addListener(() => {
-  void getSalt();
-  void ensureOffscreen();
-});
-chrome.runtime.onStartup.addListener(() => void ensureOffscreen());
+// The engine loads once and stays: the offscreen document outlives this service worker, which Chrome
+// stops after ~30 s idle. Every worker start (browser launch, install, enable, any wake-up) only checks
+// that the document exists and creates it if it does not, so it is up before the first prompt.
+// The onStartup listener is also what makes Chrome start this worker when the browser opens.
+chrome.runtime.onInstalled.addListener(() => void getSalt());
+chrome.runtime.onStartup.addListener(() => void ensureOffscreen().catch(() => undefined));
+void ensureOffscreen().catch(() => undefined);

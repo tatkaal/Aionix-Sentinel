@@ -31,7 +31,7 @@ const now = () => performance.now();
  * callers get the newest reading, flagged `stale` if a fresher one is still pending. Decisions
  * (Path B eviction) use `measureFresh`, which waits for a reading taken after the call.
  */
-export function createMemoryProbe(trackedBytes: () => number) {
+export function createMemoryProbe(trackedBytes: () => number, wasmBytes?: () => number) {
   let last: MemoryReading = { mb: null, method: 'not yet measured', at: 0 };
   let inflight: Promise<MemoryReading> | null = null;
   const perf = (globalThis as { performance?: PerfWithMemory }).performance;
@@ -40,6 +40,12 @@ export function createMemoryProbe(trackedBytes: () => number) {
 
   const fallback = (): MemoryReading => {
     const heap = perf?.memory?.usedJSHeapSize;
+    // ONNX Runtime's threaded build keeps its weights and activations in a shared wasm memory that the
+    // JS heap figure does not include; that linear memory only grows, so its size is what the ceiling is about.
+    const wasm = wasmBytes?.() ?? 0;
+    if (typeof heap === 'number' && wasm > 0) {
+      return { mb: Math.max(heap + wasm, trackedBytes()) / 1048576, method: 'performance.memory JS heap + wasm linear memory', at: now() };
+    }
     if (typeof heap === 'number') {
       // Chrome's usedJSHeapSize already includes ArrayBuffer / wasm backing stores (an offscreen
       // document with Path B loaded read ~830 MB here), so tracked bytes are a floor, not an addend.

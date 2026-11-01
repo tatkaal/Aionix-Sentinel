@@ -137,4 +137,52 @@ describe.skipIf(!ready)('engine host routing', () => {
     expect(r.tier2Route).toBe('B');
     expect(r.findings.some((f) => f.category === 9 && f.path === 'neural')).toBe(true);
   });
+
+  it('evicts Path B only when an over-ceiling reading holds on fresh follow-ups (steady state, not load buffers)', async () => {
+    const g = globalThis as { crossOriginIsolated?: boolean };
+    const perf = performance as unknown as { measureUserAgentSpecificMemory?: () => Promise<unknown> };
+    const saved = { iso: g.crossOriginIsolated, measure: perf.measureUserAgentSpecificMemory };
+    let readings: number[] = [];
+    g.crossOriginIsolated = true;
+    perf.measureUserAgentSpecificMemory = async () => {
+      const mb = readings.length > 1 ? readings.shift()! : readings[0]!;
+      return { bytes: mb * 1048576, breakdown: [{ bytes: mb * 1048576, types: ['JavaScript'], attribution: [] }] };
+    };
+    const run = async (sequence: number[]) => {
+      readings = [...sequence];
+      let stored: string | null = null;
+      const h = new EngineHost({
+        loadBinary: async (p) => {
+          const b = readFileSync(resolve(assets, p));
+          return b.buffer.slice(b.byteOffset, b.byteOffset + b.byteLength) as ArrayBuffer;
+        },
+        createEmbedder: async () => ({ embedder: await createNodeEmbedder(modelDir), modelBytes: 0 }),
+        probeHardware: async () => ({
+          webgpu: false, eligible: false, reason: 'not probed', dtype: 'q4', vendor: '', architecture: '', description: '',
+          isFallbackAdapter: false, maxStorageBufferBindingSize: 0, maxBufferSize: 0, shaderF16: false, deviceMemoryGB: null,
+        }),
+        pathB: { device: 'cpu', create: async () => ({ modelId: 'stub-tagger', detect: async () => [], dispose: async () => undefined }) },
+        autoLoadPathB: false,
+        enforceCeiling: true,
+        evictionStore: { get: () => stored, set: (r) => void (stored = r) },
+      });
+      await h.init();
+      await h.loadPathB();
+      return { status: await h.status(0), stored };
+    };
+    try {
+      const transient = await run([212, 118]);
+      expect(transient.status.pathBState).toBe('ready');
+      expect(transient.status.pathBReason).toMatch(/host 118 MB after load/);
+      expect(transient.stored).toBeNull();
+
+      const steady = await run([212, 205, 220]);
+      expect(steady.status.pathBState).toBe('evicted');
+      expect(steady.status.pathBReason).toMatch(/host memory 205 MB > 150 MB ceiling/);
+      expect(steady.stored).toMatch(/205 MB/);
+    } finally {
+      g.crossOriginIsolated = saved.iso;
+      perf.measureUserAgentSpecificMemory = saved.measure;
+    }
+  });
 });

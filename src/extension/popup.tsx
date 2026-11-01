@@ -3,20 +3,54 @@ import { createRoot } from 'react-dom/client';
 import { CATEGORIES, type CategoryId } from '../engine/types';
 import { AionixLogo } from '../shared/brand/AionixLogo';
 import { Badge, Button, Dot, Segmented } from '../workbench/components/ui';
-import type { BackgroundRequest, RouteMode, StatusResponse } from './messages';
+import type { ScanRecord } from '../engine/telemetry';
+import { emptyCounters, LAST_ENGINE_KEY, STORE_KEYS, type BackgroundRequest, type Counters, type EngineStatus, type RouteMode, type StatusResponse } from './messages';
 import './popup.css';
 
 const send = <T,>(msg: BackgroundRequest) => chrome.runtime.sendMessage(msg) as Promise<T>;
 const PORTAL_LABEL: Record<string, string> = { claude: 'Claude', chatgpt: 'ChatGPT', gemini: 'Gemini', workbench: 'Workbench' };
 
+/** The last known state straight from storage, so the popup draws at once (the engine is not restarted). */
+async function cachedStatus(): Promise<StatusResponse> {
+  const [session, local] = await Promise.all([
+    chrome.storage.session.get(LAST_ENGINE_KEY).catch(() => ({}) as Record<string, unknown>),
+    chrome.storage.local.get([STORE_KEYS.counters, STORE_KEYS.records]),
+  ]);
+  return {
+    engine: (session[LAST_ENGINE_KEY] as EngineStatus | undefined) ?? null,
+    counters: (local[STORE_KEYS.counters] as Counters | undefined) ?? emptyCounters(),
+    recent: ((local[STORE_KEYS.records] as ScanRecord[] | undefined) ?? []).slice(-25).reverse(),
+  };
+}
+
+function since(ms: number): string {
+  const min = Math.floor(ms / 60_000);
+  if (min < 1) return 'under a minute';
+  if (min < 60) return `${min} min`;
+  const h = Math.floor(min / 60);
+  return `${h} h ${min % 60} min`;
+}
+
+function routeLabel(engine: EngineStatus | null | undefined): string {
+  if (!engine) return 'Connecting to the engine…';
+  if (!engine.pathAReady) return 'Loading the engine…';
+  if (engine.route === 'B') return 'Path B · Neural tagger (CPU)';
+  if (engine.pathBState === 'loading') return `Path A · loading Path B${engine.pathBProgress != null ? ` ${Math.round(engine.pathBProgress * 100)}%` : ''}`;
+  return 'Path A · Lexicon FST (CPU)';
+}
+
 function Popup() {
   const [status, setStatus] = useState<StatusResponse | null>(null);
 
   const refresh = useCallback(() => {
-    void send<StatusResponse>({ target: 'background', type: 'status' }).then(setStatus);
+    void send<StatusResponse>({ target: 'background', type: 'status', quick: true }).then((s) => {
+      if (s?.engine) setStatus(s);
+      else if (s) setStatus((prev) => ({ ...s, engine: prev?.engine ?? null }));
+    });
   }, []);
 
   useEffect(() => {
+    void cachedStatus().then((c) => setStatus((prev) => prev ?? c));
     refresh();
     const t = setInterval(refresh, 2000);
     return () => clearInterval(t);
@@ -53,12 +87,19 @@ function Popup() {
           <div className="min-w-0">
             <div className="text-xs text-muted">Tier 2 route</div>
             <div className="font-display text-sm font-semibold">
-              {engine ? (engine.route === 'B' ? 'Path B · Neural tagger (CPU)' : 'Path A · Lexicon FST (CPU)') : 'Starting…'}
+              {routeLabel(engine)}
             </div>
           </div>
           {engine && <Badge tone={engine.route === 'B' ? 'brand' : 'amber'}>{engine.route === 'B' ? 'Neural' : 'Lexicon'}</Badge>}
         </div>
         {engine?.pathBReason && <p className="text-xs text-subtle">{engine.pathBReason}</p>}
+        {engine?.startedAt && (
+          <p className="text-xs text-subtle" data-testid="engine-uptime">
+            Engine loaded once at{' '}
+            <span className="metric">{new Date(engine.startedAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span> · running for{' '}
+            {since(Date.now() - engine.startedAt)}, shared by every tab
+          </p>
+        )}
         <div>
           <div className="flex justify-between text-xs text-muted">
             <span>Offscreen memory</span>
