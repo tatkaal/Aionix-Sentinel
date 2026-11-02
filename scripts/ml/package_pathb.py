@@ -30,8 +30,14 @@ def main() -> None:
     config = json.loads((args.model_dir / "config.json").read_text(encoding="utf-8"))
     training = json.loads((args.model_dir / "training.json").read_text(encoding="utf-8"))
     labels = [config["id2label"][str(i)] for i in range(len(config["id2label"]))]
+    corpus = training.get("args", {}).get("corpus", "corpus")
+    synthetic = corpus != "corpus"
+    data = ["nvidia/Nemotron-PII (CC BY 4.0)", "gretelai/synthetic_pii_finance_multilingual (Apache-2.0)"]
+    if synthetic:
+        stats = json.loads((ROOT / ".cache" / "ml" / corpus / "stats.json").read_text(encoding="utf-8"))
+        data.append(f"Aionix synthetic credential prose + hard negatives (scripts/ml/synth_credentials.py, {stats['train']['bySource'].get('aionix-synth', 0)} train rows)")
     manifest = {
-        "modelId": f"aionix-pathb-{training['layers']}L (Multilingual-MiniLM, trimmed vocab, INT8)",
+        "modelId": f"aionix-pathb-{training['layers']}L{'-v3' if synthetic else ''} (Multilingual-MiniLM, trimmed vocab, INT8)",
         "model": "model_int8.onnx",
         "tokenizer": "tokenizer.json",
         "labels": labels,
@@ -42,7 +48,7 @@ def main() -> None:
             "base": "microsoft/Multilingual-MiniLM-L12-H384 (MIT)",
             "layers": training["layers"],
             "vocab": config["vocab_size"],
-            "trainingData": ["nvidia/Nemotron-PII (CC BY 4.0)", "gretelai/synthetic_pii_finance_multilingual (Apache-2.0)"],
+            "trainingData": data,
             "selectedOn": "training-corpus validation slice",
             "valMicroF1": round(training["valMicroF1"], 4),
             "epoch": training["epoch"],

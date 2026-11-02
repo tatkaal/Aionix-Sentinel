@@ -1,5 +1,5 @@
 {
-  "modelId": "aionix-pathb-6L (Multilingual-MiniLM, trimmed vocab, INT8)",
+  "modelId": "aionix-pathb-6L-v3 (Multilingual-MiniLM, trimmed vocab, INT8)",
   "model": "model_int8.onnx",
   "tokenizer": "tokenizer.json",
   "labels": [
@@ -34,13 +34,14 @@
     "vocab": 30376,
     "trainingData": [
       "nvidia/Nemotron-PII (CC BY 4.0)",
-      "gretelai/synthetic_pii_finance_multilingual (Apache-2.0)"
+      "gretelai/synthetic_pii_finance_multilingual (Apache-2.0)",
+      "Aionix synthetic credential prose + hard negatives (scripts/ml/synth_credentials.py, 24252 train rows)"
     ],
     "selectedOn": "training-corpus validation slice",
-    "valMicroF1": 0.9075,
+    "valMicroF1": 0.9186,
     "epoch": 3,
     "sha256": {
-      "model_int8.onnx": "d569b17af1eed2860c49548326de62fd1d3dd783a7abd6ffe928c0a0f6f828ea",
+      "model_int8.onnx": "e0f54467564b45662e354315a1907560a74a5e2b893a7dfc04b7c77310bf2a5f",
       "tokenizer.json": "cd507e378a79a95ba499cee39b32027adb647ef8b08f8ed4249b1244a8b24428"
     }
   }

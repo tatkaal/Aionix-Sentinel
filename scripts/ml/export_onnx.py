@@ -5,6 +5,8 @@ Usage: .venv/Scripts/python scripts/ml/export_onnx.py <model dir> [--max-len 512
 Writes <model dir>/onnx/model.onnx and <model dir>/onnx/model_int8.onnx.
   --per-channel      per-output-channel weight scales (narrow models lose less)
   --keep-embeddings  leave the embedding Gather in fp32 (bigger file, embeddings not quantized)
+  --fp16             also write model_fp16.onnx (fp16 weights and compute, fp32 inputs/outputs) for the
+                     ONNX Runtime Web WebGPU execution provider, with its own agreement check
 """
 from __future__ import annotations
 
@@ -35,6 +37,7 @@ def main() -> None:
     ap.add_argument("--per-channel", action="store_true")
     ap.add_argument("--keep-embeddings", action="store_true")
     ap.add_argument("--skip-export", action="store_true", help="re-quantize an existing model.onnx")
+    ap.add_argument("--fp16", action="store_true")
     args = ap.parse_args()
     out = args.model_dir / "onnx"
     out.mkdir(exist_ok=True)
@@ -71,6 +74,24 @@ def main() -> None:
     mode = ("per-channel" if args.per_channel else "per-tensor") + (", fp32 embeddings" if args.keep_embeddings else "")
     (out / "quantization.json").write_text(json.dumps({"fp32MB": round(fp32.stat().st_size / 1e6, 1), "int8MB": round(int8.stat().st_size / 1e6, 1), "mode": mode, "argmaxAgreement": round(agree / total, 4), "tokens": total, "maxLogitDrift": round(drift, 2)}, indent=2), encoding="utf-8")
     print(f"{args.model_dir.name}: fp32 {fp32.stat().st_size / 1e6:.1f} MB, int8 ({mode}) {int8.stat().st_size / 1e6:.1f} MB, argmax agreement {agree}/{total} = {agree / total:.2%}, max logit drift {drift:.2f}")
+    if args.fp16:
+        import onnx
+        from onnxconverter_common import float16
+
+        half = out / "model_fp16.onnx"
+        onnx.save(float16.convert_float_to_float16(onnx.load(str(fp32)), keep_io_types=True), str(half))
+        s16 = ort.InferenceSession(str(half), providers=["CPUExecutionProvider"])
+        agree16 = total16 = 0
+        for text in SAMPLES + extra:
+            e = tok(text, return_tensors="np", truncation=True, max_length=args.max_len)
+            feeds = {n: e[n].astype(np.int64) for n in names}
+            a, b = s32.run(None, feeds)[0], s16.run(None, feeds)[0]
+            agree16 += int((a.argmax(-1) == b.argmax(-1)).sum())
+            total16 += a.shape[1]
+        q = json.loads((out / "quantization.json").read_text(encoding="utf-8"))
+        q |= {"fp16MB": round(half.stat().st_size / 1e6, 1), "fp16ArgmaxAgreement": round(agree16 / total16, 4)}
+        (out / "quantization.json").write_text(json.dumps(q, indent=2), encoding="utf-8")
+        print(f"{args.model_dir.name}: fp16 {half.stat().st_size / 1e6:.1f} MB, argmax agreement with fp32 {agree16 / total16:.2%}")
 
 
 if __name__ == "__main__":

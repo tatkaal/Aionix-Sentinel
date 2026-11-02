@@ -4,11 +4,13 @@
 AI4Privacy is deliberately excluded: its licence is non-commercial and it is our held-out benchmark.
 Labels are mapped to the engine's canonical kinds (src/engine/tier2/neural-labels.json).
 
-Usage: .venv/Scripts/python scripts/ml/build_corpus.py
-Writes .cache/ml/corpus/{train,val}.jsonl and stats.json.
+Usage: .venv/Scripts/python scripts/ml/build_corpus.py [--synthetic N] [--out corpus]
+Writes .cache/ml/<out>/{train,val}.jsonl and stats.json. --synthetic adds N rows from synth_credentials.py
+(credentials in chat-style prose and hard negatives; the v3 corpus uses --synthetic 25000 --out corpus-v3).
 """
 from __future__ import annotations
 
+import argparse
 import ast
 import json
 import random
@@ -17,8 +19,7 @@ from collections import Counter
 from datasets import load_dataset
 
 from common import CACHE, canonical
-
-OUT = CACHE / "corpus"
+from synth_credentials import generate
 VAL_SHARE = 0.03
 SEED = 7
 
@@ -49,9 +50,14 @@ def gretel():
 
 
 def main() -> None:
+    ap = argparse.ArgumentParser()
+    ap.add_argument("--synthetic", type=int, default=0)
+    ap.add_argument("--out", default="corpus")
+    args = ap.parse_args()
+    OUT = CACHE / args.out
     OUT.mkdir(parents=True, exist_ok=True)
     rng = random.Random(SEED)
-    rows = [*nemotron(), *gretel()]
+    rows = [*nemotron(), *gretel(), *(generate(args.synthetic) if args.synthetic else [])]
     rng.shuffle(rows)
     n_val = int(len(rows) * VAL_SHARE)
     splits = {"val": rows[:n_val], "train": rows[n_val:]}

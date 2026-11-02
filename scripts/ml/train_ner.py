@@ -1,7 +1,7 @@
 """Fine-tunes a compact encoder as the Path B token classifier (BIO over the canonical kinds).
 
 Usage: .venv/Scripts/python scripts/ml/train_ner.py <base model dir> <out dir>
-       [--layers 6] [--epochs 3] [--lr 1e-4] [--max-len 256] [--batch 32] [--limit N]
+       [--layers 6] [--epochs 3] [--lr 1e-4] [--max-len 256] [--batch 32] [--limit N] [--corpus corpus] [--init ckpt]
 The checkpoint is selected on the corpus's own validation slice (.cache/ml/corpus/val.jsonl) —
 never on benchmark splits.
 """
@@ -27,8 +27,8 @@ L2I = {l: i for i, l in enumerate(LABELS)}
 STRIDE = 64
 
 
-def load(split: str, limit: int | None) -> list[dict]:
-    rows = [json.loads(l) for l in (CACHE / "corpus" / f"{split}.jsonl").read_text(encoding="utf-8").splitlines() if l.strip()]
+def load(split: str, limit: int | None, corpus: str = "corpus") -> list[dict]:
+    rows = [json.loads(l) for l in (CACHE / corpus / f"{split}.jsonl").read_text(encoding="utf-8").splitlines() if l.strip()]
     return rows[:limit] if limit else rows
 
 
@@ -107,6 +107,8 @@ def main() -> None:
     ap.add_argument("--max-len", type=int, default=256)
     ap.add_argument("--batch", type=int, default=32)
     ap.add_argument("--limit", type=int, default=None)
+    ap.add_argument("--corpus", default="corpus", help="directory under .cache/ml (build_corpus.py --out)")
+    ap.add_argument("--init", type=Path, default=None, help="start from this fine-tuned checkpoint instead of the base")
     args = ap.parse_args()
     random.seed(0)
     np.random.seed(0)
@@ -115,7 +117,7 @@ def main() -> None:
 
     tok = AutoTokenizer.from_pretrained(args.base)
     model = AutoModelForTokenClassification.from_pretrained(
-        args.base, num_labels=len(LABELS), id2label=dict(enumerate(LABELS)), label2id=L2I, ignore_mismatched_sizes=True
+        args.init or args.base, num_labels=len(LABELS), id2label=dict(enumerate(LABELS)), label2id=L2I, ignore_mismatched_sizes=True
     )
     if args.layers:
         enc = getattr(model, model.base_model_prefix).encoder
@@ -124,8 +126,8 @@ def main() -> None:
     model.to(device)
 
     t0 = time.time()
-    train = encode(load("train", args.limit), tok, args.max_len)
-    val = encode(load("val", args.limit and max(200, args.limit // 30)), tok, args.max_len)
+    train = encode(load("train", args.limit, args.corpus), tok, args.max_len)
+    val = encode(load("val", args.limit and max(200, args.limit // 30), args.corpus), tok, args.max_len)
     print(f"encoded {len(train)} train / {len(val)} val windows in {time.time() - t0:.0f}s")
     pad = tok.pad_token_id
     tl = DataLoader(train, batch_size=args.batch, shuffle=True, collate_fn=lambda b: collate(b, pad))
