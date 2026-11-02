@@ -1,5 +1,5 @@
 {
-  "capturedAt": "2026-11-02T02:18:02.556Z",
+  "capturedAt": "2026-11-02T04:02:13.980Z",
   "leaks": [],
   "results": [
     {
@@ -158,10 +158,10 @@
     {
       "shot": "29-chatgpt-large-paste",
       "portal": "chatgpt",
-      "title": "Large paste (22,377 chars) checked at paste time",
+      "title": "Large paste (22,377 chars) stays in the composer; Send blocked",
       "expect": "block",
       "observed": "block",
-      "note": "Tier 3 Path A (content script: Bloom + MinHash fingerprints) on the attachment. Claude: chip, Send blocked, removing the chip lifts the block. ChatGPT / Gemini: checked at paste time and kept out (they may upload long pastes as files)",
+      "note": "Tier 3 Path A (content script: Bloom + MinHash fingerprints) on the attachment. Claude: chip, Send blocked, removing the chip lifts the block. Gemini and signed-out ChatGPT: the paste stays in the composer as text and Send is blocked. Signed-in ChatGPT uploads a long paste as a file as soon as it is added, so it is checked at paste time and kept out. Observed: 22,377 chars in the composer after the paste, drawer at paste time: no",
       "engine": "ready/B"
     },
     {
@@ -224,6 +224,15 @@
       "expect": "block",
       "observed": "block",
       "note": "Tier 2 (offscreen: person ↔ sensitive-term graph + MiniLM validator) · no setup needed",
+      "engine": "ready/B"
+    },
+    {
+      "shot": "37-gemini-large-paste",
+      "portal": "gemini",
+      "title": "Large paste (22,377 chars) stays in the composer; Send blocked",
+      "expect": "block",
+      "observed": "block",
+      "note": "Tier 3 Path A (content script: Bloom + MinHash fingerprints) on the attachment. Claude: chip, Send blocked, removing the chip lifts the block. Gemini and signed-out ChatGPT: the paste stays in the composer as text and Send is blocked. Signed-in ChatGPT uploads a long paste as a file as soon as it is added, so it is checked at paste time and kept out. Observed: 22,578 chars in the composer after the paste, drawer at paste time: no",
       "engine": "ready/B"
     },
     {

@@ -128,6 +128,43 @@ async function trial(page: Page, portal: string, shot: string, p: KitPrompt, opt
   marker = null;
 }
 
+/**
+ * Large paste with a real clipboard paste (~22,000 characters). Signed out, ChatGPT and Gemini keep it
+ * as inline composer text and upload nothing before Send (measured 2026-11-02), so Aionix lets the paste
+ * in and blocks the Send. (Signed-in ChatGPT uploads it as a file at once; that path is checked at
+ * paste time and covered by the e2e suite.)
+ */
+async function largePaste(page: Page, portal: string, shot: string) {
+  const memoPaste = prompt(10, 'Large paste → pasted-content chip');
+  const engine = await engineState();
+  const box = await composerOf(page, portal);
+  const length = () => box.evaluate((n) => ('value' in n ? (n as HTMLTextAreaElement).value : (n as HTMLElement).innerText).length);
+  marker = memoMarker;
+  await box.click();
+  await page.evaluate((t) => navigator.clipboard.writeText(t), memoPaste.paste!);
+  await page.keyboard.press('Control+V');
+  await page.waitForTimeout(2200);
+  const drawerOnPaste = await page.evaluate(() => !!document.querySelector('aionix-sentinel-drawer')?.isConnected);
+  const pasted = await length();
+  await box.press('Enter');
+  await page.waitForTimeout(2200);
+  const drawerUp = await page.evaluate(() => !!document.querySelector('aionix-sentinel-drawer')?.isConnected);
+  const kept = await length();
+  await shoot(page, shot);
+  results.push({
+    shot,
+    portal,
+    title: `Large paste (${memoPaste.paste!.length.toLocaleString()} chars) stays in the composer; Send blocked`,
+    expect: 'block',
+    observed: drawerUp && kept > 10_000 ? 'block' : 'sent',
+    note: `${memoPaste.note}. Observed: ${pasted.toLocaleString()} chars in the composer after the paste, drawer at paste time: ${drawerOnPaste ? 'yes' : 'no'}`,
+    engine,
+  });
+  marker = null;
+  await closeDrawer(page);
+  await box.fill('');
+}
+
 const server = spawn(process.execPath, [resolve(root, 'tests/e2e/serve-fixtures.mjs')], { stdio: 'ignore' });
 try {
   // ── Live portals with the production build ────────────────────────────────
@@ -196,27 +233,8 @@ try {
     const box = await composerOf(gpt, 'chatgpt');
     await box.fill('');
   }
-  // Large paste (real clipboard paste, ~22,000 characters). ChatGPT turns a paste this long into
-  // pasted.txt, a file it uploads when attached, so Aionix checks it at paste time: a flagged paste is
-  // kept out of the composer entirely (nothing to upload, nothing to send).
   await ctx.grantPermissions(['clipboard-read', 'clipboard-write'], { origin: 'https://chatgpt.com' });
-  {
-    const memoPaste = prompt(10, 'Large paste → pasted-content chip');
-    const engine = await engineState();
-    const box = await composerOf(gpt, 'chatgpt');
-    marker = memoMarker;
-    await gpt.evaluate((t) => navigator.clipboard.writeText(t), memoPaste.paste!);
-    await box.click();
-    await gpt.keyboard.press('Control+V');
-    await gpt.waitForTimeout(2200);
-    const drawerUp = await gpt.evaluate(() => !!document.querySelector('aionix-sentinel-drawer')?.isConnected);
-    const inComposer = await box.evaluate((n) => ('value' in n ? (n as HTMLTextAreaElement).value : (n as HTMLElement).innerText).length);
-    await shoot(gpt, '29-chatgpt-large-paste');
-    results.push({ shot: '29-chatgpt-large-paste', portal: 'chatgpt', title: `Large paste (${memoPaste.paste!.length.toLocaleString()} chars) checked at paste time`, expect: 'block', observed: drawerUp && inComposer < 100 ? 'block' : 'sent', note: memoPaste.note, engine });
-    marker = null;
-    await closeDrawer(gpt);
-    await box.fill('');
-  }
+  await largePaste(gpt, 'chatgpt', '29-chatgpt-large-paste');
   // Allowed: a benign question goes through to the live AI.
   await trial(gpt, 'chatgpt', '24-chatgpt-allowed-question', prompt(9, 'Symptom question'), { send: true });
 
@@ -248,6 +266,8 @@ try {
     await closeDrawer(gem);
     await (await composerOf(gem, 'gemini')).fill('');
   }
+  await ctx.grantPermissions(['clipboard-read', 'clipboard-write'], { origin: 'https://gemini.google.com' });
+  await largePaste(gem, 'gemini', '37-gemini-large-paste');
   // Benign look-alike: code that mentions a password without a value goes through to Gemini.
   await trial(gem, 'gemini', '35-gemini-allowed-code-password-field', prompt(2, 'Code reading a password from the environment'), { send: true });
 

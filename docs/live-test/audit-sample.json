@@ -1,7 +1,7 @@
 {
-  "exportedAt": "2026-11-02T02:17:10.877Z",
+  "exportedAt": "2026-11-02T04:01:22.306Z",
   "counters": {
-    "blocked": 23,
+    "blocked": 24,
     "byCategory": {
       "1": 1,
       "2": 4,
@@ -12,19 +12,19 @@
       "7": 1,
       "8": 3,
       "9": 6,
-      "10": 4
+      "10": 5
     },
     "byPath": {
       "edm": 1,
       "math": 12,
-      "minhash": 4,
+      "minhash": 5,
       "neural": 9
     },
     "byPortal": {
       "chatgpt": 19,
-      "gemini": 6
+      "gemini": 7
     },
-    "scanned": 25
+    "scanned": 26
   },
   "records": [
     {
@@ -32,27 +32,8 @@
       "degraded": false,
       "findings": [
         {
-          "category": 10,
-          "fingerprint": "2ba23681f183",
-          "inAttachment": false,
-          "path": "minhash",
-          "tier": "tier3",
-          "type": "CONFIDENTIAL_DOCUMENT"
-        }
-      ],
-      "id": "mvymom3d-09n7a4",
-      "latencyMs": 1.6,
-      "portal": "gemini",
-      "tier2Route": null,
-      "ts": 1793585812441
-    },
-    {
-      "blocked": true,
-      "degraded": false,
-      "findings": [
-        {
           "category": 9,
-          "fingerprint": "37a48a94d078",
+          "fingerprint": "fdaf13124ede",
           "inAttachment": false,
           "path": "neural",
           "tier": "tier2",
@@ -60,28 +41,47 @@
         },
         {
           "category": 9,
-          "fingerprint": "911adc1b4ef5",
+          "fingerprint": "89b9e75c0366",
           "inAttachment": false,
           "path": "neural",
           "tier": "tier2",
           "type": "PATIENT_IDENTITY"
         }
       ],
-      "id": "mvymopgq-lhuyoo",
-      "latencyMs": 20.7,
+      "id": "mvyqek79-x7tf3c",
+      "latencyMs": 11.2,
       "portal": "gemini",
       "tier2Route": "B",
-      "ts": 1793585816810
+      "ts": 1793592061893
+    },
+    {
+      "blocked": true,
+      "degraded": false,
+      "findings": [
+        {
+          "category": 10,
+          "fingerprint": "98228cdb6352",
+          "inAttachment": false,
+          "path": "minhash",
+          "tier": "tier3",
+          "type": "CONFIDENTIAL_DOCUMENT"
+        }
+      ],
+      "id": "mvyqep1t-m1dh0g",
+      "latencyMs": 13.1,
+      "portal": "gemini",
+      "tier2Route": null,
+      "ts": 1793592068177
     },
     {
       "blocked": false,
       "degraded": false,
       "findings": [],
-      "id": "mvymossr-evzmsk",
-      "latencyMs": 22.2,
+      "id": "mvyqescz-c65qed",
+      "latencyMs": 13.2,
       "portal": "gemini",
       "tier2Route": "B",
-      "ts": 1793585821131
+      "ts": 1793592072467
     }
   ]
 }
