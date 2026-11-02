@@ -1,19 +1,19 @@
 {
   "mode": "auto (Path B allowed)",
-  "measuredAt": "2026-11-01T15:44:46.155Z",
+  "measuredAt": "2026-11-02T02:13:02.638Z",
   "offscreenMemory": {
-    "mb": 109.6,
+    "mb": 109.7,
     "method": "measureUserAgentSpecificMemory after forced GC (raw CDP, offscreen document)",
     "byType": {
-      "Shared @ ": 0.3,
-      "JavaScript @ Window:offscreen.html": 109.3
+      "JavaScript @ Window:offscreen.html": 109.4,
+      "Shared @ ": 0.3
     }
   },
   "pathBOutcome": {
     "state": "ready",
-    "reason": "aionix-pathb-6L (Multilingual-MiniLM, trimmed vocab, INT8) · CPU (ONNX Runtime wasm) · host 111 MB after load (performance.memory JS heap + wasm linear memory)",
-    "loadMs": 218.03499999642372,
-    "memoryMB": 111.48081684112549,
+    "reason": "aionix-pathb-6L-v3 (Multilingual-MiniLM, trimmed vocab, INT8) · CPU (ONNX Runtime wasm) · host 111 MB after load (performance.memory JS heap + wasm linear memory)",
+    "loadMs": 169.0649999976158,
+    "memoryMB": 111.51609516143799,
     "memoryMethod": "performance.memory JS heap + wasm linear memory"
   },
   "engine": {
@@ -21,9 +21,9 @@
     "mode": "auto",
     "pathAReady": true,
     "pathBState": "ready",
-    "pathBReason": "aionix-pathb-6L (Multilingual-MiniLM, trimmed vocab, INT8) · CPU (ONNX Runtime wasm) · host 111 MB after load (performance.memory JS heap + wasm linear memory)",
+    "pathBReason": "aionix-pathb-6L-v3 (Multilingual-MiniLM, trimmed vocab, INT8) · CPU (ONNX Runtime wasm) · host 111 MB after load (performance.memory JS heap + wasm linear memory)",
     "pathBProgress": null,
-    "pathBModel": "aionix-pathb-6L (Multilingual-MiniLM, trimmed vocab, INT8)",
+    "pathBModel": "aionix-pathb-6L-v3 (Multilingual-MiniLM, trimmed vocab, INT8)",
     "hardware": {
       "webgpu": false,
       "eligible": false,
@@ -39,13 +39,13 @@
       "deviceMemoryGB": 32
     },
     "adapterSummary": "No WebGPU",
-    "memoryMB": 109.61629486083984,
+    "memoryMB": 109.67566394805908,
     "memoryMethod": "measureUserAgentSpecificMemory",
     "memoryStale": true,
     "memoryByType": {
-      "JavaScript @ Window:offscreen.html": 109.3,
       "Shared": 0.3,
       "unattributed": 0,
+      "JavaScript @ Window:offscreen.html": 109.4,
       "DOM": 0.1
     },
     "ceilingMB": 150,
@@ -54,18 +54,18 @@
     "edmVectors": 105,
     "edmFields": 250,
     "loadMs": {
-      "pathA": 655.7249999940395,
-      "pathB": 218.03499999642372
+      "pathA": 705.3600000143051,
+      "pathB": 169.0649999976158
     },
-    "startedAt": 1793547823743
+    "startedAt": 1793585520231
   },
   "tier2": {
-    "p50": 7.090000003576279,
-    "p95": 10.610000014305115
+    "p50": 6.824999988079071,
+    "p95": 10.664999961853027
   },
   "tier3b": {
-    "p50": 6.4000000059604645,
-    "p95": 8.125
+    "p50": 6.319999992847443,
+    "p95": 8.450000047683716
   },
   "routes": [
     "B"
@@ -75,21 +75,21 @@
     "method": "fixture portal, Enter → page send handler (clean) or drawer shown (blocked), ms",
     "clean": {
       "n": 12,
-      "p50": 20.3,
-      "p95": 37.2,
-      "max": 37.2
+      "p50": 20.5,
+      "p95": 36.6,
+      "max": 36.6
     },
     "blockedTier2": {
       "n": 5,
-      "p50": 30.7,
-      "p95": 53,
-      "max": 53
+      "p50": 28.9,
+      "p95": 52.3,
+      "max": 52.3
     },
     "blockedTier1": {
       "n": 5,
-      "p50": 8.4,
-      "p95": 11.9,
-      "max": 11.9
+      "p50": 9.9,
+      "p95": 16.3,
+      "max": 16.3
     }
   }
 }

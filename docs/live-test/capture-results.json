@@ -1,5 +1,5 @@
 {
-  "capturedAt": "2026-11-01T15:49:42.179Z",
+  "capturedAt": "2026-11-02T02:18:02.556Z",
   "leaks": [],
   "results": [
     {
@@ -144,6 +144,15 @@
       "expect": "block",
       "observed": "block",
       "note": "Tier 1 (content script, synchronous) · SSN structure in CSV rows",
+      "engine": "ready/B"
+    },
+    {
+      "shot": "36-chatgpt-cat2-default-credentials",
+      "portal": "chatgpt",
+      "title": "Default credentials described in prose (reported case)",
+      "expect": "block",
+      "observed": "block",
+      "note": "Tier 2 Path B (offscreen: the tagger proposes a credential, Tier 1 rules confirm it) · the tagger proposes \"admin\"; the rules confirm it (credential word \"password\" within 6 words)",
       "engine": "ready/B"
     },
     {

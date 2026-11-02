@@ -117,19 +117,26 @@ const bake = read<Bakeoff>('bench-results/bakeoff-dev.json');
 if (bake) {
   lines.push(
     '',
-    `**Path B bake-off** (model selection, ${bake.generatedAt.slice(0, 10)}). Dev splits only, \`graph\` policy, full cascade. Recorded before the English Tier 1 fixes, which changed both paths equally. Tagger latency is ONNX Runtime CPU with 4 threads, per text.`,
+    `**Path B bake-off** (model selection, ${bake.generatedAt.slice(0, 10)}). Dev splits and the frozen contextual challenge set, full cascade. Each candidate under the shipped policy (\`gated-0.85/6\`: neural secrets / IDs count only when the rules confirm them) and, for reference, \`graph\` (v2: neural spans only feed the Category 8/9 graph). AI4Privacy FPR in brackets leaves out the rows that state a PIN or CVV, which the dataset labels low-risk and the engine blocks. Tagger latency is ONNX Runtime CPU with 4 threads, per text; xlmrb-v3-e1 was timed while the GPU was training.`,
     '',
   );
-  lines.push('| Candidate | Weights | INT8 vs fp32 token agreement | AI4Privacy dev F2 / FPR | Enron dev FPR | Presidio dev F2 | Tagger p50 / p95 on Enron |');
+  lines.push('| Candidate | Weights | Challenge recall / F2 · gated | AI4Privacy dev F2 / FPR · gated | AI4Privacy dev F2 / FPR · graph | Enron dev FPR · gated | Tagger p50 / p95 on Enron |');
   lines.push('|---|---:|---:|---:|---:|---:|---:|');
   const at = (xs: RunSummary[], id: string) => xs.find((s) => s.dataset === id);
   const pa = bake.pathA;
-  lines.push(`| Path A (no tagger) | — | — | ${f3(at(pa, 'ai4privacy')?.metrics.f2)} / ${pct(at(pa, 'ai4privacy')?.metrics.fpr)} | ${pct(at(pa, 'enron')?.metrics.fpr)} | ${f3(at(pa, 'presidio')?.metrics.f2)} | — |`);
+  const ai4p = readFileSync(resolve(root, 'data/datasets/ai4privacy.jsonl'), 'utf8').split('\n').filter(Boolean).map((l) => JSON.parse(l) as { id: string; note?: string });
+  const pinRows = new Set(ai4p.filter((r) => /\bPIN\b|CVV/.test(r.note ?? '')).map((r) => r.id));
+  const exPin = (x?: RunSummary) => {
+    if (!x) return '—';
+    const fp = x.misclassified.filter((m) => m.expect === 'allow' && !pinRows.has(m.id.split('#')[0]!)).length;
+    return pct(fp / (x.metrics.fp + x.metrics.tn));
+  };
+  lines.push(`| Path A (no tagger) | — | ${f3(at(pa, 'challenge')?.metrics.recall)} / ${f3(at(pa, 'challenge')?.metrics.f2)} | — | ${f3(at(pa, 'ai4privacy')?.metrics.f2)} / ${pct(at(pa, 'ai4privacy')?.metrics.fpr)} | ${pct(at(pa, 'enron')?.metrics.fpr)} | — |`);
   for (const [name, c] of Object.entries(bake.candidates)) {
     const g = c.policies.graph ?? [];
-    const q = c.meta.quantization;
+    const v = c.policies['gated-0.85/6'] ?? [];
     lines.push(
-      `| ${name} | ${c.meta.onnxMB != null ? `${c.meta.onnxMB} MB ${c.meta.onnx.includes('int8') ? 'INT8' : 'fp32'}` : '—'} | ${q ? `${(q.argmaxAgreement * 100).toFixed(2)}%` : 'n/a (fp32)'} | ${f3(at(g, 'ai4privacy')?.metrics.f2)} / ${pct(at(g, 'ai4privacy')?.metrics.fpr)} | ${pct(at(g, 'enron')?.metrics.fpr)} | ${f3(at(g, 'presidio')?.metrics.f2)} | ${ms(c.modelLatency.enron?.p50)} / ${ms(c.modelLatency.enron?.p95)} |`,
+      `| ${name} | ${c.meta.onnxMB != null ? `${c.meta.onnxMB} MB ${c.meta.onnx.includes('int8') ? 'INT8' : 'fp32'}` : '—'} | ${f3(at(v, 'challenge')?.metrics.recall)} / ${f3(at(v, 'challenge')?.metrics.f2)} | ${f3(at(v, 'ai4privacy')?.metrics.f2)} / ${pct(at(v, 'ai4privacy')?.metrics.fpr)} (${exPin(at(v, 'ai4privacy'))}) | ${f3(at(g, 'ai4privacy')?.metrics.f2)} / ${pct(at(g, 'ai4privacy')?.metrics.fpr)} | ${pct(at(v, 'enron')?.metrics.fpr)} | ${ms(c.modelLatency.enron?.p50)} / ${ms(c.modelLatency.enron?.p95)} |`,
     );
   }
 }

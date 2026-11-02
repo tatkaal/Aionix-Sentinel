@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-11-01T15:41:15.497Z",
+  "generatedAt": "2026-11-02T02:08:22.457Z",
   "runtime": {
     "kind": "node",
     "node": "v22.14.0",
@@ -19,8 +19,8 @@
     {
       "dataset": "edge",
       "route": "A",
-      "startedAt": "2026-11-01T15:40:40.882Z",
-      "durationMs": 270.8575000000001,
+      "startedAt": "2026-11-02T02:07:47.626Z",
+      "durationMs": 272.83740000000034,
       "observations": 25,
       "metrics": {
         "tp": 17,
@@ -54,16 +54,16 @@
         "blocked": 0
       },
       "latency": {
-        "p50": 5.647800000000643,
-        "p95": 34.64099999999962,
-        "p99": 46.339200000000346,
-        "mean": 10.79485600000029
+        "p50": 5.4769000000014785,
+        "p95": 35.034200000000055,
+        "p99": 45.30589999999938,
+        "mean": 10.879644000000043
       },
       "tierP50": {
-        "tier1": 0.22860000000036962,
-        "tier3a": 0.06339999999909196,
-        "tier2": 0.028600000001461012,
-        "tier3b": 5.235300000000279
+        "tier1": 0.211700000001656,
+        "tier3a": 0.061400000000503496,
+        "tier2": 0.029700000000957516,
+        "tier3b": 5.058600000000297
       },
       "categoryAgreement": 1,
       "byPath": {
@@ -76,8 +76,8 @@
     {
       "dataset": "probes",
       "route": "A",
-      "startedAt": "2026-11-01T15:40:41.088Z",
-      "durationMs": 204.40530000000035,
+      "startedAt": "2026-11-02T02:07:47.822Z",
+      "durationMs": 193.66389999999956,
       "observations": 137,
       "metrics": {
         "tp": 89,
@@ -111,16 +111,16 @@
         "blocked": 0
       },
       "latency": {
-        "p50": 0.194100000000617,
-        "p95": 6.012000000000626,
-        "p99": 12.552899999998772,
-        "mean": 1.4856094890510843
+        "p50": 0.20669999999881838,
+        "p95": 5.093900000001668,
+        "p99": 13.578400000000329,
+        "mean": 1.4071912408759144
       },
       "tierP50": {
-        "tier1": 0.053600000001097214,
-        "tier3a": 0.01900000000023283,
-        "tier2": 0.008399999998800922,
-        "tier3b": 0.08909999999923457
+        "tier1": 0.05279999999947904,
+        "tier3a": 0.018299999999726424,
+        "tier2": 0.007999999999810825,
+        "tier3b": 0.08359999999993306
       },
       "categoryAgreement": 1,
       "byPath": {
@@ -131,10 +131,196 @@
       "misclassified": []
     },
     {
+      "dataset": "challenge",
+      "route": "A",
+      "startedAt": "2026-11-02T02:07:48.136Z",
+      "durationMs": 312.35289999999986,
+      "observations": 103,
+      "metrics": {
+        "tp": 32,
+        "fp": 2,
+        "tn": 50,
+        "fn": 19,
+        "n": 103,
+        "precision": 0.9411764705882353,
+        "recall": 0.6274509803921569,
+        "f1": 0.7529411764705882,
+        "f2": 0.6722689075630252,
+        "fpr": 0.038461538461538464,
+        "accuracy": 0.7961165048543689
+      },
+      "metricsSource": {
+        "tp": 32,
+        "fp": 2,
+        "tn": 50,
+        "fn": 19,
+        "n": 103,
+        "precision": 0.9411764705882353,
+        "recall": 0.6274509803921569,
+        "f1": 0.7529411764705882,
+        "f2": 0.6722689075630252,
+        "fpr": 0.038461538461538464,
+        "accuracy": 0.7961165048543689
+      },
+      "metricsAugmented": null,
+      "checksumInvalid": {
+        "n": 0,
+        "blocked": 0
+      },
+      "latency": {
+        "p50": 0.28319999999985157,
+        "p95": 8.159999999999854,
+        "p99": 38.32999999999993,
+        "mean": 3.025642718446655
+      },
+      "tierP50": {
+        "tier1": 0.0485000000007858,
+        "tier3a": 0.014400000000023283,
+        "tier2": 0.01330000000052678,
+        "tier3b": 0.15999999999985448
+      },
+      "categoryAgreement": 0.9375,
+      "byPath": {
+        "math": 34
+      },
+      "misclassified": [
+        {
+          "id": "CC001",
+          "expect": "block",
+          "predicted": "allow",
+          "types": []
+        },
+        {
+          "id": "CC002",
+          "expect": "block",
+          "predicted": "allow",
+          "types": []
+        },
+        {
+          "id": "CC003",
+          "expect": "block",
+          "predicted": "allow",
+          "types": []
+        },
+        {
+          "id": "CC005",
+          "expect": "block",
+          "predicted": "allow",
+          "types": []
+        },
+        {
+          "id": "CC006",
+          "expect": "block",
+          "predicted": "allow",
+          "types": []
+        },
+        {
+          "id": "CC008",
+          "expect": "block",
+          "predicted": "allow",
+          "types": []
+        },
+        {
+          "id": "CC009",
+          "expect": "block",
+          "predicted": "allow",
+          "types": []
+        },
+        {
+          "id": "CC010",
+          "expect": "block",
+          "predicted": "allow",
+          "types": []
+        },
+        {
+          "id": "CC011",
+          "expect": "block",
+          "predicted": "allow",
+          "types": []
+        },
+        {
+          "id": "CC013",
+          "expect": "block",
+          "predicted": "allow",
+          "types": []
+        },
+        {
+          "id": "CC014",
+          "expect": "block",
+          "predicted": "allow",
+          "types": []
+        },
+        {
+          "id": "CC015",
+          "expect": "block",
+          "predicted": "allow",
+          "types": []
+        },
+        {
+          "id": "CC018",
+          "expect": "block",
+          "predicted": "allow",
+          "types": []
+        },
+        {
+          "id": "CC019",
+          "expect": "block",
+          "predicted": "allow",
+          "types": []
+        },
+        {
+          "id": "CC021",
+          "expect": "block",
+          "predicted": "allow",
+          "types": []
+        },
+        {
+          "id": "CC022",
+          "expect": "block",
+          "predicted": "allow",
+          "types": []
+        },
+        {
+          "id": "CC043",
+          "expect": "block",
+          "predicted": "allow",
+          "types": []
+        },
+        {
+          "id": "CC046",
+          "expect": "block",
+          "predicted": "allow",
+          "types": []
+        },
+        {
+          "id": "CC050",
+          "expect": "block",
+          "predicted": "allow",
+          "types": []
+        },
+        {
+          "id": "CC089",
+          "expect": "allow",
+          "predicted": "block",
+          "types": [
+            "AADHAAR"
+          ]
+        },
+        {
+          "id": "CC101",
+          "expect": "allow",
+          "predicted": "block",
+          "types": [
+            "AADHAAR"
+          ]
+        }
+      ]
+    },
+    {
       "dataset": "enron",
       "route": "A",
-      "startedAt": "2026-11-01T15:40:53.845Z",
-      "durationMs": 12753.217899999998,
+      "startedAt": "2026-11-02T02:08:00.967Z",
+      "durationMs": 12828.5773,
       "observations": 300,
       "metrics": {
         "tp": 1,
@@ -168,16 +354,16 @@
         "blocked": 0
       },
       "latency": {
-        "p50": 29.340299999999843,
-        "p95": 120.36249999999927,
-        "p99": 165.34000000000015,
-        "mean": 42.49718633333344
+        "p50": 28.582500000000437,
+        "p95": 121.02750000000015,
+        "p99": 160.689699999999,
+        "mean": 42.748894333333354
       },
       "tierP50": {
-        "tier1": 0.2032999999992171,
-        "tier3a": 0.17009999999936554,
-        "tier2": 0.41229999999995925,
-        "tier3b": 27.86579999999958
+        "tier1": 0.1993000000002212,
+        "tier3a": 0.16379999999844586,
+        "tier2": 0.4195999999974447,
+        "tier3b": 28.22990000000209
       },
       "categoryAgreement": 1,
       "byPath": {
@@ -188,8 +374,8 @@
     {
       "dataset": "presidio",
       "route": "A",
-      "startedAt": "2026-11-01T15:40:55.143Z",
-      "durationMs": 1294.951799999999,
+      "startedAt": "2026-11-02T02:08:02.234Z",
+      "durationMs": 1265.081299999998,
       "observations": 488,
       "metrics": {
         "tp": 208,
@@ -235,16 +421,16 @@
         "blocked": 0
       },
       "latency": {
-        "p50": 3.0865999999987253,
-        "p95": 7.218899999999849,
-        "p99": 11.598900000000867,
-        "mean": 2.646414959016436
+        "p50": 3.0568999999995867,
+        "p95": 6.806700000001001,
+        "p99": 10.504899999999907,
+        "mean": 2.585033196721322
       },
       "tierP50": {
-        "tier1": 0.04820000000108848,
-        "tier3a": 0.015800000001036096,
-        "tier2": 0.011200000000826549,
-        "tier3b": 3.011399999999412
+        "tier1": 0.047200000000884756,
+        "tier3a": 0.015599999998812564,
+        "tier2": 0.011300000001938315,
+        "tier3b": 2.9589000000014494
       },
       "categoryAgreement": 1,
       "byPath": {
@@ -256,8 +442,8 @@
     {
       "dataset": "ai4privacy",
       "route": "A",
-      "startedAt": "2026-11-01T15:40:59.755Z",
-      "durationMs": 4608.4378,
+      "startedAt": "2026-11-02T02:08:06.760Z",
+      "durationMs": 4522.727699999996,
       "observations": 584,
       "metrics": {
         "tp": 139,
@@ -303,16 +489,16 @@
         "blocked": 0
       },
       "latency": {
-        "p50": 8.12039999999979,
-        "p95": 14.507999999997992,
-        "p99": 20.911400000000867,
-        "mean": 7.880569863013739
+        "p50": 7.993299999998271,
+        "p95": 14.416600000000471,
+        "p99": 19.06999999999971,
+        "mean": 7.733973287671227
       },
       "tierP50": {
-        "tier1": 0.07549999999901047,
-        "tier3a": 0.04310000000259606,
-        "tier2": 0.023000000001047738,
-        "tier3b": 7.857299999999668
+        "tier1": 0.0738999999994121,
+        "tier3a": 0.042699999998148996,
+        "tier2": 0.022199999999429565,
+        "tier3b": 7.742699999998877
       },
       "categoryAgreement": 0.9928057553956835,
       "byPath": {
@@ -519,8 +705,8 @@
     {
       "dataset": "enron-holdout",
       "route": "A",
-      "startedAt": "2026-11-01T15:41:11.124Z",
-      "durationMs": 11365.210499999997,
+      "startedAt": "2026-11-02T02:08:18.086Z",
+      "durationMs": 11285.233200000002,
       "observations": 300,
       "metrics": {
         "tp": 1,
@@ -554,16 +740,16 @@
         "blocked": 0
       },
       "latency": {
-        "p50": 27.39639999999781,
-        "p95": 97.17839999999705,
-        "p99": 142.590200000006,
-        "mean": 37.870705333333355
+        "p50": 27.35809999999765,
+        "p95": 100.02919999999722,
+        "p99": 145.70829999999842,
+        "mean": 37.604131999999545
       },
       "tierP50": {
-        "tier1": 0.1768000000010943,
-        "tier3a": 0.16199999999662396,
-        "tier2": 0.3481000000028871,
-        "tier3b": 26.7471000000005
+        "tier1": 0.1742000000012922,
+        "tier3a": 0.16140000000450527,
+        "tier2": 0.35599999999976717,
+        "tier3b": 25.60580000000482
       },
       "categoryAgreement": 1,
       "byPath": {
@@ -608,8 +794,8 @@
     {
       "dataset": "ai4privacy-holdout",
       "route": "A",
-      "startedAt": "2026-11-01T15:41:15.494Z",
-      "durationMs": 4368.162799999998,
+      "startedAt": "2026-11-02T02:08:22.454Z",
+      "durationMs": 4331.4035,
       "observations": 500,
       "metrics": {
         "tp": 53,
@@ -643,16 +829,16 @@
         "blocked": 0
       },
       "latency": {
-        "p50": 8.005499999999302,
-        "p95": 15.075400000001537,
-        "p99": 18.346099999995204,
-        "mean": 8.724400000000038
+        "p50": 8.186699999998382,
+        "p95": 14.66649999999936,
+        "p99": 17.11750000000029,
+        "mean": 8.65174800000002
       },
       "tierP50": {
-        "tier1": 0.07800000000133878,
-        "tier3a": 0.04299999999784632,
-        "tier2": 0.024599999997008126,
-        "tier3b": 7.821499999998196
+        "tier1": 0.07379999999830034,
+        "tier3a": 0.04260000000067521,
+        "tier2": 0.023199999995995313,
+        "tier3b": 7.9804000000003725
       },
       "categoryAgreement": 1,
       "byPath": {
@@ -885,10 +1071,158 @@
     }
   ],
   "english": {
+    "challenge": {
+      "dataset": "challenge",
+      "route": "A",
+      "startedAt": "2026-11-02T02:07:48.136Z",
+      "durationMs": 0,
+      "observations": 82,
+      "metrics": {
+        "tp": 26,
+        "fp": 1,
+        "tn": 41,
+        "fn": 14,
+        "n": 82,
+        "precision": 0.9629629629629629,
+        "recall": 0.65,
+        "f1": 0.7761194029850746,
+        "f2": 0.6951871657754012,
+        "fpr": 0.023809523809523808,
+        "accuracy": 0.8170731707317073
+      },
+      "metricsSource": {
+        "tp": 26,
+        "fp": 1,
+        "tn": 41,
+        "fn": 14,
+        "n": 82,
+        "precision": 0.9629629629629629,
+        "recall": 0.65,
+        "f1": 0.7761194029850746,
+        "f2": 0.6951871657754012,
+        "fpr": 0.023809523809523808,
+        "accuracy": 0.8170731707317073
+      },
+      "metricsAugmented": null,
+      "checksumInvalid": {
+        "n": 0,
+        "blocked": 0
+      },
+      "latency": {
+        "p50": 0.24990000000070722,
+        "p95": 8.159999999999854,
+        "p99": 38.32999999999993,
+        "mean": 2.80933658536591
+      },
+      "tierP50": {
+        "tier1": 0.04839999999967404,
+        "tier3a": 0.01389999999992142,
+        "tier2": 0.013100000000122236,
+        "tier3b": 0.15120000000024447
+      },
+      "categoryAgreement": 0.9230769230769231,
+      "byPath": {
+        "math": 27
+      },
+      "misclassified": [
+        {
+          "id": "CC001",
+          "expect": "block",
+          "predicted": "allow",
+          "types": []
+        },
+        {
+          "id": "CC002",
+          "expect": "block",
+          "predicted": "allow",
+          "types": []
+        },
+        {
+          "id": "CC003",
+          "expect": "block",
+          "predicted": "allow",
+          "types": []
+        },
+        {
+          "id": "CC005",
+          "expect": "block",
+          "predicted": "allow",
+          "types": []
+        },
+        {
+          "id": "CC006",
+          "expect": "block",
+          "predicted": "allow",
+          "types": []
+        },
+        {
+          "id": "CC008",
+          "expect": "block",
+          "predicted": "allow",
+          "types": []
+        },
+        {
+          "id": "CC009",
+          "expect": "block",
+          "predicted": "allow",
+          "types": []
+        },
+        {
+          "id": "CC010",
+          "expect": "block",
+          "predicted": "allow",
+          "types": []
+        },
+        {
+          "id": "CC011",
+          "expect": "block",
+          "predicted": "allow",
+          "types": []
+        },
+        {
+          "id": "CC013",
+          "expect": "block",
+          "predicted": "allow",
+          "types": []
+        },
+        {
+          "id": "CC014",
+          "expect": "block",
+          "predicted": "allow",
+          "types": []
+        },
+        {
+          "id": "CC015",
+          "expect": "block",
+          "predicted": "allow",
+          "types": []
+        },
+        {
+          "id": "CC043",
+          "expect": "block",
+          "predicted": "allow",
+          "types": []
+        },
+        {
+          "id": "CC050",
+          "expect": "block",
+          "predicted": "allow",
+          "types": []
+        },
+        {
+          "id": "CC089",
+          "expect": "allow",
+          "predicted": "block",
+          "types": [
+            "AADHAAR"
+          ]
+        }
+      ]
+    },
     "ai4privacy": {
       "dataset": "ai4privacy",
       "route": "A",
-      "startedAt": "2026-11-01T15:40:59.756Z",
+      "startedAt": "2026-11-02T02:08:06.761Z",
       "durationMs": 0,
       "observations": 100,
       "metrics": {
@@ -923,16 +1257,16 @@
         "blocked": 0
       },
       "latency": {
-        "p50": 6.207999999998719,
-        "p95": 11.27270000000135,
-        "p99": 14.1208000000006,
-        "mean": 6.854629000000204
+        "p50": 6.22530000000188,
+        "p95": 11.362600000000384,
+        "p99": 15.240900000000693,
+        "mean": 6.899148999999925
       },
       "tierP50": {
-        "tier1": 0.07599999999729334,
-        "tier3a": 0.04320000000006985,
-        "tier2": 0.022799999998824205,
-        "tier3b": 6.009699999998702
+        "tier1": 0.07249999999839929,
+        "tier3a": 0.043000000001484295,
+        "tier2": 0.021899999999732245,
+        "tier3b": 5.98949999999968
       },
       "categoryAgreement": 0.9375,
       "byPath": {
@@ -994,7 +1328,7 @@
     "ai4privacy-holdout": {
       "dataset": "ai4privacy-holdout",
       "route": "A",
-      "startedAt": "2026-11-01T15:41:15.496Z",
+      "startedAt": "2026-11-02T02:08:22.456Z",
       "durationMs": 0,
       "observations": 100,
       "metrics": {
@@ -1029,16 +1363,16 @@
         "blocked": 0
       },
       "latency": {
-        "p50": 6.786699999996927,
-        "p95": 10.768199999998615,
-        "p99": 13.161300000007031,
-        "mean": 6.839625000000305
+        "p50": 6.257499999999709,
+        "p95": 11.768500000005588,
+        "p99": 13.260999999998603,
+        "mean": 6.773294999999634
       },
       "tierP50": {
-        "tier1": 0.08339999999589054,
-        "tier3a": 0.04260000000067521,
-        "tier2": 0.023999999997613486,
-        "tier3b": 6.610000000000582
+        "tier1": 0.07549999999901047,
+        "tier3a": 0.04080000000249129,
+        "tier2": 0.02049999999871943,
+        "tier3b": 6.125700000004144
       },
       "categoryAgreement": 1,
       "byPath": {
