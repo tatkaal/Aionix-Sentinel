@@ -5,6 +5,7 @@ import { decodeEdm } from '../../src/engine/tier3/edm';
 import { decodeCustomAsset, fingerprintCustom, fromBase64, PROTECTED_TYPES, toBase64 } from '../../src/engine/tier3/custom-vault';
 import type { TestKit } from '../../src/engine/bench/test-kit';
 import { createNodeEngine } from '../../scripts/lib/node-engine';
+import { createNodeTagger } from '../../scripts/lib/node-tagger';
 
 const root = resolve(import.meta.dirname, '../..');
 const kitFile = resolve(root, 'assets/engine/test-kit.json');
@@ -13,6 +14,8 @@ const ready = existsSync(kitFile) && existsSync(resolve(root, 'assets/models/all
 describe.skipIf(!ready)('live test kit — every prompt behaves as the options page says', async () => {
   const kit = ready ? (JSON.parse(readFileSync(kitFile, 'utf8')) as TestKit) : ({ categories: [], edgeCases: [], samples: [] } as unknown as TestKit);
   const engine = ready ? await createNodeEngine(root) : null;
+  // Prompts marked `needs: 'path-b'` are decided by the shipped tagger, as in the extension.
+  const engineB = ready ? await createNodeEngine(root, { pathB: { device: 'cpu', create: async () => (await createNodeTagger(resolve(root, 'assets/engine/pathb'))).ner } }) : null;
 
   const scan = (text: string, paste?: string) =>
     engine!.scan({ text, attachments: paste ? [{ id: 'chip-1', name: 'pasted-content.txt', text: paste }] : [] });
@@ -42,7 +45,7 @@ describe.skipIf(!ready)('live test kit — every prompt behaves as the options p
 
   for (const cat of kit.categories) {
     it.each(cat.prompts.map((p) => [p.title, p] as const))(`Category ${cat.id} · %s`, async (_t, p) => {
-      const r = await scan(p.text, p.paste);
+      const r = p.needs === 'path-b' ? await engineB!.scan({ text: p.text, attachments: [] }) : await scan(p.text, p.paste);
       expect(r.verdict).toBe(p.expect);
       if (p.expect === 'block') expect(r.findings.some((f) => f.category === cat.id)).toBe(true);
     });

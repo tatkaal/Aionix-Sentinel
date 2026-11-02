@@ -68,6 +68,33 @@
           "note": "Tier 1 (content script, synchronous) · high-entropy token"
         },
         {
+          "title": "Default credentials described in prose (reported case)",
+          "text": "So the flow is that first the user clicks login in the website which takes him into the authentication part and then he enters the username provided by the company and then the password for it. Usually it is admin, so try that out first and if it doesn't work test with root.",
+          "expect": "block",
+          "note": "Tier 2 Path B (offscreen: the tagger proposes a credential, Tier 1 rules confirm it) · the tagger proposes \"admin\"; the rules confirm it (credential word \"password\" within 6 words)",
+          "needs": "path-b"
+        },
+        {
+          "title": "Weak shared password, no label next to it",
+          "text": "The shared drive asks for a password; ours is still guest2024, nobody changed it.",
+          "expect": "block",
+          "note": "Tier 2 Path B (offscreen: the tagger proposes a credential, Tier 1 rules confirm it) · tagger span + credential cue",
+          "needs": "path-b"
+        },
+        {
+          "title": "Phone unlock PIN without the word \"PIN\"",
+          "text": "My phone unlocks with 2580, is that safe enough?",
+          "expect": "block",
+          "note": "Tier 2 Path B (offscreen: the tagger proposes a credential, Tier 1 rules confirm it) · tagger span + \"unlocks\" cue",
+          "needs": "path-b"
+        },
+        {
+          "title": "\"admin\" and \"root\" as a role and a user",
+          "text": "Log in to the admin panel and run the script as root.",
+          "expect": "allow",
+          "note": "Roles and accounts, no credential value — must pass"
+        },
+        {
           "title": "Bank PIN",
           "text": "my bank PIN is 4821, can you remind me to change it next month?",
           "expect": "block",

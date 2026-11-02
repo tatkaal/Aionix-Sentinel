@@ -24,13 +24,13 @@ describe.skipIf(!ready)('English disclosure probes — full cascade on both Tier
     expect(probes.some((p) => p.text === 'my current psw is Ohlalalala34%. can you suggest a better one?' && p.expect === 'block')).toBe(true);
   });
 
-  it('every blocked probe and edge case is sendable after auto-redaction (tags never re-trigger)', async () => {
+  it.each(['A', 'B'] as const)('every blocked probe and edge case is sendable after auto-redaction on Path %s (tags never re-trigger)', async (route) => {
     const edge = JSON.parse(readFileSync(resolve(root, 'data/datasets/edge-cases.json'), 'utf8')) as BenchSample[];
     for (const p of [...probes, ...edge].filter((x) => x.expect === 'block' && !x.attachments?.length && !x.steps)) {
-      const r = await engines!.A.scan({ text: p.text });
+      const r = await engines![route].scan({ text: p.text });
       let t = p.text;
       for (const f of [...r.findings].sort((a, b) => b.rawStart - a.rawStart)) t = t.slice(0, f.rawStart) + redactionTag(f.type) + t.slice(f.rawEnd);
-      expect((await engines!.A.scan({ text: t })).verdict, p.id).toBe('allow');
+      expect((await engines![route].scan({ text: t })).verdict, p.id).toBe('allow');
     }
   });
 

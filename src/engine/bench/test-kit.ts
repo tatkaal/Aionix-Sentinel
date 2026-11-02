@@ -8,8 +8,11 @@ export interface KitPrompt {
   expect: 'block' | 'allow';
   /** Which tier / path is expected to decide, and why. */
   note: string;
-  /** Present when the prompt needs protected data first (bundled demo vault or a sample). */
-  needs?: 'demo-vault' | `sample:${string}`;
+  /**
+   * Present when the prompt needs protected data first (bundled demo vault or a sample), or Tier 2
+   * Path B (the neural tagger): Path A has no anchor for a credential stated without a label.
+   */
+  needs?: 'demo-vault' | 'path-b' | `sample:${string}`;
   /** Text to paste as a large attachment (≥ 1,200 characters becomes a pasted-content chip). */
   paste?: string;
 }

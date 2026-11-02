@@ -114,13 +114,36 @@ test('backstop runs the full cascade: a record that skipped the composer is stop
   await page.close();
 });
 
+test('Path B v3: a password stated in prose is proposed by the tagger, confirmed by the rules and blocked', async () => {
+  const status = await context.newPage();
+  await status.goto(`chrome-extension://${extId}/popup.html`);
+  await expect
+    .poll(() => status.evaluate(async () => ((await chrome.runtime.sendMessage({ target: 'background', type: 'status', quick: true })) as { engine?: { route?: string } })?.engine?.route ?? ''), { timeout: 90_000, intervals: [1000] })
+    .toBe('B');
+  await status.close();
+  const page = await open('claude');
+  const editor = page.locator('[contenteditable="true"]');
+  await editor.fill("Then he enters the username provided by the company and then the password for it. Usually it is admin, so try that out first and if it doesn't work test with root.");
+  await editor.press('Enter');
+  await expect(drawer(page).getByText('Password or secret (neural, confirmed by rules)').first()).toBeVisible();
+  await expect(sent(page)).toHaveCount(0);
+  await drawer(page).getByRole('button', { name: /Auto-redact/ }).click();
+  await editor.press('Enter');
+  await expect(sent(page)).toHaveCount(1);
+  await expect(sent(page).first()).not.toContainText('it is admin');
+  await editor.fill('Log in to the admin panel and run the script as root.');
+  await editor.press('Enter');
+  await expect(sent(page)).toHaveCount(2);
+  await page.close();
+});
+
 test('claude: Tier 2 (offscreen) blocks a named patient record, allows a general question', async () => {
   const page = await open('claude');
   const editor = page.locator('[contenteditable="true"]');
   await editor.fill('Discharge summary for patient Harriet Lindqvist: admitted with pneumonia, discharged on amoxicillin 500 mg.');
   await editor.press('Enter');
   await expect(drawer(page).getByText('Medical records').first()).toBeVisible();
-  await expect(drawer(page).getByText(/Tier 2 · Path A Lexicon/).first()).toBeVisible();
+  await expect(drawer(page).getByText(/Tier 2 · Path [AB] /).first()).toBeVisible();
   await expect(sent(page)).toHaveCount(0);
 
   await drawer(page).getByRole('button', { name: 'Close' }).click();

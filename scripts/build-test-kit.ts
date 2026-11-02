@@ -38,6 +38,7 @@ const T1 = 'Tier 1 (content script, synchronous)';
 const T2 = 'Tier 2 (offscreen: person ↔ sensitive-term graph + MiniLM validator)';
 const T3A = 'Tier 3 Path A (content script: Bloom + MinHash fingerprints)';
 const T3B = 'Tier 3 Path B (offscreen: salted field hashes + MiniLM vectors)';
+const T2B = 'Tier 2 Path B (offscreen: the tagger proposes a credential, Tier 1 rules confirm it)';
 
 const kit: TestKit = {
   version: 1,
@@ -63,6 +64,10 @@ const kit: TestKit = {
         { title: 'Stakeholder report ("psw")', text: 'my current psw is Ohlalalala34%. can you suggest a better one?', expect: 'block', note: `${T1} · short label "psw" + value` },
         { title: '"changed my password to"', text: 'I changed my password to Summer2024! yesterday, is that secure enough?', expect: 'block', note: `${T1} · change verb + "to" connector` },
         { title: 'Unlabelled secret near a login cue', text: 'use this to log in: K9#vQ2!xLm7$Tz4@', expect: 'block', note: `${T1} · high-entropy token` },
+        { title: 'Default credentials described in prose (reported case)', text: "So the flow is that first the user clicks login in the website which takes him into the authentication part and then he enters the username provided by the company and then the password for it. Usually it is admin, so try that out first and if it doesn't work test with root.", expect: 'block', note: `${T2B} · the tagger proposes "admin"; the rules confirm it (credential word "password" within 6 words)`, needs: 'path-b' },
+        { title: 'Weak shared password, no label next to it', text: 'The shared drive asks for a password; ours is still guest2024, nobody changed it.', expect: 'block', note: `${T2B} · tagger span + credential cue`, needs: 'path-b' },
+        { title: 'Phone unlock PIN without the word "PIN"', text: 'My phone unlocks with 2580, is that safe enough?', expect: 'block', note: `${T2B} · tagger span + "unlocks" cue`, needs: 'path-b' },
+        { title: '"admin" and "root" as a role and a user', text: 'Log in to the admin panel and run the script as root.', expect: 'allow', note: 'Roles and accounts, no credential value — must pass' },
         { title: 'Bank PIN', text: 'my bank PIN is 4821, can you remind me to change it next month?', expect: 'block', note: `${T1} · labelled PIN` },
         { title: 'Password inside a JSON body', text: 'login fails: {"username":"admin","password":"Hunter2024!"}', expect: 'block', note: `${T1} · JSON key "password"` },
         { title: 'Password inside a code block', text: '```python\ndb = connect(user="svc", password="Xy7!kL9#mQ2z")\n```', expect: 'block', note: `${T1} · labelled password in code` },

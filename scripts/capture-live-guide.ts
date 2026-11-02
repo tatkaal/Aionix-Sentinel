@@ -187,6 +187,7 @@ try {
     ['26-chatgpt-cat2-unlabelled-password', prompt(2, 'Unlabelled password (strength question)')],
     ['27-chatgpt-cat8-customer-json', prompt(8, 'Customer record as JSON (context)')],
     ['28-chatgpt-cat3-ssn-csv', prompt(3, 'SSNs in a CSV')],
+    ['36-chatgpt-cat2-default-credentials', prompt(2, 'Default credentials described in prose (reported case)')],
   ];
   for (const [shot, p] of gptTrials) {
     await trial(gpt, 'chatgpt', shot, p);

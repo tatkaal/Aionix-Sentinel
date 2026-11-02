@@ -243,6 +243,7 @@ function PromptRow({ p, k, copy, copied, protectedIds, kit }: { p: KitPrompt; k:
           <span className="text-sm font-medium text-alabaster">{p.title}</span>
           <Badge tone={p.expect === 'block' ? 'crimson' : 'emerald'}>{p.expect === 'block' ? 'Expect: blocked' : 'Expect: sent'}</Badge>
           {p.needs === 'demo-vault' && <Badge tone="brand">uses demo vault</Badge>}
+          {p.needs === 'path-b' && <Badge tone="brand">Path B (neural)</Badge>}
           {sample && <Badge tone={ready ? 'emerald' : 'amber'}>{ready ? `${sample.fileName} protected` : `protect ${sample.fileName} first`}</Badge>}
         </div>
         <pre className="mt-1.5 max-h-28 overflow-auto rounded-lg bg-obsidian p-2.5 font-mono text-xs whitespace-pre-wrap text-muted">{p.text}</pre>
