@@ -1,5 +1,6 @@
 // Asynchronous engine host — the body of offscreen-onnx-worker.js and the Workbench engine worker.
 // Owns Tier 2 routing (Path A lexicon ↔ Path B WebGPU), Tier 3 Path B (EDM) and the memory governor.
+import { pathBBudgetMs } from './budget';
 import type { Embedder } from './embed/minilm';
 import { createMemoryProbe, MEMORY_CEILING_MB, type MemoryReading } from './memory-governor';
 import type { AsyncScanResult } from './pipeline';
@@ -72,8 +73,7 @@ export interface HostDeps {
 
 const now = () => performance.now();
 
-/** Tier 2 budget for Path B inside the 1,000 ms send SLA (Tier 1/3A/3B and messaging use the rest). */
-export const PATH_B_BUDGET_MS = 650;
+export { PATH_B_BUDGET_MS } from './budget';
 
 export class EngineHost {
   private mode: RouteMode = 'auto';
@@ -257,11 +257,13 @@ export class EngineHost {
       ...(input.attachments ?? []).map((a) => ({ text: a.text, source: { kind: 'attachment', attachmentId: a.id } as FindingSource })),
     ];
     const findings: Finding[] = [];
+    // 650 ms for a prompt of up to 4,000 characters, more for a long paste (see budget.ts).
+    const budgetB = pathBBudgetMs(units.reduce((n, u) => n + u.text.length, 0));
     let t = now();
     for (const u of units) {
       // Path B on modest GPUs can exceed the send SLA. Past the budget, Path A (CPU, fast) decides
       // this prompt; the Path B inference keeps running and is discarded. Benchmarks pass `strict`.
-      const remaining = PATH_B_BUDGET_MS - (now() - t);
+      const remaining = budgetB - (now() - t);
       if (route === 'B' && !opts.strictRoute) {
         const raced = remaining > 0 ? await Promise.race([scanner.scan(u.text, u.source), new Promise<'late'>((r) => setTimeout(() => r('late'), remaining))]) : 'late';
         if (raced !== 'late') {
@@ -269,7 +271,7 @@ export class EngineHost {
           continue;
         }
         route = 'A';
-        degraded = `Path B exceeded the ${PATH_B_BUDGET_MS} ms Tier 2 budget — Path A decided this prompt`;
+        degraded = `Path B exceeded the ${Math.round(budgetB).toLocaleString()} ms Tier 2 budget — Path A decided this prompt`;
         findings.push(...(await this.pathA!.scan(u.text, u.source)));
         continue;
       }

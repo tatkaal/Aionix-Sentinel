@@ -19,6 +19,18 @@ describe('portal adapters — request shapes the MAIN-world backstop must read',
     expect(chatgptAdapter.extractPrompt(body)).toBe('my current psw is Ohlalalala34%. can you suggest a better one?');
   });
 
+  it('long pastes (measured 2026-11-02): only signed-in ChatGPT uploads them before Send, so only it checks at paste time', () => {
+    expect(chatgptAdapter.pasteUpload?.minChars).toBe(5000);
+    const at = chatgptAdapter.pasteUpload?.composerSelectors ?? [];
+    expect(at).toContain('div#prompt-textarea[contenteditable="true"]');
+    expect(at).toContain('textarea#pending-home-input');
+    // Signed out, the paste stays inline text in the textarea and is checked on Send.
+    expect(at.some((sel) => /name="prompt"|mobile-composer-prompt/.test(sel))).toBe(false);
+    // Claude makes a chip that travels with the send request; Gemini keeps the text inline.
+    expect(claudeAdapter.pasteUpload).toBeUndefined();
+    expect(geminiAdapter.pasteUpload).toBeUndefined();
+  });
+
   it('Claude and Gemini endpoints still match', () => {
     expect(claudeAdapter.completionEndpoint.test('https://claude.ai/api/organizations/org/chat_conversations/conv/completion')).toBe(true);
     expect(geminiAdapter.completionEndpoint.test('https://gemini.google.com/_/BardChatUi/data/assistant.lamda.BardFrontendService/StreamGenerate?bl=x')).toBe(true);

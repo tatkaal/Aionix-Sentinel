@@ -19,10 +19,12 @@ export interface PortalAdapter {
   sendButtonSelectors: string[];
   /**
    * Set when the portal turns a long paste into a file attachment that it uploads as soon as it is
-   * attached, before Send. Pastes of at least `minChars` are then checked at paste time with the full
-   * cascade and only reach the portal when clean: a block on Send would come after the upload.
+   * attached, before Send. Pastes of at least `minChars` into one of `composerSelectors` (every
+   * composer when omitted) are then checked at paste time with the full cascade and only reach the
+   * portal when clean: a block on Send would come after the upload. Every other paste goes to the
+   * portal untouched (as a chip or inline text) and is checked on Send.
    */
-  pasteUpload?: { minChars: number };
+  pasteUpload?: { minChars: number; composerSelectors?: string[] };
   /** Containers that hold attachment chips (pasted-content.txt and file thumbnails). */
   chipContainerSelectors: string[];
   /** Individual chip elements inside a chip container. */

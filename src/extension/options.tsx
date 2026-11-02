@@ -249,8 +249,8 @@ function PromptRow({ p, k, copy, copied, protectedIds, kit }: { p: KitPrompt; k:
         <pre className="mt-1.5 max-h-28 overflow-auto rounded-lg bg-obsidian p-2.5 font-mono text-xs whitespace-pre-wrap text-muted">{p.text}</pre>
         {p.paste && (
           <p className="mt-1 text-xs text-subtle">
-            First paste the attachment ({p.paste.length.toLocaleString()} chars) with Ctrl+V. Claude turns it into a “Pasted text” chip; ChatGPT and Gemini have it checked
-            as you paste, because ChatGPT uploads a long paste as a file as soon as it is added.
+            First paste the attachment ({p.paste.length.toLocaleString()} chars) with Ctrl+V. Claude turns it into a “Pasted text” chip and Gemini keeps it as text; both
+            are checked on Send. Signed-in ChatGPT uploads a long paste as a file as soon as it is added, so there it is checked as you paste.
           </p>
         )}
         <p className="mt-1 text-xs text-subtle">{p.note}</p>

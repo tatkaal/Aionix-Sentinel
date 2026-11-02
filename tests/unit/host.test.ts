@@ -1,6 +1,7 @@
 import { existsSync, readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { describe, expect, it } from 'vitest';
+import { pathBBudgetMs, sendBudgetMs } from '../../src/engine/budget';
 import { EngineHost, PATH_B_BUDGET_MS } from '../../src/engine/host';
 import type { NeuralNer } from '../../src/engine/tier2/webgpu-path';
 import { createNodeEmbedder } from '../../scripts/lib/node-embedder';
@@ -184,5 +185,17 @@ describe.skipIf(!ready)('engine host routing', () => {
       g.crossOriginIsolated = saved.iso;
       perf.measureUserAgentSpecificMemory = saved.measure;
     }
+  });
+});
+
+describe('decision budgets', () => {
+  it('a typical prompt gets 1 s (Path B 650 ms); a long paste gets more, capped at 10 s', () => {
+    expect(sendBudgetMs(120)).toBe(1000);
+    expect(sendBudgetMs(4000)).toBe(1000);
+    expect(pathBBudgetMs(4000)).toBe(PATH_B_BUDGET_MS);
+    // ~22,000 characters: Path B alone measured ~1.0 s in the extension.
+    expect(sendBudgetMs(22_000)).toBe(2800);
+    expect(pathBBudgetMs(22_000)).toBe(2450);
+    expect(sendBudgetMs(1_000_000)).toBe(10_000);
   });
 });

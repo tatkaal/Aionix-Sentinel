@@ -1,5 +1,6 @@
 // Shared interception core. The extension content script and the Workbench Sandbox both run this
 // class; only the scope (document vs. sandbox element), adapter and scanner transport differ.
+import { sendBudgetMs } from '../../engine/budget';
 import { promptDigest } from '../../engine/digest';
 import { mergeAsync, scanSync, type AsyncScanner, type SyncDetector } from '../../engine/pipeline';
 import { maskValue } from '../../engine/redact';
@@ -28,7 +29,7 @@ export interface InterceptorOptions {
   asyncScanner: AsyncScanner | null;
   drawer?: BlockDrawer;
   events?: InterceptorEvents;
-  /** Tier 2 SLA (default 1,000 ms). */
+  /** Decision budget for a Send (default `sendBudgetMs`: 1,000 ms up to 4,000 characters, more for long pastes). */
   asyncTimeoutMs?: number;
   /**
    * When the offscreen check (Tier 2 + 3B) times out or is unreachable after a clean Tier 1/3A
@@ -46,6 +47,8 @@ interface BlockState {
 
 /** A paste is not a Send: the 1 s Send budget does not apply, but the user is waiting for the text to appear. */
 const PASTE_BUDGET_MS = 3000;
+
+const inputChars = (input: ScanInput) => input.text.length + (input.attachments ?? []).reduce((n, a) => n + a.text.length, 0);
 
 function withTimeout<T>(p: Promise<T>, ms: number): Promise<T | 'timeout'> {
   return Promise.race([p, new Promise<'timeout'>((r) => setTimeout(() => r('timeout'), ms))]);
@@ -195,7 +198,8 @@ export class PromptInterceptor {
     const text = e.clipboardData?.getData('text/plain') ?? '';
     if (text.length < LARGE_PASTE_THRESHOLD) return;
     const upload = this.opts.adapter.pasteUpload;
-    if (upload && text.length >= upload.minChars && e.target instanceof Element) {
+    const uploads = upload && text.length >= upload.minChars && (!upload.composerSelectors || upload.composerSelectors.some((sel) => composer.matches(sel)));
+    if (uploads && e.target instanceof Element) {
       // The portal would turn this into a file and upload it before Send: check it first.
       e.preventDefault();
       e.stopImmediatePropagation();
@@ -206,6 +210,18 @@ export class PromptInterceptor {
     const att = this.store.add(text);
     const pre = scanSync({ text: '', attachments: [{ id: att.id, name: att.name, text }] }, this.opts.tier3a());
     if (pre.findings.length) this.flagged.add(att.id);
+    // Gemini and signed-out ChatGPT keep the paste as inline text, which Send reads from the composer:
+    // drop the entry so it cannot bind to an unrelated element that looks like a chip.
+    const probe = text.split('\n').find((l) => l.trim().length >= 40)?.trim().slice(0, 80);
+    if (probe) {
+      setTimeout(() => {
+        if (!composer.isConnected || !readEditable(composer).text.includes(probe)) return;
+        const bound = !!this.store.get(att.id)?.chip;
+        this.store.remove(att.id);
+        this.flagged.delete(att.id);
+        if (bound) this.opts.events?.onAttachmentsChanged?.();
+      }, 500);
+    }
   }
 
   // ── Chip lifecycle ────────────────────────────────────────────────────────
@@ -284,8 +300,8 @@ export class PromptInterceptor {
 
   async handleSend(e: Event, trigger: 'enter' | 'click' | 'submit', from?: HTMLElement | null): Promise<void> {
     if (this.bypass) return;
-    // The 1 s decision budget covers everything from the Send event: input collection, Tier 1 + 3A
-    // and the offscreen round trip.
+    // The decision budget (1 s for a typical prompt, see sendBudgetMs) covers everything from the Send
+    // event: input collection, Tier 1 + 3A and the offscreen round trip.
     const t0 = performance.now();
     const { input, composer } = this.collectInput(from ?? this.findComposer());
     if (!input.text.trim() && !input.attachments?.length) return;
@@ -324,9 +340,9 @@ export class PromptInterceptor {
     this.resend(trigger);
   }
 
-  /** Tier 2 + 3B from the offscreen engine, inside what is left of the budget (1 s for a Send) counted from t0. */
+  /** Tier 2 + 3B from the offscreen engine, inside what is left of the budget (the Send budget by default) counted from t0. */
   private async contextCheck(input: ScanInput, sync: ScanResult, t0: number, budgetMs?: number): Promise<{ merged: ScanResult; incomplete: boolean }> {
-    const budget = budgetMs ?? this.opts.asyncTimeoutMs ?? 1000;
+    const budget = budgetMs ?? this.opts.asyncTimeoutMs ?? sendBudgetMs(inputChars(input));
     try {
       const remaining = Math.max(0, budget - (performance.now() - t0));
       const asyncPart = this.opts.asyncScanner ? await withTimeout(this.opts.asyncScanner.scanAsync(input), remaining) : null;
@@ -389,7 +405,7 @@ export class PromptInterceptor {
     const t0 = performance.now();
     const input: ScanInput = { text: '', attachments: [{ id: `paste-${Date.now().toString(36)}`, name: 'pasted text', text }] };
     const sync = scanSync(input, this.opts.tier3a());
-    const { merged, incomplete } = sync.verdict === 'block' ? { merged: sync, incomplete: false } : await this.contextCheck(input, sync, t0, PASTE_BUDGET_MS);
+    const { merged, incomplete } = sync.verdict === 'block' ? { merged: sync, incomplete: false } : await this.contextCheck(input, sync, t0, Math.max(PASTE_BUDGET_MS, sendBudgetMs(text.length)));
     const label = this.opts.adapter.label;
     if (merged.verdict === 'block') {
       this.opts.events?.onScan?.(merged, true, input);

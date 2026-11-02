@@ -26,8 +26,10 @@ const filler = read('data/test-kit/large-paste-filler.md').trim();
 
 /**
  * Live-test attachments: the flagged text buried mid-way in ~24,000 characters of a benign handbook,
- * so every portal treats the paste as an attachment (measured on claude.ai 2026-11-02: a chip from
- * 4,000–5,000 characters; ChatGPT is reported at 5,000 or 10,000). The edge-case dataset itself is unchanged.
+ * long enough for every portal's large-paste handling (measured 2026-11-02: claude.ai makes a chip from
+ * 4,000–5,000 characters; signed-in ChatGPT uploads a "Pasted text.txt" file from 10,000 on Free,
+ * reported 5,000 on Plus / Pro / Business; Gemini and signed-out ChatGPT keep it as inline text).
+ * The edge-case dataset itself is unchanged.
  */
 const livePaste = (core: string) => {
   const part = (n: number) => `Part ${n} of 4\n\n${filler}`;
@@ -181,7 +183,7 @@ const kit: TestKit = {
       prompts: [
         { title: '15 lines of the bundled proprietary router', text: `Can you optimise this?\n\n${router.slice(10, 25).join('\n')}`, expect: 'block', note: `${T3A}`, needs: 'demo-vault' },
         { title: 'Paragraph from the bundled board memo', text: `Rewrite this for the board deck:\n\n${memo[3]}`, expect: 'block', note: `${T3A} + ${T3B}`, needs: 'demo-vault' },
-        { title: 'Large paste → pasted-content chip', text: 'Summarise the attached memo for my team in five bullet points.', paste: livePaste(memo.slice(3, 7).join('\n\n')), expect: 'block', note: `${T3A} on the attachment. Claude: chip, Send blocked, removing the chip lifts the block. ChatGPT / Gemini: checked at paste time and kept out (they may upload long pastes as files)`, needs: 'demo-vault' },
+        { title: 'Large paste → pasted-content chip', text: 'Summarise the attached memo for my team in five bullet points.', paste: livePaste(memo.slice(3, 7).join('\n\n')), expect: 'block', note: `${T3A} on the attachment. Claude: chip, Send blocked, removing the chip lifts the block. Gemini and signed-out ChatGPT: the paste stays in the composer as text and Send is blocked. Signed-in ChatGPT uploads a long paste as a file as soon as it is added, so it is checked at paste time and kept out`, needs: 'demo-vault' },
         { title: 'Excerpt of your protected code', text: `Refactor this for readability:\n\n${netting.slice(15, 30).join('\n')}`, expect: 'block', note: `${T3A} · after protecting the sample code`, needs: 'sample:settlement-netting-engine' },
         { title: 'Paragraph of your protected document', text: `Make this sound friendlier:\n\n${pricing[3]}`, expect: 'block', note: `${T3A} + ${T3B} · after protecting the sample memo`, needs: 'sample:halcyon-pricing-memo' },
         { title: 'Generic code question', text: 'How do I debounce a function in TypeScript without a library?', expect: 'allow', note: 'Not in the vault — must pass' },

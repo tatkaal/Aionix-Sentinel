@@ -93,7 +93,9 @@
         editor.addEventListener('paste', (e) => {
           const text = e.clipboardData.getData('text/plain');
           e.preventDefault();
-          if (text.length >= 1200) {
+          // Like live Gemini and signed-out ChatGPT (measured 2026-11-02): long pastes stay inline text.
+          const inline = portal === 'gemini' || portal === 'chatgpt-anon';
+          if (text.length >= 1200 && !inline) {
             pastes.push(text);
             const chip = document.createElement('div');
             chip.className = 'chip';

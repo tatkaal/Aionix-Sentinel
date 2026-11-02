@@ -174,16 +174,20 @@ test('chatgpt: a flagged pasted-content chip blocks, and removing the chip lifts
   await page.close();
 });
 
-const pasteInto = (page: Page, text: string) =>
-  page.evaluate((t) => {
-    const dt = new DataTransfer();
-    dt.setData('text/plain', t);
-    document.querySelector('[contenteditable="true"]')!.dispatchEvent(new ClipboardEvent('paste', { clipboardData: dt, bubbles: true, cancelable: true }));
-  }, text);
+const pasteInto = (page: Page, text: string, selector = '[contenteditable="true"]') =>
+  page.evaluate(
+    ([t, sel]) => {
+      const dt = new DataTransfer();
+      dt.setData('text/plain', t);
+      document.querySelector(sel)!.dispatchEvent(new ClipboardEvent('paste', { clipboardData: dt, bubbles: true, cancelable: true }));
+    },
+    [text, selector] as const,
+  );
 
 test('chatgpt: a long paste is checked before ChatGPT can turn it into an uploaded file', async () => {
   const page = await open('chatgpt');
-  const filler = 'The engineering handbook covers planning, reviews, testing and release steps. '.repeat(60);
+  // 5,400+ characters: above the 5,000 floor at which signed-in ChatGPT uploads a paste as a file.
+  const filler = 'The engineering handbook covers planning, reviews, testing and release steps. '.repeat(70);
   await page.locator('[contenteditable="true"]').focus();
   await pasteInto(page, `${filler}\nstaging DATABASE_URL=postgres://deploy:Qx7!vR2#pLm9@staging-db.internal:5432/app\n${filler}`);
   await expect(drawer(page).getByText('The paste was not added')).toBeVisible();
@@ -198,6 +202,39 @@ test('chatgpt: a long paste is checked before ChatGPT can turn it into an upload
   await expect(drawer(page)).toHaveCount(0);
   await page.close();
 });
+
+for (const portal of ['gemini', 'chatgpt-anon']) {
+  test(`${portal}: a long paste stays inline text and is checked on Send, not at paste time`, async () => {
+    const page = await open(portal);
+    const selector = portal === 'gemini' ? '[contenteditable="true"]' : 'textarea[name="prompt"]';
+    const box = page.locator(selector);
+    const filler = 'The engineering handbook covers planning, reviews, testing and release steps. '.repeat(70);
+    await box.focus();
+    await pasteInto(page, `${filler}\nstaging DATABASE_URL=postgres://deploy:Qx7!vR2#pLm9@staging-db.internal:5432/app\n${filler}`, selector);
+    const value = () => box.evaluate((n) => ('value' in n ? (n as HTMLTextAreaElement).value : (n as HTMLElement).innerText));
+    await expect.poll(value).toContain('staging-db.internal');
+    await page.waitForTimeout(800);
+    await expect(drawer(page)).toHaveCount(0);
+
+    await box.press('Enter');
+    await expect(drawer(page).getByText('Database credentials')).toBeVisible();
+    await expect(sent(page)).toHaveCount(0);
+    await drawer(page).getByRole('button', { name: /Auto-redact/ }).click();
+    await expect.poll(value).toMatch(/\[REDACTED_[A-Z_]+\]/);
+    await box.press('Enter');
+    await expect(sent(page)).toHaveCount(1);
+    await expect(sent(page).first()).not.toContainText('Qx7!vR2');
+
+    // A clean ~22,000-character paste is sent, not held: the Send budget grows with the input
+    // (Path B alone takes about a second on this much text).
+    await box.focus();
+    await pasteInto(page, filler.repeat(4), selector);
+    await box.press('Enter');
+    await expect(sent(page)).toHaveCount(2, { timeout: 10_000 });
+    await expect(drawer(page)).toHaveCount(0);
+    await page.close();
+  });
+}
 
 test('claude: a long paste stays a chip until Send, and removing the chip lifts the block', async () => {
   const page = await open('claude');
@@ -217,6 +254,15 @@ test('claude: a long paste stays a chip until Send, and removing the chip lifts 
   await expect(drawer(page).getByText('Medical records').first()).toBeVisible();
   await page.waitForTimeout(3000);
   await expect(drawer(page).getByText('Medical records').first()).toBeVisible();
+  await drawer(page).getByRole('button', { name: 'Dismiss' }).click();
+
+  // A clean ~22,000-character chip goes out with the message instead of being held.
+  await page.locator('[contenteditable="true"]').focus();
+  await pasteInto(page, filler.repeat(4));
+  await expect(page.locator('[data-testid="file-thumbnail"]')).toHaveCount(1);
+  await page.locator('[contenteditable="true"]').fill('summarise the handbook');
+  await page.locator('[contenteditable="true"]').press('Enter');
+  await expect(page.locator('#log')).toContainText('SENT:summarise the handbook', { timeout: 10_000 });
   await page.close();
 });
 

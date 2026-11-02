@@ -13,9 +13,12 @@ export const chatgptAdapter: PortalAdapter = {
   hosts: ['chatgpt.com', 'chat.openai.com'],
   composerSelectors: ['div#prompt-textarea[contenteditable="true"]', '#prompt-textarea', 'form div.ProseMirror[contenteditable="true"][role="textbox"]', 'textarea[name="prompt"]', '#mobile-composer-prompt', 'textarea[data-id="root"]'],
   preloadComposerSelectors: ['textarea#pending-home-input'],
-  // Long pastes become pasted.txt, a file attachment (reported at 5k chars on consumer plans, 10k on
-  // Enterprise/Edu); ChatGPT uploads attachments when they are attached, so they are checked at paste time.
-  pasteUpload: { minChars: 4000 },
+  // Signed in, a long paste becomes "Pasted text.txt" and is uploaded at once, before Send (measured
+  // 2026-11-02 on Free: from 10,000 chars, POST /backend-api/files → PUT of the full text to
+  // *.oaiusercontent.com/files/<id>/raw → POST /backend-api/files/process_upload_stream). Plus, Pro and
+  // Business are reported to convert from 5,000, so that is the floor. Signed out, pastes stay inline
+  // text (13k and 60k measured; no upload), so they are checked on Send like any prompt.
+  pasteUpload: { minChars: 5000, composerSelectors: ['div#prompt-textarea[contenteditable="true"]', 'form div.ProseMirror[contenteditable="true"]', 'textarea#pending-home-input'] },
   sendButtonSelectors: ['button[data-testid="send-button"]', '#composer-submit-button', 'button[aria-label="Send prompt"]', 'button[aria-label="Send message"]'],
   chipContainerSelectors: ['[data-testid="composer-attachments"]', 'form'],
   chipSelectors: ['[data-testid*="attachment" i]', '[data-testid*="file" i]', '[data-aionix-chip]'],
