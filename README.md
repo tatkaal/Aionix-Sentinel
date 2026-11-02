@@ -23,7 +23,7 @@ Aionix Sentinel inspects what employees type or paste into **Claude.ai**, **Chat
 |---|---|---|
 | **Tier 1**: deterministic & mathematical (sync, content script) | 1–7: API keys, passwords/secrets, government IDs, AU TFN, cards/bank, ABN/PAN/Aadhaar, DB credentials | Offset-preserving normalizer, O(n) pattern automata, Luhn (test cards exempt), TFN Mod-11, ABN Mod-89, Aadhaar Verhoeff, IBAN Mod-97, Shannon entropy. Password labels in 15 languages and the way people type them in English (`psw`, `pw`, `pass`, "password for X is", "changed my password to", Wi-Fi keys, "is Summer2024! strong enough?"), PINs, one-time and access codes; `.env` key names, connection-URL `password=` parameters, labelled bank accounts in a banking context, AU Medicare; values inside code blocks, JSON, YAML and CSV |
 | **Tier 2 Path A**: lexicon-automata (CPU, always on) | 8–9: customer financial and medical records tied to a person | ICD-10-CM + RxNorm + curated lay terms compiled into an FST; 30-token person ↔ term proximity graph; a record role ("patient", "customer" …) or record ID decides, otherwise the MiniLM-L6 INT8 context validator |
-| **Tier 2 Path B**: neural tagger (CPU, packaged) | 8–9 | Multilingual MiniLM token classifier (6 layers, vocabulary trimmed to 30k pieces, INT8, 22.9 MB) trained on permissively licensed synthetic PII. It finds names, record IDs and account numbers; the same graph and validator decide. Degrades to Path A on load failure or memory pressure |
+| **Tier 2 Path B**: neural tagger (CPU, packaged) | 8–9, and 2–6 when rules confirm | Multilingual MiniLM token classifier (6 layers, vocabulary trimmed to 30k pieces, INT8, 22.9 MB) trained on permissively licensed synthetic PII plus synthetic credential-in-prose data (v3). Names, record IDs and account numbers feed the same graph and validator; **secrets and government IDs it proposes count only when the rules confirm them** (a password-shaped whole token or a credential word within 6 words; a checksum, ID structure or ID label), so a password stated without a label ("the password for it. Usually it is admin") is caught. Degrades to Path A on load failure or memory pressure |
 | **Tier 3 Path A**: document fingerprinting (sync) | 10: corporate IP | 5-gram shingles, Bloom filter + 64-permutation MinHash over `corporate-vault.bin` |
 | **Tier 3 Path B**: exact data match (offscreen) | 8, 9, 10 | Orama in-memory vector index (MiniLM embeddings, cosine > 0.95) + salted customer / patient field hashes |
 
@@ -75,7 +75,7 @@ To install the extension: open `chrome://extensions`, enable **Developer mode**,
 | Large pastes that Claude and ChatGPT turn into attachment chips; removing the chip lifts the block | Kit · 10 · "Large paste → pasted-content chip": **Copy attachment** (about 22,000 characters, past every portal's chip threshold), Ctrl+V, add the prompt, Enter | **Claude:** a "Pasted text" chip; Send blocked "in pasted-content.txt" → **Remove file** → "Block lifted". **ChatGPT / Gemini:** checked as you paste; "The paste was not added, and nothing was uploaded" | [Claude replica chip](docs/live-test/55-claude-replica-chip-blocked.png) → [removed](docs/live-test/56-claude-replica-chip-removed.png); [live ChatGPT, paste stopped](docs/live-test/29-chatgpt-large-paste.png) |
 | A sensitive item buried in a long prompt | Kit · edge cases · EC23 | Blocked; the drawer masks only that token | Edge-case suite (`npm test`) |
 | Benign look-alikes: `4242 4242 4242 4242`, code naming a password field, order numbers, public figures, general medical / finance questions | Kit "Expect: sent" prompts in categories 2, 5, 8, 9 · EC06, EC11, EC12, EC18, EC19, EC21 | Sent untouched | [Code that reads a password from the environment, sent to live Gemini](docs/live-test/35-gemini-allowed-code-password-field.png); [question answered by live ChatGPT](docs/live-test/24-chatgpt-allowed-question.png) |
-| Values with spaces or dashes, in other languages, in code blocks, JSON or CSV, or an unlabelled password | Kit · 2 "Password inside a code block / JSON body", "Other language", "Unlabelled password"; 3 "SSN with spaces", "SSNs in a CSV"; 4 "TFN with dashes", "TFN inside JSON"; 5 "Card inside JSON"; 8/9 "… as JSON / CSV" | Blocked | [Unlabelled password](docs/live-test/26-chatgpt-cat2-unlabelled-password.png) · [customer JSON](docs/live-test/27-chatgpt-cat8-customer-json.png) · [SSNs in CSV](docs/live-test/28-chatgpt-cat3-ssn-csv.png) · [patients CSV on Gemini](docs/live-test/34-gemini-cat9-patients-csv.png) |
+| Values with spaces or dashes, in other languages, in code blocks, JSON or CSV, or an unlabelled password | Kit · 2 "Password inside a code block / JSON body", "Other language", "Unlabelled password"; 3 "SSN with spaces", "SSNs in a CSV"; 4 "TFN with dashes", "TFN inside JSON"; 5 "Card inside JSON"; 8/9 "… as JSON / CSV" | Blocked | [Unlabelled password](docs/live-test/26-chatgpt-cat2-unlabelled-password.png) · [password stated in prose, Path B v3](docs/live-test/36-chatgpt-cat2-default-credentials.png) · [customer JSON](docs/live-test/27-chatgpt-cat8-customer-json.png) · [SSNs in CSV](docs/live-test/28-chatgpt-cat3-ssn-csv.png) · [patients CSV on Gemini](docs/live-test/34-gemini-cat9-patients-csv.png) |
 | Benign text mixed with one real secret | Kit · 1 "OpenAI key in code" · EC23 | Blocked; one finding | [OpenAI key](docs/live-test/12-chatgpt-cat1-openai-key.png) |
 | The block can't be bypassed by sending again; the user can fix the prompt | Press Enter / click Send again while blocked; then **Auto-redact**, **Redact**, **Edit** or **Edit manually** | Every send is re-checked; a cleaned prompt sends | [Two findings](docs/live-test/50-claude-replica-two-findings.png) → [auto-redacted](docs/live-test/52-claude-replica-auto-redacted.png) → [sent](docs/live-test/53-claude-replica-sent-redacted.png); [direct `fetch` refused](docs/live-test/25-chatgpt-backstop.png); [patient record sent past the composer, stopped at the network layer](docs/live-test/58-claude-replica-backstop-record.png); [Enter before the page finished loading](docs/live-test/59-chatgpt-replica-early-input.png) |
 
@@ -123,57 +123,57 @@ Document-level detection, positive = "must block". **Dev** splits were used for 
 
 | Dataset | Split | n | Path A P / R | Path A F2 | Path A FPR | Path A p50 / p95 | Path B P / R | Path B F2 | Path B FPR | Path B p50 / p95 |
 |---|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|
-| 24 Stakeholder Edge Cases | curated | 25 | 1.000 / 1.000 | 1.000 | 0.00% | 5.6 ms / 35 ms | 1.000 / 1.000 | 1.000 | 0.00% | 8.8 ms / 52 ms |
-| English Disclosure Probes | curated | 137 | 1.000 / 1.000 | 1.000 | 0.00% | 0.2 ms / 6.0 ms | 1.000 / 1.000 | 1.000 | 0.00% | 2.6 ms / 8.8 ms |
-| Enron Email Corpus | dev | 300 | 1.000 / 1.000 | 1.000 | 0.00% | 29 ms / 120 ms | 0.500 / 1.000 | 0.833 | 0.33% | 44 ms / 186 ms |
-| Presidio Synthetic PII | dev | 488 | 1.000 / 1.000 | 1.000 | 0.00% | 3.1 ms / 7.2 ms | 1.000 / 1.000 | 1.000 | 0.00% | 5.6 ms / 10 ms |
-| AI4Privacy Multilingual | dev | 584 | 0.993 / 0.818 | 0.848 | 0.24% | 8.1 ms / 15 ms | 0.980 / 0.847 | 0.871 | 0.72% | 12 ms / 20 ms |
-| Enron · held-out | holdout | 300 | 0.200 / 1.000 | 0.556 | 1.34% | 27 ms / 97 ms | 0.125 / 1.000 | 0.417 | 2.34% | 41 ms / 162 ms |
-| AI4Privacy · held-out | holdout | 500 | 0.898 / 0.646 | 0.685 | 1.44% | 8.0 ms / 15 ms | 0.881 / 0.720 | 0.747 | 1.91% | 12 ms / 20 ms |
+| 24 Stakeholder Edge Cases | curated | 25 | 1.000 / 1.000 | 1.000 | 0.00% | 5.5 ms / 35 ms | 1.000 / 1.000 | 1.000 | 0.00% | 9.4 ms / 60 ms |
+| English Disclosure Probes | curated | 137 | 1.000 / 1.000 | 1.000 | 0.00% | 0.2 ms / 5.1 ms | 1.000 / 1.000 | 1.000 | 0.00% | 2.6 ms / 9.3 ms |
+| Contextual Challenge Set | curated | 103 | 0.941 / 0.627 | 0.672 | 3.85% | 0.3 ms / 8.2 ms | 0.935 / 0.843 | 0.860 | 5.77% | 2.7 ms / 13 ms |
+| Enron Email Corpus | dev | 300 | 1.000 / 1.000 | 1.000 | 0.00% | 29 ms / 121 ms | 0.500 / 1.000 | 0.833 | 0.33% | 47 ms / 242 ms |
+| Presidio Synthetic PII | dev | 488 | 1.000 / 1.000 | 1.000 | 0.00% | 3.1 ms / 6.8 ms | 1.000 / 1.000 | 1.000 | 0.00% | 6.9 ms / 13 ms |
+| AI4Privacy Multilingual | dev | 584 | 0.993 / 0.818 | 0.848 | 0.24% | 8.0 ms / 14 ms | 0.951 / 0.912 | 0.919 | 1.93% | 15 ms / 25 ms |
+| Enron · held-out | holdout | 300 | 0.200 / 1.000 | 0.556 | 1.34% | 27 ms / 100 ms | 0.143 / 1.000 | 0.455 | 2.01% | 54 ms / 216 ms |
+| AI4Privacy · held-out | holdout | 500 | 0.898 / 0.646 | 0.685 | 1.44% | 8.2 ms / 15 ms | 0.813 / 0.793 | 0.797 | 3.59% | 15 ms / 25 ms |
 
-Design targets (F2 ≥ 0.978, FPR < 0.02%) on Path A: met on 24 Stakeholder Edge Cases, English Disclosure Probes, Enron Email Corpus, Presidio Synthetic PII; **not met on AI4Privacy Multilingual, Enron · held-out, AI4Privacy · held-out.**
-Design targets (F2 ≥ 0.978, FPR < 0.02%) on Path B: met on 24 Stakeholder Edge Cases, English Disclosure Probes, Presidio Synthetic PII; **not met on Enron Email Corpus, AI4Privacy Multilingual, Enron · held-out, AI4Privacy · held-out.**
+Design targets (F2 ≥ 0.978, FPR < 0.02%) on Path A: met on 24 Stakeholder Edge Cases, English Disclosure Probes, Enron Email Corpus, Presidio Synthetic PII; **not met on Contextual Challenge Set, AI4Privacy Multilingual, Enron · held-out, AI4Privacy · held-out.**
+Design targets (F2 ≥ 0.978, FPR < 0.02%) on Path B: met on 24 Stakeholder Edge Cases, English Disclosure Probes, Presidio Synthetic PII; **not met on Contextual Challenge Set, Enron Email Corpus, AI4Privacy Multilingual, Enron · held-out, AI4Privacy · held-out.**
 
 **English only.** AI4Privacy rows the dataset annotates as English. Enron, Presidio, the edge cases and the probes are English throughout.
 
 | Subset | n | Path A P / R | Path A F2 | Path A FPR | Path B P / R | Path B F2 | Path B FPR |
 |---|---:|---:|---:|---:|---:|---:|---:|
-| AI4Privacy dev · English | 100 | 0.941 / 0.696 | 0.734 | 1.30% | 0.905 / 0.826 | 0.841 | 2.60% |
-| AI4Privacy held-out · English | 100 | 0.857 / 0.600 | 0.638 | 2.50% | 0.875 / 0.700 | 0.729 | 2.50% |
+| AI4Privacy dev · English | 100 | 0.941 / 0.696 | 0.734 | 1.30% | 0.850 / 0.739 | 0.759 | 3.90% |
+| AI4Privacy held-out · English | 100 | 0.857 / 0.600 | 0.638 | 2.50% | 0.778 / 0.700 | 0.714 | 5.00% |
 
-- **Path B vs Path A, held-out.** AI4Privacy (80% French, German and Italian) recall 0.646 → 0.720, F2 0.685 → 0.747, FPR 1.44% → 1.91%. Enron FPR 1.34% → 2.34%.
+- **Path B vs Path A, held-out.** AI4Privacy (80% French, German and Italian) recall 0.646 → 0.793, F2 0.685 → 0.797, FPR 1.44% → 3.59%. Enron FPR 1.34% → 2.01%.
 - **Earlier Path B** (openai/privacy-filter (q4f16, WebGPU) · intel · gen-12lp, recorded 2026-10-30): held-out AI4Privacy F2 0.770 at FPR 14.83%; Enron FPR 6.35%. It needed 958 MB of host memory and was replaced (ADR-007).
-- **Node runs:** Path A 2026-11-01, Path B 2026-11-01 (aionix-pathb-6L (Multilingual-MiniLM, trimmed vocab, INT8)); Node v22.14.0, 12th Gen Intel(R) Core(TM) i7-12700H. Latency is the whole cascade per observation.
+- **Node runs:** Path A 2026-11-02, Path B 2026-11-02 (aionix-pathb-6L-v3 (Multilingual-MiniLM, trimmed vocab, INT8)); Node v22.14.0, 12th Gen Intel(R) Core(TM) i7-12700H. Latency is the whole cascade per observation.
 - **Browser run (Path A):** recorded 2026-10-30 in the Workbench engine worker, ONNX Runtime wasm (CPU) · 20 logical cores; same detections as the Node run.
-- **Inside the extension** (path-a-only (Path B evicted, recycled document), Chromium via Playwright): offscreen memory 87.1 MB (measureUserAgentSpecificMemory after forced GC (raw CDP, offscreen document)); Tier 2 route A, p50 / p95 0.1 ms / 3.0 ms; Tier 3B p50 / p95 6.3 ms / 8.5 ms.
-  - Enter → decision, real content script on the fixture portal: clean prompt sent p50 17 ms / p95 39 ms / max 39 ms (n=12); Tier 2 block shown p50 28 ms / p95 54 ms / max 54 ms (n=5); Tier 1 block shown p50 7.8 ms / p95 17 ms / max 17 ms (n=5). Budget: 1,000 ms from Send.
-- **Inside the extension** (auto (Path B allowed), Chromium via Playwright): offscreen memory 109.6 MB (measureUserAgentSpecificMemory after forced GC (raw CDP, offscreen document)); Tier 2 route B, p50 / p95 7.1 ms / 11 ms; Tier 3B p50 / p95 6.4 ms / 8.1 ms.
-  - Path B ready after 218 ms: aionix-pathb-6L (Multilingual-MiniLM, trimmed vocab, INT8) · CPU (ONNX Runtime wasm) · host 111 MB after load (performance.memory JS heap + wasm linear memory).
-  - Enter → decision, real content script on the fixture portal: clean prompt sent p50 20 ms / p95 37 ms / max 37 ms (n=12); Tier 2 block shown p50 31 ms / p95 53 ms / max 53 ms (n=5); Tier 1 block shown p50 8.4 ms / p95 12 ms / max 12 ms (n=5). Budget: 1,000 ms from Send.
+- **Inside the extension** (path-a-only (Path B evicted, recycled document), Chromium via Playwright): offscreen memory 87.1 MB (measureUserAgentSpecificMemory after forced GC (raw CDP, offscreen document)); Tier 2 route A, p50 / p95 0.1 ms / 2.2 ms; Tier 3B p50 / p95 6.3 ms / 8.7 ms.
+  - Enter → decision, real content script on the fixture portal: clean prompt sent p50 15 ms / p95 34 ms / max 34 ms (n=12); Tier 2 block shown p50 24 ms / p95 45 ms / max 45 ms (n=5); Tier 1 block shown p50 10 ms / p95 21 ms / max 21 ms (n=5). Budget: 1,000 ms from Send.
+- **Inside the extension** (auto (Path B allowed), Chromium via Playwright): offscreen memory 109.7 MB (measureUserAgentSpecificMemory after forced GC (raw CDP, offscreen document)); Tier 2 route B, p50 / p95 6.8 ms / 11 ms; Tier 3B p50 / p95 6.3 ms / 8.5 ms.
+  - Path B ready after 169 ms: aionix-pathb-6L-v3 (Multilingual-MiniLM, trimmed vocab, INT8) · CPU (ONNX Runtime wasm) · host 111 MB after load (performance.memory JS heap + wasm linear memory).
+  - Enter → decision, real content script on the fixture portal: clean prompt sent p50 21 ms / p95 37 ms / max 37 ms (n=12); Tier 2 block shown p50 29 ms / p95 52 ms / max 52 ms (n=5); Tier 1 block shown p50 9.9 ms / p95 16 ms / max 16 ms (n=5). Budget: 1,000 ms from Send.
 
-**Path B bake-off** (model selection, 2026-10-30). Dev splits only, `graph` policy, full cascade. Recorded before the English Tier 1 fixes, which changed both paths equally. Tagger latency is ONNX Runtime CPU with 4 threads, per text.
+**Path B bake-off** (model selection, 2026-11-02). Dev splits and the frozen contextual challenge set, full cascade. Each candidate under the shipped policy (`gated-0.85/6`: neural secrets / IDs count only when the rules confirm them) and, for reference, `graph` (v2: neural spans only feed the Category 8/9 graph). AI4Privacy FPR in brackets leaves out the rows that state a PIN or CVV, which the dataset labels low-risk and the engine blocks. Tagger latency is ONNX Runtime CPU with 4 threads, per text; xlmrb-v3-e1 was timed while the GPU was training.
 
-| Candidate | Weights | INT8 vs fp32 token agreement | AI4Privacy dev F2 / FPR | Enron dev FPR | Presidio dev F2 | Tagger p50 / p95 on Enron |
+| Candidate | Weights | Challenge recall / F2 · gated | AI4Privacy dev F2 / FPR · gated | AI4Privacy dev F2 / FPR · graph | Enron dev FPR · gated | Tagger p50 / p95 on Enron |
 |---|---:|---:|---:|---:|---:|---:|
-| Path A (no tagger) | — | — | 0.844 / 0.00% | 0.00% | 1.000 | — |
-| aionix-l6 | 22.9 MB INT8 | 99.95% | 0.867 / 0.48% | 0.33% | 1.000 | 15 ms / 79 ms |
-| aionix-l12 | 33.9 MB INT8 | 99.87% | 0.867 / 0.48% | 0.33% | 1.000 | 27 ms / 146 ms |
-| openmed-e5small-int8 | 34 MB INT8 | 99.46% | 0.876 / 0.72% | 0.67% | 1.000 | 32 ms / 158 ms |
-| ettin32m-int8 | 32.6 MB INT8 | 91.44% | 0.853 / 0.24% | 0.00% | 0.999 | 25 ms / 119 ms |
-| ettin17m-int8 | 17.2 MB INT8 | 85.34% | 0.849 / 0.00% | 0.00% | 1.000 | 14 ms / 60 ms |
-| ettin17m-fp32 | 67.7 MB fp32 | n/a (fp32) | 0.856 / 0.72% | 0.33% | 0.999 | 18 ms / 82 ms |
+| Path A (no tagger) | — | 0.627 / 0.672 | — | 0.848 / 0.24% | 0.00% | — |
+| aionix-l6 | 22.9 MB INT8 | 0.647 / 0.688 | 0.911 / 1.69% (0.72%) | 0.871 / 0.72% | 0.33% | 16 ms / 89 ms |
+| aionix-l12 | 33.9 MB INT8 | 0.647 / 0.690 | 0.911 / 1.69% (0.72%) | 0.871 / 0.72% | 0.33% | 27 ms / 150 ms |
+| aionix-l6-v3 | 22.9 MB INT8 | 0.843 / 0.860 | 0.919 / 1.93% (0.72%) | 0.871 / 0.72% | 0.33% | 16 ms / 87 ms |
+| xlmrb-v3-e1-int8 | 110 MB INT8 | 0.804 / 0.830 | 0.896 / 1.69% (0.48%) | 0.862 / 0.48% | 0.33% | 234 ms / 1289 ms |
+| xlmrb-v3-e2-int8 | 110 MB INT8 | 0.843 / 0.863 | 0.920 / 1.69% (0.48%) | 0.872 / 0.48% | 0.33% | 96 ms / 573 ms |
 <!-- results:end -->
 
 ## Known limitations
 
 - **Live portal DOM drift.** Selectors and prompt endpoints change without notice. On 2026-10-31 signed-out ChatGPT had moved to a `<textarea name="prompt">` and a form-encoded `/unauth-mweb/conversation/updates` request, and signed-in ChatGPT's composer had lost its `#prompt-textarea` id; the adapters were updated and the shapes added to the fixtures. Expect further drift — re-run the capture script and the read-only DOM checks.
 - **When the offscreen check cannot answer** (engine starting, recycled or unreachable; > 1,000 ms), a prompt that is clean on Tier 1/3A is **held** with *Send anyway* rather than sent silently (ADR-005). In one of four full live capture runs the engine became unreachable mid-session; the root cause is not yet identified.
-- **Implicit passwords with no credential or strength word** ("I use Summer2024! for everything") are not detected; a mixed token alone is not evidence. Strength questions ("is Summer2024! strong enough?") are.
+- **Passwords stated without a label** are caught by Path B v3 when the tagger proposes the value and the rules confirm it: a password-shaped token ("I use Summer2024! for everything"), or a weak value within 6 words of a credential word ("the password for it. Usually it is admin"). Still missed on the frozen challenge set: pairs like "admin / admin" or "mike.r@gmail.com / bluefish44", a recovery phrase, a value 19 words from its cue ("…test with root"), "Für den Testserver nimm einfach admin". It also flags example bad passwords quoted in training material ("passwords like 123456 … are a bad idea"). Path A (no tagger) catches only labelled forms and strength questions.
 - **Tier 2 cannot tell who has the condition.** A named colleague next to a condition in a work context ("Team member Sarah Lee will present our diabetes research") is blocked when the validator reads it as personal.
 - **Long pastes.** Measured on signed-in claude.ai (2026-11-02, benign text): pastes from 4,000–5,000 characters become a "Pasted text" chip, which travels with the message and is checked on Send. Signed-out Gemini kept a 30,000-character paste inline; signed-out ChatGPT keeps long pastes inline. Signed-in ChatGPT is reported to turn pastes over 5,000 (consumer) or 10,000 (Enterprise / Edu) characters into `pasted.txt`; because ChatGPT uploads attachments when they are attached, Aionix checks pastes of 4,000+ characters on ChatGPT and Gemini at paste time. That ChatGPT chip was not verified on a signed-in account (it would have saved a file to the account's library). Files added with the attach button are not inspected.
 - **The network backstop trusts the page's DOM events.** A page script could forge the content script's "verified" signal; the threat model is accidental disclosure by employees, not a hostile portal.
-- **Held-out recall on AI4Privacy is the weak spot.** Unlabelled national IDs and unlabelled passwords without login cues are missed by both paths. Path B's government-ID and secret findings stay off: on the dev splits they added more false alarms than detections (ADR-007).
-- **Path B trades a little precision for recall.** On held-out data it raises AI4Privacy recall but also raises the false-positive rate, Enron's by 1.00 point (table above). Its multilingual training data is thin: about 4k synthetic finance documents per non-English language.
+- **Held-out recall on AI4Privacy is the weak spot for Path A.** Path B v3 raises held-out AI4Privacy recall 0.720 → 0.793 (F2 0.747 → 0.797) and lowers held-out Enron FPR 2.34% → 2.01%, but raises held-out AI4Privacy FPR 1.91% → 3.59%: 3 of the 15 false alarms are stated PINs / CVVs, which the dataset labels low-risk and the engine blocks on purpose (Category 2); the other 12 put it at 2.87%. On the English-only AI4Privacy rows it is slightly weaker than v2 (lone first names next to an account number are no longer linked).
+- **Multilingual training data is thin** for Path B: about 4k synthetic finance documents per non-English language, plus ~4k synthetic credential sentences across French, German, Spanish and Italian.
 - **Memory headroom.** With Path B loaded the offscreen document measures 110 MB, under the 150 MB ceiling but above the 105 MB warning watermark. MiniLM (validator + EDM) and the tagger are still two ONNX sessions; sharing one encoder is the next memory step.
 - **Memory readings.** The extension offscreen document reports `measureUserAgentSpecificMemory()`. A plain Web Worker cannot, so the Workbench reports page + worker together.
 

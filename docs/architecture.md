@@ -27,7 +27,7 @@ The Workbench runs the same `src/engine/` modules: Tier 1/3A on the main thread 
 | # | Category | Primary tier |
 |---|---|---|
 | 1 | API keys & access tokens | Tier 1 |
-| 2 | Passwords & secrets (labelled, multilingual, high-entropy, strength questions, private keys) | Tier 1 |
+| 2 | Passwords & secrets (labelled, multilingual, high-entropy, strength questions, private keys; stated without a label) | Tier 1; Tier 2 Path B v3 (tagger proposes, rules confirm) |
 | 3 | Government IDs (SSN, passport, driver licence, national IDs, UK NINO, AU Medicare) | Tier 1 |
 | 4 | Australian Tax File Number | Tier 1 |
 | 5 | Payment cards & bank accounts (Luhn cards, IBAN, BSB / routing + account, labelled accounts in a banking context) | Tier 1 |
@@ -211,6 +211,37 @@ The same analysis fixed two FST precision bugs that Path B exposed in French/Ita
 - Path B is now gated in CI (`bench-gate.json` → `pathB`).
 - Not met: the dev-split gate "F2 ≥ Path A on every split" fails on Enron dev, which has a single positive, so one false alarm moves F2 from 1.000 to 0.833. FPR there is +0.33 points.
 
+#### ADR-007 addendum — Path B v3: the model proposes, the rules decide (2026-11-02)
+
+**Context.** A live prompt describing default credentials passed: "… then the password for it. Usually it is admin, so try that out first and if it doesn't work test with root." Tier 1 needs a label next to the value, and the v2 tagger proposed no secret span at all (also none for "I use Summer2024! for everything" or "the thing I type to get into my bank is Kangaroo#77"; it did call "1Password" a secret). In the training corpora 71% of secrets sit within 40 characters after a cue such as "Password:", and almost all values are complex, so this class was barely represented. v2 had its neural secret / government-ID findings switched off because, ungated, they cost 6–21% FPR on dev.
+
+**Process (decided before the experiments).**
+1. **Frozen evaluation set.** `data/datasets/contextual-challenge.json` (103 cases: 51 block, 52 allow, 21 in FR/DE/ES/IT) was written from the brief's "must block" forms and their benign near-misses, and committed before any experiment. It is not edited, and nothing was tuned on its errors.
+2. **Rules gate** (`tier2/neural-gates.ts`, reusing Tier 1's helpers). A neural *secret* counts only if it is a whole token (not a fragment of a longer word), is not a placeholder, code reference, env name, type name, algorithm name, path / e-mail / crypto-address shape or one of our redaction tags, and is either password-shaped (≤ 24 characters or with password punctuation) or has a credential cue within the window (a cue before the value may sit in the previous sentence; a cue after it must be in the same one). A neural *government ID* counts only if it passes a checksum or structure (TFN, ABN, Aadhaar, PAN, SSN, AHV, Medicare, NIR, DNI / NIE, NINO, codice fiscale) or sits within 4 words of a specific ID word; checksum-bearing shapes that fail their checksum and decimal amounts never count. The gate's refinements came from dev error analysis only (fragments, crypto addresses, `argon2`, IMEIs labelled "numéro", an invalid TFN next to "tax").
+3. **Training data v3.** 24,252 synthetic rows (`scripts/ml/synth_credentials.py`): credentials stated in chat-style prose with the cue far away, paraphrased or absent, weak dictionary values, "user / pass" pairs, PINs, recovery phrases, unlabelled national IDs, ~20% FR/DE/ES/IT, ~25% buried in benign sentences; and hard negatives (talk about passwords, "admin" / "root" as roles and paths, password managers, placeholders, code types, product names). Templates were written independently of the challenge set.
+4. **Candidates.** (a) the v2 6-layer tagger; (b) the existing 12-layer tagger; (a′) the 6-layer tagger retrained on corpus v3; (c) `xlm-roberta-base` (MIT; vocabulary trimmed to the same 30k pieces, 109M parameters, 110 MB INT8 / ~219 MB fp16) trained on corpus v3 for 2 epochs; (d) Chrome's Prompt API (Gemini Nano) — dropped without measurement: Chrome downloads a ~4 GB model on first use (against the zero-runtime-download rule), it needs ~22 GB free disk and 4 GB VRAM or 16 GB RAM, and a generative model gives no 1 s guarantee.
+
+**Results (dev splits + challenge set; the full table is in the README).** Gate thresholds 0.5/12, 0.7/8 and 0.85/6 tied on every dev split, so the most conservative (score ≥ 0.85, cue within 6 words) is used.
+
+| Candidate · gated 0.85/6 | Challenge recall / F2 | AI4Privacy dev F2 / FPR (without PIN/CVV rows) | Enron dev FPR | CPU tagger p95 on Enron |
+|---|---|---|---|---|
+| v2 6-layer, graph only (shipped before) | 0.627 / 0.672 | 0.871 / 0.72% | 0.33% | 89 ms |
+| (a) v2 6-layer | 0.647 / 0.688 | 0.911 / 1.69% (0.72%) | 0.33% | 89 ms |
+| (b) 12-layer | 0.647 / 0.690 | 0.911 / 1.69% (0.72%) | 0.33% | 150 ms |
+| **(a′) 6-layer v3** | **0.843 / 0.860** | **0.919 / 1.93% (0.72%)** | 0.33% | 87 ms |
+| (c) xlm-r-base v3 | 0.843 / 0.863 | 0.920 / 1.69% (0.48%) | 0.33% | 573 ms |
+
+Edge cases and probes stay at 100% for every candidate. Every extra AI4Privacy "false alarm" of the gated policies is a row that states a PIN or CVV, which the dataset's pre-registered mapping labels low-risk while the engine blocks it (Category 2); the user decided to count those as correct blocks rather than re-label the data.
+
+**Decision.** Ship (a′): the same 22.9 MB model, the same CPU latency (Tier 2 p50 / p95 6.8 / 10.7 ms in the extension) and the same memory (109.7 MB), with the gated policy as Path B's default (`DEFAULT_NEURAL_POLICY`; `GRAPH_ONLY_POLICY` restores v2's behaviour). Data, not capacity, made the difference: (a) and (b) gain little; (c) matches (a′) to within one example but fails the CPU latency cap (573 ms p95 natively) and would need a WebGPU tier, +~250 MB of package and a higher memory ceiling, so its WebGPU tier was not built. The 150 MB ceiling stays.
+
+**Held-out (scored once, for (a′) only).**
+- AI4Privacy held-out: recall 0.720 → 0.793, F2 0.747 → 0.797, FPR 1.91% → 3.59% (3 of 15 false alarms are stated PINs / CVVs; 2.87% without them, a real +0.96-point rise).
+- Enron held-out FPR: 2.34% → 2.01%.
+- English-only AI4Privacy: dev F2 0.841 → 0.759, held-out 0.729 → 0.714 — v3 no longer links some lone first names ("Van", "Dakota") to an account number.
+
+**Known gaps.** Only the value nearest the cue is confirmed ("… test with root" is 19 words from "password"); pairs like "admin / admin", recovery phrases and some German phrasings are still missed; example bad passwords quoted in training material ("passwords like 123456 … are a bad idea") are flagged.
+
 ### ADR-008 — Engine lifetime: load once, outlive the service worker
 
 - **Context.** MV3 stops an idle service worker after about 30 s. The offscreen document is separate and has no lifetime limit for the `WORKERS` reason (only `AUDIO_PLAYBACK` documents are closed after 30 s of silence). The popup used to show "Starting…" each time it opened, because its first status reply waited up to 1.5 s for a fresh memory reading, which looked like a reload.
@@ -220,7 +251,8 @@ The same analysis fixed two FST precision bugs that Path B exposed in French/Ita
   - The content script sends a `warm` message when the composer gets focus, so a worker cold start is not paid inside the Send budget.
   - The popup draws the last status from `chrome.storage.session` at once, asks for a quick status (newest memory reading, no wait), and shows when the engine was loaded.
   - The extension no longer asks for a WebGPU adapter: Path B runs on the CPU, and the request only woke the GPU process and logged Chrome's "powerPreference is ignored on Windows" warning on the extensions page.
-- **Verified.** An e2e test stops the service worker through CDP the way Chrome does when it is idle and checks that the engine's `startedAt` is unchanged afterwards.
+- **Open tabs after an update.** Chrome leaves the previous content script in open tabs after an extension update or reload, cut off from the extension (no `chrome.runtime`), so its checks could not reach the engine ("Check incomplete … reading 'sendMessage'"). On install / update the background injects the current scripts into open portal tabs (`scripting` permission); the new copy announces itself and the old copy removes every hook it added, and a superseded MAIN-world wrapper passes requests straight through. A copy that is cut off and not replaced says so in plain words ("refresh the page").
+- **Verified.** An e2e test stops the service worker through CDP the way Chrome does when it is idle and checks that the engine's `startedAt` is unchanged afterwards; another runs the update path on an open tab and checks the old copy steps aside.
 
 ## 4. Known risks
 
