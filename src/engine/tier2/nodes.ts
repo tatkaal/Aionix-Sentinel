@@ -59,14 +59,37 @@ const RECORD_ROLE =
   /\b(?:patient|pt|client|customer|claimant|policyholder|insured|beneficiary|account[ _]holder|borrower)(?:[ _]?(?:full[ _]?)?name)?["']?[ \t]*[:,=]?[ \t]*["']?[ \t]*$/i;
 const LABELLED_RECORD_ID = /^(?:patient|pt|customer|client|member|policy|claim)\b/i;
 
+const ROLE_COLUMN = /^["']?\s*(?:patient|pt|client|customer|claimant|policyholder|insured|beneficiary|account[ _]holder|borrower)(?:[ _]?(?:full[ _]?)?name)?\s*["']?$/i;
+
 /**
- * A person introduced as the subject of a record: an explicit record role directly before the name,
- * or a record identifier (MRN, date of birth, labelled patient / customer ID).
+ * A name in a table column whose header is a record role ("patient,condition,drug" / "customer;balance"):
+ * every row of that column is a record subject, as "Patient Linda Park" is. Without this the role sits
+ * a line or more above each name, the validator arbitrates every row, and a borderline row can flip once
+ * another row is redacted (found by the Path B redaction check on the patients-CSV probe).
+ */
+function inRoleColumn(text: string, start: number): boolean {
+  const lineStart = text.lastIndexOf('\n', start - 1) + 1;
+  const prefix = text.slice(lineStart, start);
+  const lineEnd = text.indexOf('\n', start);
+  const delimiter = [',', ';', '\t', '|'].find((d) => text.slice(lineStart, lineEnd < 0 ? undefined : lineEnd).includes(d));
+  if (!delimiter) return false;
+  const column = prefix.split(delimiter).length - 1;
+  // The header is the first line of the delimited block the person's line belongs to.
+  const lines = text.slice(0, lineStart).split('\n');
+  lines.pop();
+  let header: string | null = null;
+  for (let i = lines.length - 1; i >= 0 && lines[i]!.includes(delimiter); i--) header = lines[i]!;
+  return !!header && ROLE_COLUMN.test(header.split(delimiter)[column] ?? '');
+}
+
+/**
+ * A person introduced as the subject of a record: an explicit record role directly before the name or
+ * heading the name's table column, or a record identifier (MRN, date of birth, labelled patient / customer ID).
  */
 export function isRecordSubject(text: string, person: PersonNode): boolean {
   if (person.kind === 'mrn' || person.kind === 'dob') return true;
   if (person.kind === 'record-id') return LABELLED_RECORD_ID.test(person.text);
-  return RECORD_ROLE.test(text.slice(Math.max(0, person.start - 28), person.start));
+  return RECORD_ROLE.test(text.slice(Math.max(0, person.start - 28), person.start)) || inRoleColumn(text, person.start);
 }
 
 export function findPersonNodes(text: string, fst: Fst): PersonNode[] {
@@ -99,7 +122,7 @@ export function findPersonNodes(text: string, fst: Fst): PersonNode[] {
     if (!accepted) continue;
     // "Scott County", "Grace Hospital", "Jordan Street" are places and organisations — unless a record
     // role names a person ("patient Linda Park", "customer": "Ava Hill").
-    if (words.length > 1 && PLACE_OR_ORG.test(words.at(-1)!) && !RECORD_ROLE.test(text.slice(Math.max(0, start - 28), start))) continue;
+    if (words.length > 1 && PLACE_OR_ORG.test(words.at(-1)!) && !RECORD_ROLE.test(text.slice(Math.max(0, start - 28), start)) && !inRoleColumn(text, start)) continue;
     const cue = title || role;
     const isPublic = fst.lookup(full.toLowerCase()).some((o) => o[0] === FST_CLASS.publicFigure);
     out.push({ kind: cue ? 'honorific' : 'name', start, end: start + text.slice(start).indexOf(words.at(-1)!) + words.at(-1)!.length, text: full, isPublic });

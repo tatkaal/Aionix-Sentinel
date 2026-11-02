@@ -7,6 +7,8 @@ import {
   ibanValid,
   luhnValid,
   medicareValid,
+  nirValid,
+  dniValid,
   tfnValid,
   verhoeffCheckDigit,
   verhoeffValid,
@@ -41,6 +43,12 @@ describe('checksums', () => {
   it('validates AU Medicare check digits', () => {
     expect(medicareValid('2123456701')).toBe(true);
     expect(medicareValid('2123456711')).toBe(false);
+    // French NIR key = 97 − (number mod 97); Spanish DNI / NIE letter = table[n mod 23].
+    expect(nirValid('184127645108946')).toBe(true);
+    expect(nirValid('184127645108947')).toBe(false);
+    expect(dniValid('12345678Z')).toBe(true);
+    expect(dniValid('12345678A')).toBe(false);
+    expect(dniValid('X1234567L')).toBe(true);
     expect(medicareValid('1123456701')).toBe(false); // first digit must be 2–6
   });
 

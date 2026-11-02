@@ -8,6 +8,7 @@ import { FST_CLASS } from './fst-format';
 import type { Fst } from './fst-runtime';
 import { graphFindings, type Tier2Scanner } from './graph-scan';
 import labels from './neural-labels.json';
+import { confirmGovId, confirmSecret, type NeuralGates } from './neural-gates';
 import { findPersonNodes, findSensitiveNodes, type PersonNode, type SensitiveNode } from './nodes';
 import type { NeuralEntity, NeuralNer } from './webgpu-path';
 
@@ -32,11 +33,24 @@ export interface NeuralPolicy {
   govIdFindings: boolean;
   /** Emit Category 2 for neural secrets (passwords, PINs, API keys). */
   secretFindings: boolean;
+  /**
+   * When set, neural secret / government-ID spans become findings only if the rules confirm them
+   * (neural-gates.ts); without it, every span above minScore did, which cost 6–21% FPR on dev.
+   */
+  gates?: NeuralGates;
 }
 
 // minScore 0.7: dev-split error analysis found the spurious names ("der", "e", "Danish") at 0.51–0.67
 // while real names score above 0.8.
-export const DEFAULT_NEURAL_POLICY: NeuralPolicy = { minScore: 0.7, lexiconNames: true, govIdFindings: false, secretFindings: false };
+/** v2 policy: neural spans only feed the Category 8 / 9 graph. */
+export const GRAPH_ONLY_POLICY: NeuralPolicy = { minScore: 0.7, lexiconNames: true, govIdFindings: false, secretFindings: false };
+
+/**
+ * v3 gates (2026-11-02): the three settings tried tie on every dev split, so the most conservative one
+ * (highest score, narrowest cue window) is used.
+ */
+export const DEFAULT_NEURAL_GATES: NeuralGates = { secretMinScore: 0.85, secretCueWindow: 6, govIdMinScore: 0.85, govIdLabelWindow: 4 };
+export const DEFAULT_NEURAL_POLICY: NeuralPolicy = { ...GRAPH_ONLY_POLICY, govIdFindings: true, secretFindings: true, gates: DEFAULT_NEURAL_GATES };
 
 // Who the record is about: names, record IDs and dates of birth — as on Path A. Phone numbers and
 // email addresses are left out: in prose they are as often a help line or a team inbox
@@ -108,17 +122,23 @@ export function createNeuralPath(fst: Fst, validator: ContextValidator | null, n
           sensitive.push({ kind: 'account', domain: 'financial', start: e.start, end: e.end, term: 'account number' });
         } else if ((kind === 'gov-id' && policy.govIdFindings) || (kind === 'secret' && policy.secretFindings)) {
           const gov = kind === 'gov-id';
+          const gates = policy.gates;
+          const confirmed = !gates ? { category: (gov ? 3 : 2) as Finding['category'], evidence: '' } : gov ? confirmGovId(text, e.start, e.end, e.score, gates) : (() => {
+            const why = confirmSecret(text, e.start, e.end, e.score, gates);
+            return why ? { category: 2 as Finding['category'], evidence: why } : null;
+          })();
+          if (!confirmed) continue;
           findings.push({
             id: `${gov ? 'NEURAL_GOV_ID' : 'NEURAL_SECRET'}:${e.start}`,
-            category: gov ? 3 : 2,
+            category: confirmed.category,
             type: gov ? 'GOV_ID' : 'SECRET',
-            label: gov ? 'Government ID (neural detection)' : 'Secret (neural detection)',
+            label: gov ? (gates ? 'Government ID (neural, confirmed by rules)' : 'Government ID (neural detection)') : gates ? 'Password or secret (neural, confirmed by rules)' : 'Secret (neural detection)',
             tier: 'tier2',
             path: 'neural',
             rawStart: e.start,
             rawEnd: e.end,
             confidence: e.score,
-            evidence: `${ner.modelId} ${kind} · p=${e.score.toFixed(2)}`,
+            evidence: `${ner.modelId} ${kind} · p=${e.score.toFixed(2)}${confirmed.evidence ? ` · ${confirmed.evidence}` : ''}`,
             source,
           });
         }

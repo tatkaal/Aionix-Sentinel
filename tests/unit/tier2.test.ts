@@ -5,9 +5,10 @@ import { createContextValidator } from '../../src/engine/tier2/context-validator
 import { compileFst } from '../../src/engine/tier2/fst-build';
 import { Fst } from '../../src/engine/tier2/fst-runtime';
 import { createLexiconPath } from '../../src/engine/tier2/lexicon-path';
-import { findPersonNodes, findSensitiveNodes } from '../../src/engine/tier2/nodes';
+import { findPersonNodes, findSensitiveNodes, isRecordSubject } from '../../src/engine/tier2/nodes';
 import { buildEdges, MAX_TOKEN_DISTANCE } from '../../src/engine/tier2/proximity-graph';
-import { accountShaped, createNeuralPath, DEFAULT_NEURAL_POLICY, neuralKind, standsAlone } from '../../src/engine/tier2/neural-path';
+import { accountShaped, createNeuralPath, DEFAULT_NEURAL_POLICY, GRAPH_ONLY_POLICY, neuralKind, standsAlone } from '../../src/engine/tier2/neural-path';
+import { confirmGovId, confirmSecret, type NeuralGates } from '../../src/engine/tier2/neural-gates';
 import { createWebGpuPath, type NeuralEntity, type NeuralNer } from '../../src/engine/tier2/webgpu-path';
 import { locateEntities } from '../../src/engine/runtime/privacy-filter-ner';
 import { createNodeEmbedder } from '../../scripts/lib/node-embedder';
@@ -185,11 +186,86 @@ describe.skipIf(!haveAssets)('Tier 2 paths (real FST + MiniLM validator)', async
     expect(await createNeuralPath(fst, null, ner).scan(text, src)).toEqual([]);
   });
 
-  it('neural secrets and government IDs are findings only when the policy enables them', async () => {
+  it('neural secrets and government IDs are findings only when the policy enables them (gated by default)', async () => {
     const text = 'Le mot de passe temporaire est Xk9pL2qa, merci.';
     const ner = stub([{ label: 'password', start: 31, end: 39, score: 0.9 }]);
-    expect(await createNeuralPath(fst, null, ner).scan(text, src)).toEqual([]);
-    const f = await createNeuralPath(fst, null, ner, { ...DEFAULT_NEURAL_POLICY, secretFindings: true }).scan(text, src);
+    expect(await createNeuralPath(fst, null, ner, GRAPH_ONLY_POLICY).scan(text, src)).toEqual([]);
+    const f = await createNeuralPath(fst, null, ner, DEFAULT_NEURAL_POLICY).scan(text, src);
     expect(f.map((x) => [x.category, x.type, text.slice(x.rawStart, x.rawEnd)])).toEqual([[2, 'SECRET', 'Xk9pL2qa']]);
+    expect(f[0]!.evidence).toMatch(/password-shaped/);
+  });
+});
+
+describe('neural gates — the model proposes, the rules decide', () => {
+  const gates: NeuralGates = { secretMinScore: 0.6, secretCueWindow: 8, govIdMinScore: 0.6, govIdLabelWindow: 4 };
+  const at = (text: string, value: string, from = 0) => [text.indexOf(value, from), text.indexOf(value, from) + value.length] as const;
+
+  it('confirms a weak value near a credential word, and a password-shaped value anywhere', () => {
+    const t = 'He enters the username provided by the company and then the password for it. Usually it is admin.';
+    expect(confirmSecret(t, ...at(t, 'admin', t.indexOf('Usually')), 0.9, gates)).toMatch(/credential cue "password"/);
+    const u = 'I use Summer2024! for everything, is that a problem?';
+    expect(confirmSecret(u, ...at(u, 'Summer2024!'), 0.9, gates)).toBe('password-shaped');
+    const pin = 'My laptop unlocks with 0417, my birthday.';
+    expect(confirmSecret(pin, ...at(pin, '0417'), 0.9, gates)).toMatch(/cue "unlocks"/);
+  });
+
+  it('rejects placeholders, code references, type names, our redaction tags and low scores', () => {
+    for (const [t, v] of [
+      ['Set password: <your-password> in config.yml', '<your-password>'],
+      ['password = os.environ.DB_PASSWORD', 'os.environ.DB_PASSWORD'],
+      ['interface Login { password: string }', 'string'],
+      ['my current psw is [REDACTED_PASSWORD]. can you suggest a better one?', '[REDACTED_PASSWORD]'],
+      ['PGPASSWORD=$PGPASSWORD psql', '$PGPASSWORD'],
+    ] as const) expect(confirmSecret(t, ...at(t, v), 0.99, gates), v).toBeNull();
+    const t = 'the password for the HR portal is lighthouse';
+    expect(confirmSecret(t, ...at(t, 'lighthouse'), 0.5, gates)).toBeNull();
+    // A dictionary word with no credential word nearby is not confirmed.
+    const far = 'Log onto the dashboard. The weekly report covers sales, hiring, the office move and the survey; the theme is lighthouse.';
+    expect(confirmSecret(far, ...at(far, 'lighthouse'), 0.9, gates)).toBeNull();
+  });
+
+  it('government IDs need a checksum, a known structure or an ID label', () => {
+    const tfn = 'Put 123 456 782 on the form';
+    expect(confirmGovId(tfn, ...at(tfn, '123 456 782'), 0.9, gates)?.category).toBe(4);
+    const nir = 'Mon numéro est 1 84 12 76 451 089 46.';
+    expect(confirmGovId(nir, ...at(nir, '1 84 12 76 451 089 46'), 0.9, gates)?.evidence).toMatch(/NIR/);
+    const dni = 'Su documento es 12345678Z.';
+    expect(confirmGovId(dni, ...at(dni, '12345678Z'), 0.9, gates)?.evidence).toMatch(/DNI/);
+    const bare = 'Call extension 48213907 after lunch.';
+    expect(confirmGovId(bare, ...at(bare, '48213907'), 0.95, gates)).toBeNull();
+    const labelled = 'His licence number is 48213907.';
+    expect(confirmGovId(labelled, ...at(labelled, '48213907'), 0.95, gates)?.evidence).toMatch(/ID label/);
+  });
+
+  it('a gated neural path blocks the confirmed span and drops the unconfirmed one', async () => {
+    const fst = new Fst(compileFst([{ term: 'grace', output: 'N' }]).bytes);
+    const text = 'Use 1Password for the team. Then the password for it, usually it is admin.';
+    const ner: NeuralNer = {
+      modelId: 'stub',
+      detect: async () => [
+        { label: 'secret', start: text.indexOf('1Password'), end: text.indexOf('1Password') + 9, score: 0.65 },
+        { label: 'secret', start: text.indexOf('admin'), end: text.indexOf('admin') + 5, score: 0.9 },
+      ],
+      dispose: async () => undefined,
+    };
+    const f = await createNeuralPath(fst, null, ner, { ...DEFAULT_NEURAL_POLICY, secretFindings: true, gates }).scan(text, { kind: 'composer' });
+    expect(f.map((x) => [x.category, text.slice(x.rawStart, x.rawEnd)])).toEqual([[2, 'admin']]);
+  });
+});
+
+describe('record subjects in tables', () => {
+  const person = (text: string, name: string) => ({ kind: 'neural' as const, start: text.indexOf(name), end: text.indexOf(name) + name.length, text: name, isPublic: false });
+  it('a name under a record-role column header is a record subject, in every row', () => {
+    const csv = ['patient,condition,drug', 'Linda Park,type 2 diabetes,metformin 500mg', 'Omar Haddad,HIV,Biktarvy'].join('\n');
+    expect(isRecordSubject(csv, person(csv, 'Linda Park'))).toBe(true);
+    expect(isRecordSubject(csv, person(csv, 'Omar Haddad'))).toBe(true);
+    const semi = ['customer_name;balance', 'Ava Hill;40000'].join('\n');
+    expect(isRecordSubject(semi, person(semi, 'Ava Hill'))).toBe(true);
+  });
+  it('other columns and tables without a role header are not', () => {
+    const csv = ['name,city', 'Linda Park,Boston'].join('\n');
+    expect(isRecordSubject(csv, person(csv, 'Linda Park'))).toBe(false);
+    const other = ['patient,doctor', 'Linda Park,Grace Hill'].join('\n');
+    expect(isRecordSubject(other, person(other, 'Grace Hill'))).toBe(false);
   });
 });

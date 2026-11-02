@@ -49,7 +49,7 @@ const API_KEY_RULES: TokenRule[] = [
 ];
 
 // Includes our own redaction tags, so a redacted prompt ("-p[REDACTED_DB_CREDENTIAL]") passes.
-const PLACEHOLDER = /^(?:x{3,}|\*{3,}|\.{3,}|<[^>]*>|\$\{[^}]*\}|\{\{[^}]*\}\}|%\w+%|\$[A-Za-z_]\w*|\$\(.*\)|\[REDACTED_[A-Z0-9_]+\]|your[_-]?\w*|change[_-]?me\w*|example\w*|placeholder|redacted|password|pass|secret|null|none|undefined|string)$/i;
+export const PLACEHOLDER = /^(?:x{3,}|\*{3,}|\.{3,}|<[^>]*>|\$\{[^}]*\}|\{\{[^}]*\}\}|%\w+%|\$[A-Za-z_]\w*|\$\(.*\)|\[REDACTED_[A-Z0-9_]+\]|your[_-]?\w*|change[_-]?me\w*|example\w*|placeholder|redacted|password|pass|secret|null|none|undefined|string)$/i;
 
 function scanRules(text: string, rules: TokenRule[], out: Candidate[]) {
   for (const rule of rules) {

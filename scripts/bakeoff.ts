@@ -9,7 +9,7 @@ import { resolve } from 'node:path';
 import { applyAdjudications, runBenchmark, type RunSummary } from '../src/engine/bench/harness';
 import { percentile } from '../src/engine/bench/metrics';
 import { DATASETS, type Adjudication, type BenchSample, type DatasetId } from '../src/engine/bench/types';
-import { DEFAULT_NEURAL_POLICY, type NeuralPolicy } from '../src/engine/tier2/neural-path';
+import { GRAPH_ONLY_POLICY, type NeuralPolicy } from '../src/engine/tier2/neural-path';
 import type { NeuralEntity, NeuralNer } from '../src/engine/tier2/webgpu-path';
 import { createNodeEngine } from './lib/node-engine';
 
@@ -20,11 +20,21 @@ const names = process.argv.slice(2).filter((a) => !a.startsWith('--'));
 const candidates = names.length ? names : existsSync(nerRoot) ? readdirSync(nerRoot).filter((d) => statSync(resolve(nerRoot, d)).isDirectory()) : [];
 const datasets = DATASETS.filter((d) => (holdout ? d.id.endsWith('-holdout') : !d.id.endsWith('-holdout')));
 
-// Secret findings and neural-only names were dropped after the first dev bake-off: secrets cost
+// Ungated secret findings and neural-only names were dropped after the first dev bake-off: secrets cost
 // 6–21% FPR for every candidate, and neural-only names never beat the union with Path A's names.
+// The gated policies (v3) let a secret / government-ID span count only when the rules confirm it
+// (neural-gates.ts); score thresholds and cue windows are chosen on the dev splits.
+const gated = (secretMinScore: number, secretCueWindow: number, govIdMinScore: number): NeuralPolicy => ({
+  ...GRAPH_ONLY_POLICY,
+  secretFindings: true,
+  govIdFindings: true,
+  gates: { secretMinScore, secretCueWindow, govIdMinScore, govIdLabelWindow: 4 },
+});
 const POLICIES: Record<string, NeuralPolicy> = {
-  graph: DEFAULT_NEURAL_POLICY,
-  'graph+gov': { ...DEFAULT_NEURAL_POLICY, govIdFindings: true },
+  graph: GRAPH_ONLY_POLICY,
+  'gated-0.5/12': gated(0.5, 12, 0.5),
+  'gated-0.7/8': gated(0.7, 8, 0.7),
+  'gated-0.85/6': gated(0.85, 6, 0.85),
 };
 
 const adjudications = JSON.parse(readFileSync(resolve(root, 'data/datasets/enron-adjudications.json'), 'utf8')) as Record<string, Adjudication>;

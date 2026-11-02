@@ -175,6 +175,22 @@ export function medicareValid(digits: string): boolean {
   return sum % 10 === digits.charCodeAt(8) - 48;
 }
 
+/** French NIR (numéro de sécurité sociale): 13 characters + a 2-digit key = 97 − (number mod 97); Corsica 2A/2B count as 19/18. */
+export function nirValid(compact: string): boolean {
+  const m = /^([12]\d{4}(?:\d{2}|2A|2B)\d{6})(\d{2})$/.exec(compact);
+  if (!m) return false;
+  const body = m[1]!.replace('2A', '19').replace('2B', '18');
+  return 97 - Number(BigInt(body) % 97n) === Number(m[2]);
+}
+
+/** Spanish DNI (8 digits + letter) or NIE (X/Y/Z + 7 digits + letter): letter = TRWAGMYFPDXBNJZSQVHLCKE[n mod 23]. */
+export function dniValid(compact: string): boolean {
+  const m = /^([XYZ]?)(\d{7,8})([A-Z])$/.exec(compact);
+  if (!m || (m[1] ? m[2]!.length !== 7 : m[2]!.length !== 8)) return false;
+  const n = Number(`${m[1] ? 'XYZ'.indexOf(m[1]) : ''}${m[2]}`);
+  return 'TRWAGMYFPDXBNJZSQVHLCKE'[n % 23] === m[3];
+}
+
 /** US SSN structural rules (area ≠ 000/666/9xx, group ≠ 00, serial ≠ 0000). */
 export function ssnStructValid(digits: string): boolean {
   if (!/^\d{9}$/.test(digits)) return false;

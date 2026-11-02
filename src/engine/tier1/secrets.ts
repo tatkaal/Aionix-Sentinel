@@ -33,10 +33,10 @@ function isMoneyOrMeasure(v: string): boolean {
 }
 
 /** Values that are types, keywords or placeholders — i.e. code *about* passwords, not passwords. */
-const NON_SECRET_VALUE =
+export const NON_SECRET_VALUE =
   /^(?:string|str|String|int|integer|number|bool|boolean|char|varchar(?:\(\d+\))?|text|bytes?|null|none|nil|undefined|true|false|required|optional|any|object|hash(?:ed)?|field|input|column|secret|password|pass|pwd|example|placeholder|redacted|changeme|your[_-]?\w*|z\.string\(\)\S*|SecureString|Option<.*>|str\s*\|\s*None)$/i;
 
-const CODE_REFERENCE =
+export const CODE_REFERENCE =
   /^(?:[A-Za-z_$][\w$]*(?:\.[A-Za-z_$][\w$]*)+(?:\[.*)?|.*\(.*|\$\{.*\}|\{\{.*\}\}|<[^>]*>|%[\w(]+%?|\?|:[A-Za-z_]\w*|@\w+|\*+|x{3,}|\.{3,}|[/~][^\s]*|[A-Za-z]:\\.*)$/;
 
 interface LabelContext {
@@ -102,9 +102,9 @@ function scanLabelled(text: string, out: Candidate[]) {
 }
 
 const TOKEN_RE = /[^\s"'`<>()[\]{},;]{10,64}/g;
-const STRONG_SYMBOL = /[!@#$%^&*?~=+]/;
+export const STRONG_SYMBOL = /[!@#$%^&*?~=+]/;
 /** Shapes that carry 4 character classes but are not secrets: e-mail-ish, encoded, files, paths. */
-const NOT_A_PASSWORD = new RegExp(
+export const NOT_A_PASSWORD = new RegExp(
   [
     String.raw`@[\w-]+\.[a-z]{2,}`, // e-mail-ish
     String.raw`(?:\+[0-9A-F]{2}){2,}|%[0-9A-F]{2}|^IMCEA`, // URL / Exchange encoding
@@ -153,17 +153,17 @@ function scanEntropy(text: string, out: Candidate[]) {
 }
 
 // Credential cues (multilingual): password words incl. plurals, login / access verbs, "protected with".
-const CREDENTIAL_CUE =
+export const CREDENTIAL_CUE =
   /^(?:pass(?:word|wd|phrase|code)s?|passw[oö]rt(?:er)?|kennw[oö]rt(?:er)?|contrase(?:ñ|n)as?|senhas?|mdp|credentials?|creds?|credenziali|identifiants?|login|logon|signin|anmelden|anmeldedaten|zugang(?:sdaten)?|zugreifen|zuzugreifen|connecter|connectez|connexion|accedere|acceder|accéder|access|protected|secured|protégé|geschützt|token|pin)$/i;
-const PHRASE_CUES = /mots? de passe|parola d['’]ordine|log in|sign in|se connecter|password (?:has been |was )?(?:changed|reset|set) to/gi;
-const ENV_NAME = /^\$?[A-Z][A-Z0-9]*(?:_[A-Z0-9]+)+$|^\$[A-Za-z_]\w*$/;
+export const PHRASE_CUES = /mots? de passe|parola d['’]ordine|log in|sign in|se connecter|password (?:has been |was )?(?:changed|reset|set) to/gi;
+export const ENV_NAME = /^\$?[A-Z][A-Z0-9]*(?:_[A-Z0-9]+)+$|^\$[A-Za-z_]\w*$/;
 // An unlabelled password in a strength question: "is Summer2024! strong enough?", "how secure is
 // Kangaroo#77". The token must also carry password punctuation, so product names ("is Windows11
 // secure?", "is iPhone15 safe?") pass.
 const STRENGTH_CUE = /^(?:strong(?:er|est)?|secure|safe|weak|crack(?:able|ed)?|hack(?:able|ed)?|guess(?:able)?|brute-?force)$/i;
 
 /** Random-looking credential: high character diversity and mixed classes, not a word or path. */
-function passwordShaped(t: string, allowAt = false): boolean {
+export function passwordShaped(t: string, allowAt = false): boolean {
   if (t.length < 8 || t.length > 40 || /^\d+$/.test(t) || NOT_A_PASSWORD.test(t) || /[/:]|^@/.test(t) || (!allowAt && t.includes('@'))) return false;
   // Code *about* a credential: `process.env.DB_PASSWORD`, `DB_PASSWORD`, `$PGPASS`, `getpass()`.
   if (CODE_REFERENCE.test(t) || ENV_NAME.test(t)) return false;
